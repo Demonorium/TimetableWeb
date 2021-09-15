@@ -8,14 +8,15 @@ import java.util.List;
 import java.util.TreeSet;
 
 @Entity
-@Table(name = "TABLE_PLACE")
+@Table(name = "places")
 public class Place {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="id")
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="source_id", nullable = false)
     Source source;
 
     @Column(length = 6)

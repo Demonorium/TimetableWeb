@@ -11,7 +11,7 @@ public class Week {
     private int number;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="source_id", nullable = false)
     Source source;
 
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)

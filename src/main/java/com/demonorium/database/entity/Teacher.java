@@ -11,19 +11,19 @@ import java.util.List;
  * При удалении везде удаляет себя из списка преподавателей.
  */
 @Entity
-@Table(name = "TABLE_TEACHER")
+@Table(name = "teachers")
 public class Teacher {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="source_id", nullable = false)
     Source source;
 
-    @Column(length = 50)
+    @Column(name="name", length = 50)
     private String name;
-    @Column(length = 50)
+    @Column(name="note", length = 50)
     private String note;
 
     @ManyToMany(mappedBy = "defaultTeachers", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
@@ -64,10 +64,6 @@ public class Teacher {
         this.lessons = lessons;
     }
 
-    public Teacher(String name, String note) {
-        this.name = name;
-        this.note = note;
-    }
 
     public Long getId() {
         return id;

@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Controller
+
 public class WebAPIController {
     @Autowired
     CallScheduleRepository scheduleRepository;
@@ -110,6 +111,23 @@ public class WebAPIController {
         return true;
     }
 
+    //TODO: REMOVE
+    @GetMapping("/testRun")
+    ResponseEntity<String> findSchedule(HttpServletRequest request, @RequestParam(name="name") String name) {
+        User user =  new User("admin", "hello");
+        userRepository.save(user);
+
+        Source source = new Source(user);
+        sourceRepository.save(source);
+
+        CallSchedule schedule = new CallSchedule(source);
+        scheduleRepository.save(schedule);
+
+        Teacher teacher = new Teacher(source, name, "no note");
+        teacherRepository.save(teacher);
+        return ResponseEntity.ok("NORMAL");
+    }
+
     @GetMapping("/api/find/schedule")
     ResponseEntity<List<HMStamp>> findSchedule(HttpServletRequest request, @RequestParam(name="id") long id) {
         Optional<CallSchedule> object = scheduleRepository.findById(id);
@@ -123,5 +141,87 @@ public class WebAPIController {
     }
 
 
+    @GetMapping("/api/find/day")
+    ResponseEntity<Day> findDay(HttpServletRequest request, @RequestParam(name="id") long id) {
+        Optional<Day> object = dayRepository.findById(id);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
 
+        if (access(request, object.get())) {
+            return ResponseEntity.ok(object.get());
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/find/lesson")
+    ResponseEntity<Lesson> findLesson(HttpServletRequest request, @RequestParam(name="id") long id) {
+        Optional<Lesson> object = lessonRepository.findById(id);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
+
+        if (access(request, object.get())) {
+            return ResponseEntity.ok(object.get());
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/find/lesson_template")
+    ResponseEntity<LessonTemplate> findLessonTemplate(HttpServletRequest request, @RequestParam(name="id") long id) {
+        Optional<LessonTemplate> object = lessonTemplateRepository.findById(id);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
+
+        if (access(request, object.get())) {
+            return ResponseEntity.ok(object.get());
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/find/place")
+    ResponseEntity<Place> findPlace(HttpServletRequest request, @RequestParam(name="id") long id) {
+        Optional<Place> object = placeRepository.findById(id);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
+
+        if (access(request, object.get())) {
+            return ResponseEntity.ok(object.get());
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/find/source")
+    ResponseEntity<Source> findSource(HttpServletRequest request, @RequestParam(name="id") long id) {
+        Optional<Source> object = sourceRepository.findById(id);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
+
+        if (access(request, object.get())) {
+            return ResponseEntity.ok(object.get());
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/find/teacher")
+    ResponseEntity<Teacher> findTeacher(HttpServletRequest request, @RequestParam(name="id") long id) {
+        Optional<Teacher> object = teacherRepository.findById(id);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
+
+        if (access(request, object.get())) {
+            return ResponseEntity.ok(object.get());
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/find/week")
+    ResponseEntity<Week> findWeek(HttpServletRequest request, @RequestParam(name="id") long id) {
+        Optional<Week> object = weekRepository.findById(id);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
+
+        if (access(request, object.get())) {
+            return ResponseEntity.ok(object.get());
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
 }

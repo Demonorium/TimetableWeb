@@ -9,19 +9,19 @@ import java.util.Set;
 import java.util.TreeSet;
 
 @Entity
-@Table(name = "TABLE_DAY")
+@Table(name = "days")
 public class Day {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="schedule_id", nullable = false)
     CallSchedule schedule;
 
     @JsonIgnore
     @OneToMany(mappedBy = "day", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private TreeSet<Lesson> lessons = new TreeSet<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     @OneToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
@@ -70,11 +70,11 @@ public class Day {
         this.schedule = schedule;
     }
 
-    public TreeSet<Lesson> getLessons() {
+    public Set<Lesson> getLessons() {
         return lessons;
     }
 
-    public void setLessons(TreeSet<Lesson> lessons) {
+    public void setLessons(Set<Lesson> lessons) {
         this.lessons = lessons;
     }
 }

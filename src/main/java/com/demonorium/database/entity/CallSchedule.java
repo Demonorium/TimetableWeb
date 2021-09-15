@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Класс представляет расписание звонков.
@@ -14,22 +12,23 @@ import java.util.TreeSet;
  * списка в отсортированном виде.
  */
 @Entity
-@Table(name = "TABLE_CALL_SCHEDULE")
+@Table(name = "schedules")
 public class CallSchedule {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column(name = "id")
     private Long id;
 
     @JsonIgnore
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private TreeSet<HMStamp> schedule = new TreeSet<>();
+    private Set<HMStamp> schedule = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Day> days = new HashSet<>();
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="source_id", nullable = false)
     Source source;
 
     public Set<Day> getDays() {
@@ -67,7 +66,7 @@ public class CallSchedule {
         return schedule;
     }
 
-    public void setSchedule(TreeSet<HMStamp> schedule) {
+    public void setSchedule(Set<HMStamp> schedule) {
         this.schedule = schedule;
     }
 }

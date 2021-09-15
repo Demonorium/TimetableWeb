@@ -7,17 +7,20 @@ import javax.persistence.*;
  * расписания звонков.
  */
 @Entity
-@Table(name = "TABLE_TIMESTAMP")
+@Table(name = "hmstamps")
 public class HMStamp implements Comparable<HMStamp> {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column(name="id")
     private Long id;
 
+    @Column(name="hour")
     private byte hour;
+    @Column(name="minute")
     private byte minute;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="schedule_id", nullable = false)
     private CallSchedule schedule;
 
     public HMStamp() {

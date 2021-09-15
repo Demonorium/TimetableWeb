@@ -20,7 +20,7 @@ public class LessonTemplate {
     private String name;
     private String note;
 
-    @ManyToMany(mappedBy = "templates", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private List<Teacher> defaultTeachers = new ArrayList<>();
 
     @JsonIgnore

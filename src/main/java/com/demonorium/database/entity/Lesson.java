@@ -26,7 +26,7 @@ public class Lesson implements Comparable<Lesson> {
     private Place place;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "lessons", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private List<Teacher> teachers = new ArrayList<>();
 
     private int number;

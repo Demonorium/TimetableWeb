@@ -7,25 +7,31 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Entity
-@Table(name = "TABLE_SOURCE")
+@Table(name = "sources")
 public class Source {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="id")
     private Long id;
 
-    @OneToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JoinColumn(name="default_schedule", nullable = true)
     private CallSchedule defaultSchedule;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "owner_name", nullable = false)
     User owner;
+
+    public Source() {
+    }
 
     public Source(CallSchedule defaultSchedule, User owner) {
         this.defaultSchedule = defaultSchedule;
         this.owner = owner;
     }
-
+    public Source(User owner) {
+        this.owner = owner;
+    }
     @JsonIgnore
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Teacher> teachers = new LinkedList<>();
