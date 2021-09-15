@@ -18,8 +18,8 @@ public class Teacher {
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    @JoinColumn(name="source", nullable = false)
+    private Source source;
 
     @Column(name="name", length = 50)
     private String name;

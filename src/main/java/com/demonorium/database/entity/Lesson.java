@@ -6,23 +6,28 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Описывает одно конкретное занятие в один конкретный день,
+ * ссылается на день, вид занятия и имеет список преподавателей.
+ * Если список пуст должен использоваться список вида занятия.
+ */
 @Entity
-@Table(name = "TABLE_LESSON")
+@Table(name = "lessons")
 public class Lesson implements Comparable<Lesson> {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="template_id", nullable = false)
     private LessonTemplate template;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="day_id", nullable = false)
     private Day day;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="place_id", nullable = false)
     private Place place;
 
     @JsonIgnore

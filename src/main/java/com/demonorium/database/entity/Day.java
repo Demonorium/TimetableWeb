@@ -8,6 +8,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Описывает какой-либо конкретный день
+ * Может иметь собственное расписание звонков.
+ * Также имеет либо ссылку на неделю, либо дату, когда он действует
+ */
 @Entity
 @Table(name = "days")
 public class Day {
@@ -16,15 +21,19 @@ public class Day {
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name="schedule_id", nullable = false)
-    CallSchedule schedule;
+    @JoinColumn(name="source_id", nullable = false)
+    private Source source;
+
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @JoinColumn(name="schedule_id", nullable = true)
+    private CallSchedule schedule;
 
     @JsonIgnore
     @OneToMany(mappedBy = "day", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Lesson> lessons = new HashSet<>();
 
     @OneToOne(optional = true, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = true)
+    @JoinColumn(name="week_id", nullable = true)
     private Week week;
 
     private Date targetDate;
@@ -32,12 +41,28 @@ public class Day {
     public Day() {
     }
 
-    public Day(Week week) {
+    public Day(Source source, Date targetDate) {
+        this.source = source;
+        this.targetDate = targetDate;
+    }
+
+    public Day(Source source, Week week) {
+        this.source = source;
         this.week = week;
     }
+
     public Day(Date targetDate) {
         this.targetDate = targetDate;
     }
+
+    public Source getSource() {
+        return source;
+    }
+
+    public void setSource(Source source) {
+        this.source = source;
+    }
+
     public Long getId() {
         return id;
     }

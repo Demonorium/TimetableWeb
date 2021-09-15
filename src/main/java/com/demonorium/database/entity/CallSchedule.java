@@ -24,12 +24,12 @@ public class CallSchedule {
     private Set<HMStamp> schedule = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private Set<Day> days = new HashSet<>();
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    private Source source;
 
     public Set<Day> getDays() {
         return days;

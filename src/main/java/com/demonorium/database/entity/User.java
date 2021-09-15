@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 
+/**
+ * Класс описывает пользователя, хранит ник и пароль
+ */
 @Entity
 @Table(name = "users")
 public class User {

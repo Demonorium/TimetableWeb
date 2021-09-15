@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+/**
+ * Описывает место проведения занятия аудиторией, зданием, заметкой
+ */
 @Entity
 @Table(name = "places")
 public class Place {
@@ -17,7 +20,7 @@ public class Place {
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    private Source source;
 
     @Column(length = 6)
     private String auditory;

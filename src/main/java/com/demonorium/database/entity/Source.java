@@ -6,6 +6,9 @@ import javax.persistence.*;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Описывает источник информации о расписании.
+ */
 @Entity
 @Table(name = "sources")
 public class Source {
@@ -20,7 +23,7 @@ public class Source {
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_name", nullable = false)
-    User owner;
+    private User owner;
 
     public Source() {
     }
@@ -35,6 +38,11 @@ public class Source {
     @JsonIgnore
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Teacher> teachers = new LinkedList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private List<Day> days = new LinkedList<>();
+
     @JsonIgnore
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<CallSchedule> schedules = new LinkedList<>();
@@ -47,6 +55,14 @@ public class Source {
     @JsonIgnore
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Week> weeks = new LinkedList<>();
+
+    public List<Day> getDays() {
+        return days;
+    }
+
+    public void setDays(List<Day> days) {
+        this.days = days;
+    }
 
     public Long getId() {
         return id;

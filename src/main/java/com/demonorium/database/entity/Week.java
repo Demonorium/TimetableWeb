@@ -2,8 +2,11 @@ package com.demonorium.database.entity;
 
 import javax.persistence.*;
 
+/**
+ * Класс представляет ссылки на 7 дней и хранит номер недели
+ */
 @Entity
-@Table(name = "TABLE_WEEK")
+@Table(name = "weeks")
 public class Week {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -12,7 +15,7 @@ public class Week {
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    private Source source;
 
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)

@@ -6,18 +6,23 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Описывает вид занятия. Хранит название, короткую заметку.
+ */
 @Entity
-@Table(name = "TABLE_LESSON_TEMPLATE")
+@Table(name = "lesson_templates")
 public class LessonTemplate {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
-    Source source;
+    @JoinColumn(name="source_id", nullable = false)
+    private Source source;
 
+    @Column(length = 255)
     private String name;
+    @Column(length = 50)
     private String note;
 
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
