@@ -128,24 +128,24 @@ public class WebAPIController {
     }
 
 
-//    @GetMapping("/api/edit/schedule")
-//    ResponseEntity<CallSchedule> editSchedule(HttpServletRequest request, @RequestParam(name="id") Long id, @RequestParam("source") Long source) {
-//        Optional<Source> object = sourceRepository.findById(source);
-//        if (!object.isPresent())
-//            return ResponseEntity.notFound().build();
-//
-//        if (access(request, object.get())) {
-//            Optional<CallSchedule> schedule = scheduleRepository.findById(id);
-//            if (schedule.isPresent()) {
-//                return ResponseEntity.unprocessableEntity().build();
-//            }
-//            CallSchedule newSchedule = new CallSchedule(object.get());
-//            scheduleRepository.save(newSchedule);
-//
-//            return ResponseEntity.ok(newSchedule);
-//        }
-//        return ResponseEntity.unprocessableEntity().build();
-//    }
+    @GetMapping("/api/edit/schedule")
+    ResponseEntity<CallSchedule> editSchedule(HttpServletRequest request, @RequestParam(name="id") Long id, @RequestParam("source") Long source) {
+        Optional<Source> object = sourceRepository.findById(source);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
+
+        if (access(request, object.get())) {
+            Optional<CallSchedule> schedule = scheduleRepository.findById(id);
+            if (schedule.isPresent()) {
+                return ResponseEntity.unprocessableEntity().build();
+            }
+            CallSchedule newSchedule = new CallSchedule(object.get());
+            scheduleRepository.save(newSchedule);
+
+            return ResponseEntity.ok(newSchedule);
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
 
 
     @GetMapping("/api/find/schedule")

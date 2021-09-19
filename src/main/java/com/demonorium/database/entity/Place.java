@@ -2,6 +2,8 @@ package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -11,89 +13,61 @@ import java.util.TreeSet;
 /**
  * Описывает место проведения занятия аудиторией, зданием, заметкой
  */
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "places")
 public class Place {
+    /**
+     * ИД объекта в базе
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
-    private Long id;
+    Long id;
 
+    /**
+     * Источник, хранящий это место
+     */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    private Source source;
+    Source source;
 
+    /**
+     * @return ИД источника, хранящего это место
+     */
     @JsonGetter("source")
     public Long getSourceId() {
         return source.getId();
     }
 
-    @Column(length = 6)
-    private String auditory;
-    @Column(length = 6)
-    private String building;
+    /**
+     * Аудитория, где проходит занятие
+     */
+    @Column(length = 8)
+    String auditory;
+    /**
+     * Корпус/здание где проходит занятие
+     */
+    @Column(length = 8)
+    String building;
+    /**
+     * Короткая заметка о месте (не более 1 строки)
+     */
     @Column(length = 50)
-    private String note;
+    String note;
 
+    /**
+     * Список всех занятий в этом месте
+     */
     @JsonIgnore
     @OneToMany(mappedBy = "place", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    private List<Lesson> lessons = new ArrayList<>();
-
-    public Place() {
-    }
+    List<Lesson> lessons = new ArrayList<>();
 
     public Place(String auditory, String building, String note, Source source) {
         this.auditory = auditory;
         this.building = building;
         this.note = note;
         this.source = source;
-    }
-
-    public Source getSource() {
-        return source;
-    }
-
-    public void setSource(Source source) {
-        this.source = source;
-    }
-
-    public List<Lesson> getLessons() {
-        return lessons;
-    }
-
-    public void setLessons(List<Lesson> lessons) {
-        this.lessons = lessons;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getAuditory() {
-        return auditory;
-    }
-
-    public void setAuditory(String auditory) {
-        this.auditory = auditory;
-    }
-
-    public String getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(String building) {
-        this.building = building;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
     }
 }

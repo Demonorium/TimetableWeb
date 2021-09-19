@@ -2,6 +2,8 @@ package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -9,67 +11,49 @@ import javax.persistence.*;
  * Хранит пару час-минута, используется в классе CallSchedule для представления
  * расписания звонков. Имеет возможность сортировки по штампу времени.
  */
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "hmstamps")
 public class HMStamp implements Comparable<HMStamp> {
+    /**
+     * ИД объекта в базе
+     */
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(name="id")
-    private Long id;
+    Long id;
 
+    /**
+     * Час
+     */
     @Column(name="hour")
-    private byte hour;
+    byte hour;
+    /**
+     * Минута
+     */
     @Column(name="minute")
-    private byte minute;
+    byte minute;
 
+    /**
+     *  Расписание использующее данную пару
+     */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="schedule_id", nullable = false)
-    private CallSchedule schedule;
+    CallSchedule schedule;
 
+    /**
+     * @return ИД объекта расписания данную пару
+     */
     @JsonGetter("schedule")
     public Long getScheduleId() {
         return schedule.getId();
-    }
-
-    public HMStamp() {
     }
 
     public HMStamp(byte hour, byte minute, CallSchedule schedule) {
         this.hour = hour;
         this.minute = minute;
         this.schedule = schedule;
-    }
-
-    public CallSchedule getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(CallSchedule schedule) {
-        this.schedule = schedule;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public byte getHour() {
-        return hour;
-    }
-
-    public void setHour(byte hour) {
-        this.hour = hour;
-    }
-
-    public byte getMinute() {
-        return minute;
-    }
-
-    public void setMinute(byte minute) {
-        this.minute = minute;
     }
 
     public short getTime() {
@@ -79,7 +63,6 @@ public class HMStamp implements Comparable<HMStamp> {
         hour = (byte)(time >> 8);
         minute = (byte) (time & 255);
     }
-
 
     @Override
     public int compareTo(HMStamp o) {
