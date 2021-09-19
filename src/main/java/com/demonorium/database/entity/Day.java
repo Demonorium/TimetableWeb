@@ -1,5 +1,6 @@
 package com.demonorium.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -24,17 +25,28 @@ public class Day {
     @JoinColumn(name="source_id", nullable = false)
     private Source source;
 
+    @JsonGetter("source")
+    public Long getSourceId() {
+        return source.getId();
+    }
+
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="schedule_id", nullable = true)
     private CallSchedule schedule;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "day", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Lesson> lessons = new HashSet<>();
 
     @OneToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="week_id", nullable = true)
     private Week week;
+
+    @JsonGetter("week")
+    public Long getWeekId() {
+        if (week == null)
+            return null;
+        return week.getId();
+    }
 
     private Date targetDate;
 

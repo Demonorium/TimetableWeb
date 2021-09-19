@@ -1,5 +1,6 @@
 package com.demonorium.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -19,6 +20,11 @@ public class LessonTemplate {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
     private Source source;
+
+    @JsonGetter("source")
+    public Long getSourceId() {
+        return source.getId();
+    }
 
     @Column(length = 255)
     private String name;

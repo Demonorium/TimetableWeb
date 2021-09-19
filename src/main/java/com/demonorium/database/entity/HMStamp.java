@@ -1,5 +1,8 @@
 package com.demonorium.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 /**
@@ -22,6 +25,11 @@ public class HMStamp implements Comparable<HMStamp> {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="schedule_id", nullable = false)
     private CallSchedule schedule;
+
+    @JsonGetter("schedule")
+    public Long getScheduleId() {
+        return schedule.getId();
+    }
 
     public HMStamp() {
     }

@@ -18,7 +18,6 @@ public class User {
     @Column(name="password_hash", length = 256)
     private String password;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Source> sources = new LinkedList<>();
 
@@ -28,6 +27,14 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public List<Source> getSources() {
+        return sources;
+    }
+
+    public void setSources(List<Source> sources) {
+        this.sources = sources;
     }
 
     public String getUsername() {

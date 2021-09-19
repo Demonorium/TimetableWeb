@@ -1,5 +1,6 @@
 package com.demonorium.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -21,13 +22,20 @@ public class Teacher {
     @JoinColumn(name="source", nullable = false)
     private Source source;
 
+    @JsonGetter("source")
+    public Long getSourceId() {
+        return source.getId();
+    }
+
     @Column(name="name", length = 50)
     private String name;
     @Column(name="note", length = 50)
     private String note;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "defaultTeachers", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private List<LessonTemplate> templates = new ArrayList<>();
+    @JsonIgnore
     @ManyToMany(mappedBy = "teachers", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private List<Lesson> lessons = new ArrayList<>();
 

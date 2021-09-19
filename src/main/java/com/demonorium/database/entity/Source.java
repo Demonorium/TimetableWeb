@@ -1,6 +1,7 @@
 package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonGetter;
 
 import javax.persistence.*;
 import java.util.LinkedList;
@@ -25,6 +26,11 @@ public class Source {
     @JoinColumn(name = "owner_name", nullable = false)
     private User owner;
 
+    @JsonGetter("owner")
+    public String getOwnerName() {
+        return owner.getUsername();
+    }
+
     public Source() {
     }
 
@@ -35,24 +41,22 @@ public class Source {
     public Source(User owner) {
         this.owner = owner;
     }
-    @JsonIgnore
+
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Teacher> teachers = new LinkedList<>();
 
-    @JsonIgnore
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Day> days = new LinkedList<>();
 
-    @JsonIgnore
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<CallSchedule> schedules = new LinkedList<>();
-    @JsonIgnore
+
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<LessonTemplate> templates = new LinkedList<>();
-    @JsonIgnore
+
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Place> places = new LinkedList<>();
-    @JsonIgnore
+
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Week> weeks = new LinkedList<>();
 

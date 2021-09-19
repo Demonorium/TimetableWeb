@@ -1,5 +1,11 @@
 package com.demonorium.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jdk.nashorn.internal.objects.annotations.Getter;
+
 import javax.persistence.*;
 
 /**
@@ -16,6 +22,11 @@ public class Week {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
     private Source source;
+
+    @JsonGetter("source")
+    public Long getSourceId() {
+        return source.getId();
+    }
 
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)

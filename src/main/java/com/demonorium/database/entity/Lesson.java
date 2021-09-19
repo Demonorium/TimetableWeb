@@ -1,5 +1,6 @@
 package com.demonorium.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -26,11 +27,15 @@ public class Lesson implements Comparable<Lesson> {
     @JoinColumn(name="day_id", nullable = false)
     private Day day;
 
+    @JsonGetter("day")
+    public Long getDayId() {
+        return day.getId();
+    }
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="place_id", nullable = false)
     private Place place;
 
-    @JsonIgnore
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private List<Teacher> teachers = new ArrayList<>();
 

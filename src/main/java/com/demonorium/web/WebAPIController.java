@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 
 @Controller
-
 public class WebAPIController {
     @Autowired
     CallScheduleRepository scheduleRepository;
@@ -113,7 +112,7 @@ public class WebAPIController {
 
     //TODO: REMOVE
     @GetMapping("/testRun")
-    ResponseEntity<String> findSchedule(HttpServletRequest request, @RequestParam(name="name") String name) {
+    ResponseEntity<String> testRun(HttpServletRequest request, @RequestParam(name="name") String name) {
         User user =  new User("admin", "hello");
         userRepository.save(user);
 
@@ -128,14 +127,35 @@ public class WebAPIController {
         return ResponseEntity.ok("NORMAL");
     }
 
+
+//    @GetMapping("/api/edit/schedule")
+//    ResponseEntity<CallSchedule> editSchedule(HttpServletRequest request, @RequestParam(name="id") Long id, @RequestParam("source") Long source) {
+//        Optional<Source> object = sourceRepository.findById(source);
+//        if (!object.isPresent())
+//            return ResponseEntity.notFound().build();
+//
+//        if (access(request, object.get())) {
+//            Optional<CallSchedule> schedule = scheduleRepository.findById(id);
+//            if (schedule.isPresent()) {
+//                return ResponseEntity.unprocessableEntity().build();
+//            }
+//            CallSchedule newSchedule = new CallSchedule(object.get());
+//            scheduleRepository.save(newSchedule);
+//
+//            return ResponseEntity.ok(newSchedule);
+//        }
+//        return ResponseEntity.unprocessableEntity().build();
+//    }
+
+
     @GetMapping("/api/find/schedule")
-    ResponseEntity<List<HMStamp>> findSchedule(HttpServletRequest request, @RequestParam(name="id") long id) {
+    ResponseEntity<CallSchedule> findSchedule(HttpServletRequest request, @RequestParam(name="id") long id) {
         Optional<CallSchedule> object = scheduleRepository.findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
         if (access(request, object.get())) {
-            return ResponseEntity.ok(new ArrayList<>(object.get().getSchedule()));
+            return ResponseEntity.ok(object.get());
         }
         return ResponseEntity.unprocessableEntity().build();
     }
