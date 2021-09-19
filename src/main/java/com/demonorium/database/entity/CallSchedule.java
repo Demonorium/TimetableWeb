@@ -31,7 +31,7 @@ public class CallSchedule {
      * Множество всех объектов времени, относящихся в данному расписанию звонков
      */
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<HMStamp> schedule = new ArrayList<>();
+    Set<HMStamp> schedule = new HashSet<>();
     /**
      * Множество всех дней, использующих данное расписание звонков
      */

@@ -6,8 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Описывает источник информации о расписании.
@@ -23,7 +25,7 @@ public class Source {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
-    Long id;
+    private Long id;
 
     /**
      * Стандартное расписание звокнов, указывается для дня, если не было указано другого или
@@ -31,14 +33,14 @@ public class Source {
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(name="default_schedule", nullable = true)
-    CallSchedule defaultSchedule;
+    private CallSchedule defaultSchedule;
 
     /**
      * Владелец этого источника
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_name", nullable = false)
-    User owner;
+    private User owner;
 
     /**
      * @return имя вледельца источника
@@ -60,35 +62,35 @@ public class Source {
      * Список учителей
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<Teacher> teachers = new LinkedList<>();
+    private List<Teacher> teachers = new LinkedList<>();
 
     /**
      * Список дней
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<Day> days = new LinkedList<>();
+    private Set<Day> days = new HashSet<>();
 
     /**
      * Список расписаний звонков
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<CallSchedule> schedules = new LinkedList<>();
+    private List<CallSchedule> schedules = new LinkedList<>();
 
     /**
      * Список видов занятий
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<LessonTemplate> templates = new LinkedList<>();
+    private List<LessonTemplate> templates = new LinkedList<>();
 
     /**
      * Список мест
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<Place> places = new LinkedList<>();
+    private List<Place> places = new LinkedList<>();
 
     /**
      * Список недель
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<Week> weeks = new LinkedList<>();
+    private List<Week> weeks = new LinkedList<>();
 }

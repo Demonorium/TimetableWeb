@@ -51,7 +51,7 @@ public class Day {
      * Список уроков данного дня
      */
     @OneToMany(mappedBy = "day", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<Lesson> lessons = new ArrayList<>();
+    Set<Lesson> lessons = new HashSet<>();
 
     /**
      * Если день привязан к какому-то дню одной из недель, то данное поле указывает на эту неделю.
