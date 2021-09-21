@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Описывает источник информации о расписании.
@@ -25,7 +22,7 @@ public class Source {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
-    private Long id;
+    Long id;
 
     /**
      * Стандартное расписание звокнов, указывается для дня, если не было указано другого или
@@ -33,14 +30,14 @@ public class Source {
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(name="default_schedule", nullable = true)
-    private CallSchedule defaultSchedule;
+    CallSchedule defaultSchedule;
 
     /**
      * Владелец этого источника
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_name", nullable = false)
-    private User owner;
+    User owner;
 
     /**
      * @return имя вледельца источника
@@ -62,35 +59,42 @@ public class Source {
      * Список учителей
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private List<Teacher> teachers = new LinkedList<>();
+    Set<Teacher> teachers = new HashSet<>();
 
     /**
      * Список дней
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private Set<Day> days = new HashSet<>();
+    Set<Day> days = new HashSet<>();
 
     /**
      * Список расписаний звонков
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private List<CallSchedule> schedules = new LinkedList<>();
+    Set<CallSchedule> schedules = new HashSet<>();
 
     /**
      * Список видов занятий
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private List<LessonTemplate> templates = new LinkedList<>();
+    private Set<LessonTemplate> templates = new HashSet<>();
 
     /**
      * Список мест
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private List<Place> places = new LinkedList<>();
+    Set<Place> places = new HashSet<>();
 
     /**
      * Список недель
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private List<Week> weeks = new LinkedList<>();
+    Set<Week> weeks = new HashSet<>();
+
+    /**
+     * Список токенов доступа к этому источнику
+     */
+    @OneToOne(mappedBy = "source", cascade = CascadeType.REMOVE, optional = true, fetch = FetchType.EAGER)
+    @JoinColumn(name="reference_id", nullable = true)
+    ShareReference reference;
 }

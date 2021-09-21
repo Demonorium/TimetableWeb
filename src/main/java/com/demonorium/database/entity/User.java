@@ -4,8 +4,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -34,6 +36,12 @@ public class User {
      */
     @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     List<Source> sources = new LinkedList<>();
+
+    /**
+     * Список токнов доступа, которыми владеет пользователь
+     */
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    Set<AccessToken> tokens = new HashSet<>();
 
     public User(String username, String password) {
         this.username = username;

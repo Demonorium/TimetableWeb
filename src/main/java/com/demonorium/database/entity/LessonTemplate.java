@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Описывает вид занятия. Хранит название, короткую заметку.
@@ -55,14 +57,14 @@ public class LessonTemplate {
      * Список преподавателей
      */
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    List<Teacher> defaultTeachers = new ArrayList<>();
+    Set<Teacher> defaultTeachers = new HashSet<>();
 
     /**
      * Список всех занятий этого вида
      */
     @JsonIgnore
     @OneToMany(mappedBy = "template", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<Lesson> lessons = new ArrayList<>();
+    Set<Lesson> lessons = new HashSet<>();
 
     public LessonTemplate(String name, String note, Source source) {
         this.name = name;

@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Описывает преподавателя, хранит имя и короткую заметку.
@@ -54,10 +56,10 @@ public class Teacher {
 
     @JsonIgnore
     @ManyToMany(mappedBy = "defaultTeachers", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    List<LessonTemplate> templates = new ArrayList<>();
+    Set<LessonTemplate> templates = new HashSet<>();
     @JsonIgnore
     @ManyToMany(mappedBy = "teachers", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    List<Lesson> lessons = new ArrayList<>();
+    Set<Lesson> lessons = new HashSet<>();
 
     public Teacher(Source source, String name, String note) {
         this.source = source;
