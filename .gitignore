@@ -1,9 +1,9 @@
-/.idea/*
-/target/*
-/src/main/resources/static/node_modules/
-/src/main/resources/static/app/node_modules/*
-/src/main/resources/static/app/build/*
-/.pnp
+backend/.idea/*
+backend/target/*
+/frontend/node_modules/
+/frontend/build/
+/frontend/.idea/
+frontend/.pnp
 .pnp.js
 
 # testing

@@ -31,25 +31,9 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/css/**","/js/**","/webjars/**", "/img/**");
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler(
-                "/webjars/**",
-                "/img/**",
-                "/css/**",
-                "/js/**",
-                "uploads/**")
 
-                .addResourceLocations(
-                        "classpath:/META-INF/resources/webjars/",
-                        "classpath:/static/img/",
-                        "classpath:/static/css/",
-                        "classpath:/static/js/",
-                        "file:uploads/");
-    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -68,6 +52,4 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
                 .permitAll();
 
     }
-
-
 }
