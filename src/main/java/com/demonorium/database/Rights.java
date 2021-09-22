@@ -9,5 +9,6 @@ public enum Rights {
             return true;
         if (request != DELETE)
             return owner == READ_UPDATE;
+        return false;
     }
 }

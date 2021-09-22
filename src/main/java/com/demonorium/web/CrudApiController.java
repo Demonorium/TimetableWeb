@@ -1,5 +1,6 @@
 package com.demonorium.web;
 
+import com.demonorium.database.DatabaseController;
 import com.demonorium.database.Rights;
 import com.demonorium.database.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;

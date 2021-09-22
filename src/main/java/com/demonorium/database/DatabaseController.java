@@ -1,4 +1,4 @@
-package com.demonorium.web;
+package com.demonorium.database;
 
 
 import com.demonorium.database.Rights;
@@ -6,37 +6,38 @@ import com.demonorium.database.entity.*;
 import com.demonorium.database.repository.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
-@Controller
+@Component
 public class DatabaseController {
     @Autowired
-    CallScheduleRepository schedule;
+    public CallScheduleRepository schedule;
     @Autowired
-    DayRepository day;
+    public DayRepository day;
     @Autowired
-    HMStampRepository hmstamp;
+    public HMStampRepository hmstamp;
     @Autowired
-    LessonRepository lesson;
+    public LessonRepository lesson;
     @Autowired
-    LessonTemplateRepository lessonTemplate;
+    public LessonTemplateRepository lessonTemplate;
     @Autowired
-    PlaceRepository place;
+    public PlaceRepository place;
     @Autowired
-    SourceRepository source;
+    public SourceRepository source;
     @Autowired
-    TeacherRepository teacher;
+    public TeacherRepository teacher;
     @Autowired
-    UserRepository user;
+    public UserRepository user;
     @Autowired
-    WeekRepository week;
+    public WeekRepository week;
     @Autowired
-    AccessTokenRepository token;
+    public AccessTokenRepository token;
     @Autowired
-    ShareReference reference;
+    public ShareReferenceRepository reference;
 
     public boolean access(User user, CallSchedule schedule, Rights rights) {
         return access(user, schedule.getSource(), rights);
@@ -57,7 +58,7 @@ public class DatabaseController {
         return access(user, place.getSource(), rights);
     }
 
-    boolean access(User user, Teacher teacher, Rights rights) {
+    public boolean access(User user, Teacher teacher, Rights rights) {
         return access(user, teacher.getSource(), rights);
     }
     public boolean access(User user, Week week, Rights rights) {
