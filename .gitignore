@@ -1,7 +1,7 @@
 backend/.idea/*
 backend/target/*
-/frontend/node_modules/
-/frontend/build/
+frontend/node_modules/**
+
 /frontend/.idea/
 frontend/.pnp
 .pnp.js
