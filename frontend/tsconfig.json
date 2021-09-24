@@ -5,6 +5,9 @@
     "module": "es6",
     "jsx": "react",
     "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "lib": ["es6", "dom"],
     "allowSyntheticDefaultImports": true
   }
 }
