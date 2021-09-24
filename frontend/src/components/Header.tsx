@@ -10,7 +10,6 @@ export default function Header({theme, serviceName}: HeaderProps) {
     return (
         <AppBar position="absolute" color="default" sx={{ borderBottom: (theme) => '1px solid ${theme.palette.divider}' }}>
             <Toolbar>
-
                 <Typography variant="h6" color="blue" noWrap>
                     {serviceName}
                 </Typography>

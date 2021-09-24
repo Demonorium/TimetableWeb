@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @ComponentScan("com.demonorium.database")
-@Import({WebConfig.class, SecurityConfig.class})
+@Import({WebConfig.class})
 public class MainConfig {
 }
