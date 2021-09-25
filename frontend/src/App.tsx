@@ -31,8 +31,7 @@ export default class App extends React.Component<any, any>
             params: {
                 username: "test_user",
                 password: "123"
-            },
-            withCredentials: true
+            }
         }).then((response) => {
             this.setState({token: response.data, current_state: SiteState.PROCESS});
         }).catch((response) => {

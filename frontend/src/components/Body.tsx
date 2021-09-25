@@ -9,8 +9,6 @@ export default class Body extends React.Component<any, any>{
 
 
     render() {
-
-
         return (
             <main>
 
