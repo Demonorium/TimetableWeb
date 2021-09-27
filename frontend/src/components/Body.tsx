@@ -1,11 +1,12 @@
 import * as React from 'react';
 import axios from "axios";
+import { Container } from '@mui/material';
 
 
 export default class Body extends React.Component<any, any>{
     constructor(props: Readonly<any> | any) {
         super(props);
-        this.state = {current_state:0 }
+        this.state = {sources: null, username: null, password: null}
     }
 
     componentDidMount() {
@@ -13,16 +14,18 @@ export default class Body extends React.Component<any, any>{
             username: "test_user",
             password: "123"
         }
-        axios.get("http://localhost:8080/user/register", {
+        axios.get("http://localhost:8080/api/find/all", {
             params: params
         }).then((response) => {
             this.setState({
-                token: response.data,
-                current_state: SiteState.PROCESS,
-                username: params['username']
+                sources: response.data,
+                auth: {
+                    username: this.state.username,
+                    password: this.state.password
+                }
             });
         }).catch((response) => {
-            this.setState({token: response.data, current_state: SiteState.CRUSH});
+
         })
     }
 
@@ -30,10 +33,11 @@ export default class Body extends React.Component<any, any>{
     }
 
     render() {
-        return (
-            <main>
 
-            </main>
+        return (
+            <Container maxWidth="sm" component="main">
+
+            </Container>
         );
     }
 

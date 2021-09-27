@@ -26,7 +26,8 @@ export default class App extends React.Component<any, any>
         this.state = {
             current_state: SiteState.LOADING,
             token: null,
-            username: "login"
+            username: "login",
+            password: "password"
         }
     }
 
@@ -41,7 +42,8 @@ export default class App extends React.Component<any, any>
             this.setState({
                 token: response.data,
                 current_state: SiteState.PROCESS,
-                username: params['username']
+                username: params['username'],
+                password: params['password']
             });
         }).catch((response) => {
             this.setState({token: response.data, current_state: SiteState.CRUSH});
@@ -74,7 +76,7 @@ export default class App extends React.Component<any, any>
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <Header theme={theme} serviceName="Учебное расписание"/>
-                <Body/>
+                <Body username={this.state.username} password={this.state.password}/>
             </ThemeProvider>
         );
     }
