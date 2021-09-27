@@ -16,24 +16,33 @@ enum SiteState {
     CRUSH
 }
 
+
+//Класс предназначен для создания
+//Отвечает за выбор глобального состояния
 export default class App extends React.Component<any, any>
 {
     constructor(props: any) {
         super(props);
         this.state = {
             current_state: SiteState.LOADING,
-            token: null
+            token: null,
+            username: "login"
         }
     }
 
     componentDidMount() {
+        const params = {
+            username: "test_user",
+            password: "123"
+        }
         axios.get("http://localhost:8080/user/register", {
-            params: {
-                username: "test_user",
-                password: "123"
-            }
+            params: params
         }).then((response) => {
-            this.setState({token: response.data, current_state: SiteState.PROCESS});
+            this.setState({
+                token: response.data,
+                current_state: SiteState.PROCESS,
+                username: params['username']
+            });
         }).catch((response) => {
             this.setState({token: response.data, current_state: SiteState.CRUSH});
         })
@@ -50,7 +59,6 @@ export default class App extends React.Component<any, any>
                         <div className="fillscreen">
                             <Loading />
                         </div>
-
                     </ThemeProvider>
                 )
             case SiteState.CRUSH:
@@ -59,7 +67,6 @@ export default class App extends React.Component<any, any>
                         <div className="fillscreen">
                             <Loading />
                         </div>
-
                     </ThemeProvider>
                 )
         }
@@ -67,7 +74,6 @@ export default class App extends React.Component<any, any>
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <Header theme={theme} serviceName="Учебное расписание"/>
-                <Loading />
                 <Body/>
             </ThemeProvider>
         );
