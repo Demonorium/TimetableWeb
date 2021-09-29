@@ -3,16 +3,20 @@ import axios from "axios";
 import { Container } from '@mui/material';
 import Day from "./Day";
 
-
+interface BodyProps {
+    username: string
+    password: string
+    sources: Array<{[key: string]: any}>
+}
 export default class Body extends React.Component<any, any>{
-    constructor(props: Readonly<any> | any) {
+    constructor(props: BodyProps) {
         super(props);
-        this.state = {sources: null, username: null, password: null}
+        this.state = {sources: props.sources, username: props.username, password: props.password}
     }
 
     componentDidMount() {
+        console.log(this.state.username)
         axios.get("http://localhost:8080/api/find/all", {
-            params: {'username': this.state.username},
             auth: {
                 username: this.state.username,
                 password: this.state.password
