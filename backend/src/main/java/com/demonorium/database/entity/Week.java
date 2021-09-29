@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 /**
  * Класс представляет ссылки на 7 дней и хранит номер недели
@@ -91,5 +92,10 @@ public class Week {
     public Week(int number, Source source) {
         this.number = number;
         this.source = source;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

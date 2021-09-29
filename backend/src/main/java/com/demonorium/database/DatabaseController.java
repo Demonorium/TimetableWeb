@@ -73,7 +73,7 @@ public class DatabaseController {
         if (user == null) return false;
         if (source == null) return false;
         if (rights == null) return false;
-        if (source.getOwner() == user) return true;
+        if (source.getOwner().equals(user)) return true;
         Optional<AccessToken> access = token.findByUserAndReference_Source(user, source);
         return access.filter(accessToken -> Rights.compatible(accessToken.getReference().getRights(), rights)).isPresent();
     }

@@ -57,4 +57,10 @@ public class CallSchedule {
     public CallSchedule(Source source) {
         this.source = source;
     }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

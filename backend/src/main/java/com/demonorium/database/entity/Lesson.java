@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Описывает одно конкретное занятие в один конкретный день,
@@ -76,6 +77,11 @@ public class Lesson implements Comparable<Lesson> {
     @Override
     public int compareTo(Lesson o) {
         return number - o.number;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
 

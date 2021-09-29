@@ -97,4 +97,9 @@ public class Source {
     @OneToOne(mappedBy = "source", cascade = CascadeType.REMOVE, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="reference_id", nullable = true)
     ShareReference reference;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

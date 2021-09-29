@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -36,5 +37,4 @@ public class ShareReference {
      */
     @Column(name = "rights", nullable = false)
     Rights rights;
-
 }

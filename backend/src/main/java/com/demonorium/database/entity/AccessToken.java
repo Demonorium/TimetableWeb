@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -42,4 +43,9 @@ public class AccessToken {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="reference_id", nullable = false)
     ShareReference reference;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

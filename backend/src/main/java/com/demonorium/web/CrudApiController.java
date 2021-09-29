@@ -12,10 +12,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 
-@RestController
 @CrossOrigin
+@RestController
 public class CrudApiController {
     @Autowired
     DatabaseController database;
@@ -50,21 +54,6 @@ public class CrudApiController {
     boolean access(HttpServletRequest request, Week week, Rights rights) {
         return database.access(utils.getUser(request), week, rights);
     }
-
-    //TODO: REMOVE
-    @GetMapping("/testRun")
-    ResponseEntity<String> testRun(HttpServletRequest request, @RequestParam(name="name") String name) {
-        User user =  new User("admin", "hello");
-        database.user.save(user);
-
-        Source source = new Source(user);
-        database.source.save(source);
-
-        Teacher teacher = new Teacher(source, name, "no note");
-        database.teacher.save(teacher);
-        return ResponseEntity.ok("NORMAL");
-    }
-
 
     @GetMapping("/api/edit/schedule")
     ResponseEntity<CallSchedule> editSchedule(HttpServletRequest request, @RequestParam(name="id", required = false) Long id, @RequestParam("source") Long source) {
@@ -122,6 +111,22 @@ public class CrudApiController {
                 return ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.unprocessableEntity().build();
+    }
+
+
+    @GetMapping("/api/find/all")
+    ResponseEntity<List<Source>> findAll(HttpServletRequest request) {
+        User user = utils.getUser(request);
+
+        if (user != null) {
+            List<Source> sources = user.getSources();
+            List<Source> result = new ArrayList<>(sources);
+            Set<AccessToken> tokens = user.getTokens();
+            tokens.forEach((accessToken -> result.add(accessToken.getReference().getSource())));
+
+            return ResponseEntity.ok(result);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/api/find/schedule")

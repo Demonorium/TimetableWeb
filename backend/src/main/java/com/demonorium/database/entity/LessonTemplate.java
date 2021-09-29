@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Описывает вид занятия. Хранит название, короткую заметку.
@@ -71,4 +68,9 @@ public class LessonTemplate {
         this.note = note;
         this.source = source;
     }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }

@@ -79,7 +79,7 @@ public class Day {
 
     public Day(Source source, Date targetDate) {
         this.source = source;
-        this.targetDate = targetDate;
+        this.setTargetDate(targetDate);
     }
 
     public Day(Source source, Week week) {
@@ -87,7 +87,19 @@ public class Day {
         this.week = week;
     }
 
-    public Day(Date targetDate) {
-        this.targetDate = targetDate;
+    public void setTargetDate(Date targetDate) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(targetDate);
+
+        Calendar simpleCalendar = new GregorianCalendar();
+        simpleCalendar.set(GregorianCalendar.YEAR, calendar.get(GregorianCalendar.YEAR));
+        simpleCalendar.set(GregorianCalendar.DAY_OF_YEAR, calendar.get(GregorianCalendar.DAY_OF_YEAR));
+
+        this.targetDate = simpleCalendar.getTime();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

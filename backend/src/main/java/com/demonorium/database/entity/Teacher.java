@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Описывает преподавателя, хранит имя и короткую заметку.
@@ -66,4 +63,9 @@ public class Teacher {
         this.name = name;
         this.note = note;
     }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }

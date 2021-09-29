@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeSet;
 
 /**
@@ -69,5 +70,10 @@ public class Place {
         this.building = building;
         this.note = note;
         this.source = source;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
