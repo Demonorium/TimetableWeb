@@ -3,9 +3,9 @@ import {Collapse, List, ListItem, ListItemButton, ListItemIcon, ListItemText} fr
 import {ExpandLess, ExpandMore} from "@material-ui/icons";
 
 interface LessonProps {
-    lesson: any,
-    start: number,
-    end: number
+    lesson: {[key: string]: any},
+    start: {[key: string]: any},
+    end: {[key: string]: any}
 }
 
 export default  function Lesson({lesson, start, end}: LessonProps) {
@@ -19,7 +19,11 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
     return (
         <React.Fragment>
             <ListItemButton onMouseLeave={handleClick} onMouseEnter={handleClick}>
-                <ListItemText primary={template['name']} secondary={start + ' - ' + end} />
+                <ListItemText primary={template['name']} secondary={
+                    start['hour'] + ':' + start['minute']
+                    + ' - ' +
+                    end['hour'] + ':' + end['minute']}
+                />
                 <ListItemText primary={place['auditory']} secondary={place['building']}  />
 
                 {open ? <ExpandLess /> : <ExpandMore />}
@@ -27,7 +31,7 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                     <ListItemButton sx={{ pl: 4 }}>
-                        <ListItemText primary={template['note']} />
+                        <ListItemText primary={template['note']}/>
                     </ListItemButton>
                 </List>
             </Collapse>

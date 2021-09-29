@@ -1,9 +1,11 @@
 import * as React from 'react';
 import {Box, List, ListItem, ListItemText, styled} from "@mui/material";
+import Lesson from "./Lesson";
 
 interface DayProps {
     days: Array<{[key: string]: any}>
     dayIndex: string
+    schedule: {[key: string]: any}
 }
 
 
@@ -21,9 +23,9 @@ const DayInfo = styled(List)<{ component?: React.ElementType }>({
     },
 });
 
-export default function Day({days, dayIndex}: DayProps) {
+export default function Day({days, dayIndex, schedule}: DayProps) {
     //TODO: add many days support
-    let lessons : Array<React.Component>
+    let lessons : Array<React.ReactElement> = new Array<React.ReactElement>();
     if (days.length == 0) {
         return (
             <Box sx={{ display: 'flex' }}>
@@ -34,9 +36,25 @@ export default function Day({days, dayIndex}: DayProps) {
                     <ListItemText primary={'Нет занятий'}/>
                 </List>
             </Box>
-        )
+        );
     }
+    let tt: {[key: string]: any};
+    if (days[0]['schedule'] == null) {
+        tt = schedule['schedule']
+    } else {
+        tt = days[0]['schedule']['schedule']
+    }
+    let arr: Array<any> = new Array<any>()
+    for (let stm in tt) {
+        arr.push(stm);
+    }
+    arr = arr.sort((x1:any,x2:any) => x1['time'] - x2['time']);
 
+    for (let lesson_k in days[0]['lessons']) {
+        let lesson: {[key: string]: any} = days[0]['lessons']['lesson_k']
+        let lnumb: number = lesson['number'] * 2;
+        lessons.push(<Lesson lesson={lesson} start={arr[lnumb]} end={arr[lnumb + 1]}/>);
+    }
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -44,6 +62,7 @@ export default function Day({days, dayIndex}: DayProps) {
                 <DayInfo>
                     <ListItemText primary={dayIndex}/>
                 </DayInfo>
+                {lessons}
             </List>
         </Box>
     );
