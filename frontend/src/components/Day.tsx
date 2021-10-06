@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Box, List, ListItem, ListItemText, styled} from "@mui/material";
 import Lesson from "./Lesson";
-
+import { sizing } from '@material-ui/system';
 interface DayProps {
     days: Array<{[key: string]: any}>
     dayIndex: string
@@ -21,6 +21,7 @@ const DayInfo = styled(List)<{ component?: React.ElementType }>({
     '& .MuiSvgIcon-root': {
         fontSize: 20,
     },
+    "& .MuiList-root": {width: "100%", display:"block"}
 });
 
 export default function Day({days, dayIndex, schedule}: DayProps) {
@@ -28,8 +29,10 @@ export default function Day({days, dayIndex, schedule}: DayProps) {
     let lessons : Array<React.ReactElement> = new Array<React.ReactElement>();
     if (days.length == 0) {
         return (
-            <Box sx={{ width: "100%"}}>
-                <List sx={{width: "100%"}} >
+            <Box sx={{display: "block", width: "100%"}}>
+                <List sx={{width: "100%", display:"block",
+                    "& .MuiList-root": {width: "100%", display:"block"}
+                }} >
                     <DayInfo>
                         <ListItemText primary={dayIndex}/>
                     </DayInfo>
@@ -59,7 +62,7 @@ export default function Day({days, dayIndex, schedule}: DayProps) {
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <List>
+            <List sx = {{width: "100%"}}>
                 <DayInfo>
                     <ListItemText primary={dayIndex}/>
                 </DayInfo>

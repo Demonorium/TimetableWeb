@@ -18,16 +18,19 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
 
     return (
         <React.Fragment>
-            <ListItemButton onMouseLeave={handleClick} onMouseEnter={handleClick}>
+            <ListItem onMouseLeave={handleClick} onMouseEnter={handleClick}
+                            secondaryAction={
+                                <ListItemText  primary={place['auditory']} secondary={place['building']}  />
+                            }>
                 <ListItemText primary={template['name']} secondary={
                     start['hour'] + ':' + start['minute']
                     + ' - ' +
                     end['hour'] + ':' + end['minute']}
                 />
-                <ListItemText primary={place['auditory']} secondary={place['building']}  />
+
 
                 {/*{open ? <ExpandLess /> : <ExpandMore />}*/}
-            </ListItemButton>
+            </ListItem>
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                     <ListItemButton sx={{ pl: 4 }}>
