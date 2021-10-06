@@ -12,13 +12,15 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
     const [open, setOpen] = React.useState(false);
     let template = lesson['template']
     let place = lesson['place']
-    const handleClick = () => {
-        setOpen(!open);
+    const onClick = () => {
+        setOpen(true);
     };
-
+    const offClick = () => {
+        setOpen(false);
+    }
     return (
         <React.Fragment>
-            <ListItem onMouseLeave={handleClick} onMouseEnter={handleClick}
+            <ListItem onMouseLeave={offClick} onMouseEnter={onClick}
                             secondaryAction={
                                 <ListItemText  primary={place['auditory']} secondary={place['building']}  />
                             }>
@@ -32,10 +34,10 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
                 {/*{open ? <ExpandLess /> : <ExpandMore />}*/}
             </ListItem>
             <Collapse in={open} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                    <ListItemButton sx={{ pl: 4 }}>
+                <List component="div" disablePadding dense={true} onMouseLeave={offClick} onMouseEnter={onClick}>
+                    <ListItem sx={{ pl: 4 }}>
                         <ListItemText primary={template['note']}/>
-                    </ListItemButton>
+                    </ListItem>
                 </List>
             </Collapse>
         </React.Fragment>

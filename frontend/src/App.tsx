@@ -1,12 +1,20 @@
 import React from 'react';
 import Header from './components/Header';
 import Body from './components/Body';
-import {Box, Container, createTheme, ThemeProvider} from "@mui/material";
+import {Box, Container, createTheme, darkScrollbar, ThemeProvider} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import axios from "axios";
 import Loading from "./components/Loading";
 
-const theme = createTheme();
+const theme = createTheme({components:{
+    MuiCssBaseline: {
+        styleOverrides: {
+            body: {
+                backgroundColor: "#e8e8e8"
+            }
+        }
+    }
+}});
 
 enum SiteState {
     LOADING,

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Box, List, ListItem, ListItemText, styled} from "@mui/material";
 import Lesson from "./Lesson";
-import { sizing } from '@material-ui/system';
+
 interface DayProps {
     days: Array<{[key: string]: any}>
     dayIndex: string

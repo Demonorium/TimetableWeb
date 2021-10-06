@@ -1,6 +1,6 @@
 import * as React from 'react';
 import axios from "axios";
-import { Container } from '@mui/material';
+import {Box, Container} from '@mui/material';
 import Day from "./Day";
 
 interface BodyProps {
@@ -43,9 +43,11 @@ export default class Body extends React.Component<any, any>{
         } else {
             let days: Array<{[key:string] : any}> = this.state.sources[0]['days']
             return (
-                <Container maxWidth="sm" component="main">
-                    <Day days={days} dayIndex={"Сегодня"} schedule={this.state.sources[0]['defaultSchedule']}/>
-                </Container>
+                <Box sx={{display:"flex", flexDirection:"column"}}>
+                    <Container sx={{bgcolor:'#FFFFFF'}}  maxWidth="sm" component="main">
+                        <Day days={days} dayIndex={"Сегодня"} schedule={this.state.sources[0]['defaultSchedule']}/>
+                    </Container>
+                </Box>
             );
         }
 
