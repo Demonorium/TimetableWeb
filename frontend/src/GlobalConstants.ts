@@ -1,4 +1,4 @@
-const service_texts = {
+const SERVICE_TEXTS = {
     'name': 'Учебное расписание',
     'edit': 'Изменить'
 }

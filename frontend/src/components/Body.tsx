@@ -16,7 +16,7 @@ export default class Body extends React.Component<any, any>{
 
     componentDidMount() {
         console.log(this.state.username)
-        axios.get("http://localhost:8080/api/find/all", {
+        axios.get("api/find/all", {
             auth: {
                 username: this.state.username,
                 password: this.state.password
@@ -41,10 +41,10 @@ export default class Body extends React.Component<any, any>{
                 </Container>
             );
         } else {
-            let days: Array<{[key:string] : any}> = this.state.sources['days']
+            let days: Array<{[key:string] : any}> = this.state.sources[0]['days']
             return (
                 <Container maxWidth="sm" component="main">
-                    <Day days={days} dayIndex={"Сегодня"} schedule={this.state.sources['defaultSchedule']}/>
+                    <Day days={days} dayIndex={"Сегодня"} schedule={this.state.sources[0]['defaultSchedule']}/>
                 </Container>
             );
         }

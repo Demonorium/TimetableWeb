@@ -9,7 +9,7 @@ interface LessonProps {
 }
 
 export default  function Lesson({lesson, start, end}: LessonProps) {
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(false);
     let template = lesson['template']
     let place = lesson['place']
     const handleClick = () => {
@@ -26,7 +26,7 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
                 />
                 <ListItemText primary={place['auditory']} secondary={place['building']}  />
 
-                {open ? <ExpandLess /> : <ExpandMore />}
+                {/*{open ? <ExpandLess /> : <ExpandMore />}*/}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>

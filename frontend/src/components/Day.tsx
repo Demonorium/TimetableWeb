@@ -15,7 +15,7 @@ const DayInfo = styled(List)<{ component?: React.ElementType }>({
         paddingRight: 24,
     },
     '& .MuiListItemIcon-root': {
-        minWidth: 0,
+        minWidth: '100%',
         marginRight: 16,
     },
     '& .MuiSvgIcon-root': {
@@ -28,8 +28,8 @@ export default function Day({days, dayIndex, schedule}: DayProps) {
     let lessons : Array<React.ReactElement> = new Array<React.ReactElement>();
     if (days.length == 0) {
         return (
-            <Box sx={{ display: 'flex' }}>
-                <List>
+            <Box sx={{ width: "100%"}}>
+                <List sx={{width: "100%"}} >
                     <DayInfo>
                         <ListItemText primary={dayIndex}/>
                     </DayInfo>
@@ -44,14 +44,15 @@ export default function Day({days, dayIndex, schedule}: DayProps) {
     } else {
         tt = days[0]['schedule']['schedule']
     }
+    console.log(tt)
     let arr: Array<any> = new Array<any>()
     for (let stm in tt) {
-        arr.push(stm);
+        arr.push(tt[stm]);
     }
     arr = arr.sort((x1:any,x2:any) => x1['time'] - x2['time']);
-
+    console.log(arr)
     for (let lesson_k in days[0]['lessons']) {
-        let lesson: {[key: string]: any} = days[0]['lessons']['lesson_k']
+        let lesson: {[key: string]: any} = days[0]['lessons'][lesson_k]
         let lnumb: number = lesson['number'] * 2;
         lessons.push(<Lesson lesson={lesson} start={arr[lnumb]} end={arr[lnumb + 1]}/>);
     }

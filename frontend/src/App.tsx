@@ -34,9 +34,9 @@ export default class App extends React.Component<any, any>
     componentDidMount() {
         const params = {
             username: "test_user",
-            password: "123"
+                password: "123"
         }
-        axios.get("http://localhost:8080/user/register", {
+        axios.get("/user/register", {
             params: params
         }).then((response) => {
             this.setState({
@@ -45,8 +45,14 @@ export default class App extends React.Component<any, any>
                 username: params['username'],
                 password: params['password']
             });
-        }).catch((response) => {
-            this.setState({token: response.data, current_state: SiteState.CRUSH});
+        }).catch((error) => {
+            console.log(error);
+            if ((error.response) && (error.response.data != "duplicate username"))
+                this.setState({current_state: SiteState.CRUSH});
+            else
+                this.setState({current_state: SiteState.PROCESS,
+                    username: params['username'],
+                    password: params['password']});
         })
     }
 

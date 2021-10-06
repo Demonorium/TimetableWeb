@@ -10,6 +10,19 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.tsx', '.js']
     },
+    devServer: {
+        host: 'localhost',
+        port: 3000,
+        historyApiFallback: true,
+        proxy: {
+            '/api': {
+                target: "http://localhost:8080/"
+            },
+            '/user': {
+                target: "http://localhost:8080/"
+            },
+        }
+    },
     module: {
         rules: [
             {
