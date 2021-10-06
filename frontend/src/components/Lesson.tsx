@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Collapse, List, ListItem, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
+import {Collapse, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
 import {ExpandLess, ExpandMore} from "@material-ui/icons";
 
 interface LessonProps {
@@ -20,6 +20,7 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
     }
     return (
         <React.Fragment>
+            <Divider />
             <ListItem onMouseLeave={offClick} onMouseEnter={onClick}
                             secondaryAction={
                                 <ListItemText  primary={place['auditory']} secondary={place['building']}  />
@@ -34,7 +35,9 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
                 {/*{open ? <ExpandLess /> : <ExpandMore />}*/}
             </ListItem>
             <Collapse in={open} timeout="auto" unmountOnExit>
+
                 <List component="div" disablePadding dense={true} onMouseLeave={offClick} onMouseEnter={onClick}>
+                    <Divider />
                     <ListItem sx={{ pl: 4 }}>
                         <ListItemText primary={template['note']}/>
                     </ListItem>
