@@ -1,7 +1,6 @@
 package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -72,7 +71,7 @@ public class Day {
     }
 
     /**
-     * Хранит дату к торой привязен данный день, если день привязан к неделе, то поле равно null.
+     * Хранит дату которой привязан данный день, если день привязан к неделе, то поле равно null.
      * Если данное поле установлено, то в эту дату будет использовано это расписание.
      */
     Date targetDate;

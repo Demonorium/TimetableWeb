@@ -1,15 +1,11 @@
 package com.demonorium.database;
 
 
-import com.demonorium.database.Rights;
 import com.demonorium.database.entity.*;
 import com.demonorium.database.repository.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @Component

@@ -1,8 +1,6 @@
 package com.demonorium.database.entity;
 
-import com.demonorium.database.Rights;
 import com.fasterxml.jackson.annotation.JsonGetter;
-import jdk.nashorn.internal.parser.Token;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
