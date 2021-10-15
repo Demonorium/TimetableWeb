@@ -1,11 +1,9 @@
 package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import lombok.AccessLevel;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
-
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
