@@ -1,10 +1,8 @@
 package com.demonorium.database.repository;
 
 import com.demonorium.database.entity.AccessToken;
-import com.demonorium.database.entity.ShareReference;
 import com.demonorium.database.entity.Source;
 import com.demonorium.database.entity.User;
-import jdk.nashorn.internal.parser.Token;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

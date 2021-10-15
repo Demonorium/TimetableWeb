@@ -1,80 +1,97 @@
 package com.demonorium.database;
 
 
-import com.demonorium.database.Rights;
 import com.demonorium.database.entity.*;
 import com.demonorium.database.repository.*;
-
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @Component
-public class DatabaseController {
+@Getter
+public class DatabaseServiceImpl implements DatabaseService {
     @Autowired
-    public CallScheduleRepository schedule;
+    private CallScheduleRepository schedules;
     @Autowired
-    public DayRepository day;
+    private DayRepository days;
     @Autowired
-    public HMStampRepository hmstamp;
+    private HMStampRepository hmstamps;
     @Autowired
-    public LessonRepository lesson;
+    private LessonRepository lessons;
     @Autowired
-    public LessonTemplateRepository lessonTemplate;
+    private LessonTemplateRepository lessonTemplates;
     @Autowired
-    public PlaceRepository place;
+    private PlaceRepository places;
     @Autowired
-    public SourceRepository source;
+    private SourceRepository sources;
     @Autowired
-    public TeacherRepository teacher;
+    private TeacherRepository teachers;
     @Autowired
-    public UserRepository user;
+    private UserRepository users;
     @Autowired
-    public WeekRepository week;
+    private WeekRepository weeks;
     @Autowired
-    public AccessTokenRepository token;
+    private AccessTokenRepository tokens;
     @Autowired
-    public ShareReferenceRepository reference;
+    private ShareReferenceRepository references;
 
+    @Autowired
+    private SourcesPriorityRepository sourcesPriorities;
+
+    @Override
+    public boolean access(User user, SourcesPriority priority, Rights rights) {
+        return access(user, priority.getSource(), rights);
+    }
+
+    @Override
     public boolean access(User user, CallSchedule schedule, Rights rights) {
         return access(user, schedule.getSource(), rights);
     }
+    @Override
     public boolean access(User user, Day day, Rights rights) {
         return access(user, day.getSource(), rights);
     }
+    @Override
     public boolean access(User user, HMStamp stamp, Rights rights) {
         return access(user, stamp.getSchedule(), rights);
     }
+    @Override
     public boolean access(User user, Lesson lesson, Rights rights) {
         return access(user, lesson.getDay(), rights);
     }
+    @Override
     public boolean access(User user, LessonTemplate lessonTemplate, Rights rights) {
         return access(user, lessonTemplate.getSource(), rights);
     }
+    @Override
     public boolean access(User user, Place place, Rights rights) {
         return access(user, place.getSource(), rights);
     }
 
+    @Override
     public boolean access(User user, Teacher teacher, Rights rights) {
         return access(user, teacher.getSource(), rights);
     }
+    @Override
     public boolean access(User user, Week week, Rights rights) {
         return access(user, week.getSource(), rights);
     }
 
+    @Override
     public boolean access(User user, AccessToken token, Rights rights) {
         return token.getUser() == user;
     }
 
+    @Override
     public boolean access(User user, Source source, Rights rights) {
         if (user == null) return false;
         if (source == null) return false;
         if (rights == null) return false;
         if (source.getOwner().equals(user)) return true;
-        Optional<AccessToken> access = token.findByUserAndReference_Source(user, source);
+        Optional<AccessToken> access = getTokens().findByUserAndReference_Source(user, source);
+
         return access.filter(accessToken -> Rights.compatible(accessToken.getReference().getRights(), rights)).isPresent();
     }
 }

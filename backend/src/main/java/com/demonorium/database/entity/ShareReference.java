@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -18,14 +19,14 @@ public class ShareReference {
      */
     @Id
     @Column(name="code", nullable = false)
-    String code;
+    private String code;
 
     /**
      * Источник, доступ к которому даёт эта ссылка
      */
     @OneToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "source_id", nullable = false)
-    Source source;
+    private Source source;
 
     @JsonGetter("source")
     public Long getSourceId() {
@@ -36,5 +37,7 @@ public class ShareReference {
      * Уровень доступа
      */
     @Column(name = "rights", nullable = false)
-    Rights rights;
+    private Rights rights;
+
+
 }

@@ -1,7 +1,6 @@
 package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,21 +24,21 @@ public class Lesson implements Comparable<Lesson> {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
     /**
      * Описание данного занятия (класс описывающий вид занятия)
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="template_id", nullable = false)
-    LessonTemplate template;
+    private LessonTemplate template;
 
     /**
      * День, в который проходит данное занятие
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="day_id", nullable = false)
-    Day day;
+    private Day day;
 
     /**
      * ИД дня, в который проходит это занятие
@@ -54,18 +53,18 @@ public class Lesson implements Comparable<Lesson> {
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="place_id", nullable = false)
-    Place place;
+    private Place place;
 
     /**
      * Список всех учителей проводящих занятие, перекрывает список из template
      */
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    List<Teacher> teachers = new ArrayList<>();
+    private List<Teacher> teachers = new ArrayList<>();
 
     /**
      * Номер данного занятия среди все занятий в течении дня
      */
-    int number;
+    private int number;
 
     public Lesson(LessonTemplate template, Day day, Place place, int number) {
         this.template = template;

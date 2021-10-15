@@ -23,25 +23,31 @@ public class User {
      */
     @Id
     @Column(name="username", length = 50)
-    String username;
+    private String username;
     /**
      * Хэшкод пароля пользователя
      */
     @JsonIgnore
     @Column(name="password_hash", length = 256)
-    String password;
+    private String password;
 
     /**
      * Список источников, которыми владеет пользователь
      */
     @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    List<Source> sources = new LinkedList<>();
+    private List<Source> sources = new LinkedList<>();
 
     /**
      * Список токнов доступа, которыми владеет пользователь
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<AccessToken> tokens = new HashSet<>();
+    private Set<AccessToken> tokens = new HashSet<>();
+
+    /**
+     * Приоритеты источников
+     */
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Set<SourcesPriority> priorities = new HashSet<>();
 
     public User(String username, String password) {
         this.username = username;

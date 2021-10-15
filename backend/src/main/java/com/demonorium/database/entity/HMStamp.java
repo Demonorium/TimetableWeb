@@ -1,12 +1,9 @@
 package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -26,25 +23,25 @@ public class HMStamp implements Comparable<HMStamp> {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(name="id")
-    Long id;
+    private Long id;
 
     /**
      * Час
      */
     @Column(name="hour")
-    byte hour;
+    private byte hour;
     /**
      * Минута
      */
     @Column(name="minute")
-    byte minute;
+    private byte minute;
 
     /**
      *  Расписание использующее данную пару
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="schedule_id", nullable = false)
-    CallSchedule schedule;
+    private CallSchedule schedule;
 
     /**
      * @return ИД объекта расписания данную пару

@@ -9,7 +9,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.TreeSet;
 
 /**
  * Описывает место проведения занятия аудиторией, зданием, заметкой
@@ -25,14 +24,14 @@ public class Place {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
-    Long id;
+    private Long id;
 
     /**
      * Источник, хранящий это место
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    private Source source;
 
     /**
      * @return ИД источника, хранящего это место
@@ -46,24 +45,24 @@ public class Place {
      * Аудитория, где проходит занятие
      */
     @Column(length = 8)
-    String auditory;
+    private String auditory;
     /**
      * Корпус/здание где проходит занятие
      */
     @Column(length = 8)
-    String building;
+    private String building;
     /**
      * Короткая заметка о месте (не более 1 строки)
      */
     @Column(length = 50)
-    String note;
+    private String note;
 
     /**
      * Список всех занятий в этом месте
      */
     @JsonIgnore
     @OneToMany(mappedBy = "place", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    List<Lesson> lessons = new ArrayList<>();
+    private List<Lesson> lessons = new ArrayList<>();
 
     public Place(String auditory, String building, String note, Source source) {
         this.auditory = auditory;

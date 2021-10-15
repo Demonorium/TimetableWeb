@@ -1,13 +1,15 @@
 package com.demonorium.database.entity;
 
-import com.demonorium.database.Rights;
 import com.fasterxml.jackson.annotation.JsonGetter;
-import jdk.nashorn.internal.parser.Token;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -20,14 +22,14 @@ public class AccessToken {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(name = "id")
-    Long id;
+    private Long id;
 
     /**
      * Пользователь, которому предоставлен доступ
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="user_id", nullable = false)
-    User user;
+    private User user;
 
     /**
      * @return имя пользователя, которому предоставлен доступ
@@ -42,10 +44,17 @@ public class AccessToken {
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="reference_id", nullable = false)
-    ShareReference reference;
+    private ShareReference reference;
 
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
+
+
+    /**
+     * Список приоритетов, при потере доступа остаётся неисправный объект
+     */
+    @OneToMany(mappedBy = "token", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    private Set<SourcesPriority> priorities = new HashSet<>();
 }

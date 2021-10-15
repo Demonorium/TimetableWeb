@@ -1,7 +1,6 @@
 package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,14 +22,14 @@ public class Day {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
     /**
      * Источник данного дня
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    private Source source;
 
     /**
      * ИД источника данного дня
@@ -45,13 +44,13 @@ public class Day {
      */
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="schedule_id", nullable = true)
-    CallSchedule schedule;
+    private CallSchedule schedule;
 
     /**
      * Список уроков данного дня
      */
     @OneToMany(mappedBy = "day", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<Lesson> lessons = new HashSet<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     /**
      * Если день привязан к какому-то дню одной из недель, то данное поле указывает на эту неделю.
@@ -59,7 +58,7 @@ public class Day {
      */
     @OneToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="week_id", nullable = true)
-    Week week;
+    private Week week;
 
     /**
      * @return Возвращает ИД недели, если день привязан к неделе, в противном случае null.
@@ -72,10 +71,10 @@ public class Day {
     }
 
     /**
-     * Хранит дату к торой привязен данный день, если день привязан к неделе, то поле равно null.
+     * Хранит дату которой привязан данный день, если день привязан к неделе, то поле равно null.
      * Если данное поле установлено, то в эту дату будет использовано это расписание.
      */
-    Date targetDate;
+    private Date targetDate;
 
     public Day(Source source, Date targetDate) {
         this.source = source;

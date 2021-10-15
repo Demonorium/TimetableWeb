@@ -4,7 +4,6 @@ package com.demonorium;
 import com.demonorium.config.MainConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 
 import java.util.Locale;

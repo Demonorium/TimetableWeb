@@ -1,12 +1,14 @@
 package com.demonorium.database.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Описывает источник информации о расписании.
@@ -22,7 +24,7 @@ public class Source {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
-    Long id;
+    private Long id;
 
     /**
      * Стандартное расписание звокнов, указывается для дня, если не было указано другого или
@@ -30,14 +32,14 @@ public class Source {
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(name="default_schedule", nullable = true)
-    CallSchedule defaultSchedule;
+    private CallSchedule defaultSchedule;
 
     /**
      * Владелец этого источника
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_name", nullable = false)
-    User owner;
+    private User owner;
 
     /**
      * @return имя вледельца источника
@@ -59,19 +61,19 @@ public class Source {
      * Список учителей
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<Teacher> teachers = new HashSet<>();
+    private Set<Teacher> teachers = new HashSet<>();
 
     /**
      * Список дней
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<Day> days = new HashSet<>();
+    private Set<Day> days = new HashSet<>();
 
     /**
      * Список расписаний звонков
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<CallSchedule> schedules = new HashSet<>();
+    private Set<CallSchedule> schedules = new HashSet<>();
 
     /**
      * Список видов занятий
@@ -83,20 +85,27 @@ public class Source {
      * Список мест
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<Place> places = new HashSet<>();
+    private Set<Place> places = new HashSet<>();
 
     /**
      * Список недель
      */
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<Week> weeks = new HashSet<>();
+    private Set<Week> weeks = new HashSet<>();
 
     /**
      * Список токенов доступа к этому источнику
      */
     @OneToOne(mappedBy = "source", cascade = CascadeType.REMOVE, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="reference_id", nullable = true)
-    ShareReference reference;
+    private ShareReference reference;
+
+    /**
+     * Список приоритетов, удаляемых при потере доступа
+     */
+    @JsonIgnore
+    @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Set<SourcesPriority> priorities = new HashSet<>();
 
     @Override
     public int hashCode() {

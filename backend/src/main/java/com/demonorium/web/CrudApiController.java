@@ -1,12 +1,10 @@
 package com.demonorium.web;
 
-import com.demonorium.database.DatabaseController;
+import com.demonorium.database.DatabaseService;
 import com.demonorium.database.Rights;
 import com.demonorium.database.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,13 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
-@CrossOrigin
 @RestController
 public class CrudApiController {
     @Autowired
-    DatabaseController database;
+    DatabaseService database;
 
     @Autowired
     WebUtils utils;
@@ -54,20 +50,24 @@ public class CrudApiController {
     boolean access(HttpServletRequest request, Week week, Rights rights) {
         return database.access(utils.getUser(request), week, rights);
     }
+    boolean access(HttpServletRequest request, SourcesPriority priority, Rights rights) {
+        return database.access(utils.getUser(request), priority, rights);
+    }
+
 
     @GetMapping("/api/edit/schedule")
     ResponseEntity<CallSchedule> editSchedule(HttpServletRequest request, @RequestParam(name="id", required = false) Long id, @RequestParam("source") Long source) {
-        Optional<Source> object = database.source.findById(source);
+        Optional<Source> object = database.getSources().findById(source);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
         if (access(request, object.get(), Rights.UPDATE)) {
-            Optional<CallSchedule> schedule = database.schedule.findById(id);
+            Optional<CallSchedule> schedule = database.getSchedules().findById(id);
             if (schedule.isPresent()) {
                 return ResponseEntity.unprocessableEntity().build();
             }
             CallSchedule newSchedule = new CallSchedule(object.get());
-            database.schedule.save(newSchedule);
+            database.getSchedules().save(newSchedule);
 
             return ResponseEntity.ok(newSchedule);
         }
@@ -79,14 +79,14 @@ public class CrudApiController {
                                               @RequestParam(name="id", required = false) Long id,
                                               @RequestParam("source") Long source,
                                               @RequestParam(value = "scheduleId", required = false) Long scheduleId) {
-        Optional<Source> object = database.source.findById(source);
+        Optional<Source> object = database.getSources().findById(source);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
         if (access(request, object.get(), Rights.UPDATE)) {
             CallSchedule schedule = null;
             {
-                Optional<CallSchedule> temp = database.schedule.findById(scheduleId);
+                Optional<CallSchedule> temp = database.getSchedules().findById(scheduleId);
                 if (temp.isPresent())
                     schedule = temp.get();
             }
@@ -96,7 +96,7 @@ public class CrudApiController {
             if (schedule != null) {
                 Day day = null;
                 if (id != null) {
-                    Optional<Day> temp = database.day.findById(id);
+                    Optional<Day> temp = database.getDays().findById(id);
                     if (temp.isPresent())
                         day = temp.get();
                 }
@@ -104,7 +104,7 @@ public class CrudApiController {
                     day = new Day();
                 day.setSource(object.get());
                 day.setSchedule(schedule);
-                database.day.save(day);
+                database.getDays().save(day);
                 return ResponseEntity.ok(day);
 
             } else
@@ -129,9 +129,21 @@ public class CrudApiController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/api/find/priority")
+    ResponseEntity<SourcesPriority> findPriority(HttpServletRequest request, @RequestParam(name="id") long id) {
+        Optional<SourcesPriority> object = database.getSourcesPriorities().findById(id);
+        if (!object.isPresent())
+            return ResponseEntity.notFound().build();
+
+        if (access(request, object.get(), Rights.READ)) {
+            return ResponseEntity.ok(object.get());
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
     @GetMapping("/api/find/schedule")
     ResponseEntity<CallSchedule> findSchedule(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<CallSchedule> object = database.schedule.findById(id);
+        Optional<CallSchedule> object = database.getSchedules().findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
@@ -142,9 +154,10 @@ public class CrudApiController {
     }
 
 
+
     @GetMapping("/api/find/day")
     ResponseEntity<Day> findDay(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Day> object = database.day.findById(id);
+        Optional<Day> object = database.getDays().findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
@@ -156,7 +169,7 @@ public class CrudApiController {
 
     @GetMapping("/api/find/lesson")
     ResponseEntity<Lesson> findLesson(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Lesson> object = database.lesson.findById(id);
+        Optional<Lesson> object = database.getLessons().findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
@@ -168,7 +181,7 @@ public class CrudApiController {
 
     @GetMapping("/api/find/lesson_template")
     ResponseEntity<LessonTemplate> findLessonTemplate(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<LessonTemplate> object = database.lessonTemplate.findById(id);
+        Optional<LessonTemplate> object = database.getLessonTemplates().findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
@@ -180,7 +193,7 @@ public class CrudApiController {
 
     @GetMapping("/api/find/place")
     ResponseEntity<Place> findPlace(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Place> object = database.place.findById(id);
+        Optional<Place> object = database.getPlaces().findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
@@ -192,7 +205,7 @@ public class CrudApiController {
 
     @GetMapping("/api/find/source")
     ResponseEntity<Source> findSource(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Source> object = database.source.findById(id);
+        Optional<Source> object = database.getSources().findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
@@ -204,7 +217,7 @@ public class CrudApiController {
 
     @GetMapping("/api/find/teacher")
     ResponseEntity<Teacher> findTeacher(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Teacher> object = database.teacher.findById(id);
+        Optional<Teacher> object = database.getTeachers().findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 
@@ -216,7 +229,7 @@ public class CrudApiController {
 
     @GetMapping("/api/find/week")
     ResponseEntity<Week> findWeek(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Week> object = database.week.findById(id);
+        Optional<Week> object = database.getWeeks().findById(id);
         if (!object.isPresent())
             return ResponseEntity.notFound().build();
 

@@ -6,8 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Класс представляет расписание звонков.
@@ -25,26 +26,26 @@ public class CallSchedule {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(name = "id")
-    Long id;
+    private Long id;
 
     /**
      * Множество всех объектов времени, относящихся в данному расписанию звонков
      */
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<HMStamp> schedule = new HashSet<>();
+    private Set<HMStamp> schedule = new HashSet<>();
     /**
      * Множество всех дней, использующих данное расписание звонков
      */
     @JsonIgnore
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    Set<Day> days = new HashSet<>();
+    private Set<Day> days = new HashSet<>();
 
     /**
      *  Источник хранящий данное расписание
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    private Source source;
 
     /**
      * @return ИД источника хранящего данное расписание

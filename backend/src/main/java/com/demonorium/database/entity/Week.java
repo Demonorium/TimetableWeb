@@ -1,10 +1,6 @@
 package com.demonorium.database.entity;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,19 +20,19 @@ public class Week {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
     /**
      * Номер недели
      */
-    int number;
+    private int number;
 
     /**
      * Источник, хранящий описание этой недели
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    private Source source;
 
     /**
      * @return ИД источника, хранящего описание этой недели
@@ -51,43 +47,43 @@ public class Week {
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
-    Day monday;
+    private Day monday;
     /**
      * Объект дня для: вторника
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
-    Day tuesday;
+    private Day tuesday;
     /**
      * Объект дня для: среды
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
-    Day wednesday;
+    private Day wednesday;
     /**
      * Объект дня для: четверга
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
-    Day thursday;
+    private Day thursday;
     /**
      * Объект дня для: пятницы
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
-    Day friday;
+    private Day friday;
     /**
      * Объект дня для: субботы
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
-    Day saturday;
+    private Day saturday;
     /**
      * Объект дня для: воскресенья
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(nullable = true)
-    Day sunday;
+    private Day sunday;
 
     public Week(int number, Source source) {
         this.number = number;

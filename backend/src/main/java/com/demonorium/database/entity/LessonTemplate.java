@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Описывает вид занятия. Хранит название, короткую заметку.
@@ -21,14 +23,14 @@ public class LessonTemplate {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
     /**
      * Источник, хранящий это описание занятия
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="source_id", nullable = false)
-    Source source;
+    private Source source;
 
 
     /**
@@ -43,25 +45,25 @@ public class LessonTemplate {
      * Название занятия
      */
     @Column(length = 50)
-    String name;
+    private String name;
     /**
      * Короткая заметка (не более 1 строки)
      */
     @Column(length = 50)
-    String note;
+    private String note;
 
     /**
      * Список преподавателей
      */
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    Set<Teacher> defaultTeachers = new HashSet<>();
+    private Set<Teacher> defaultTeachers = new HashSet<>();
 
     /**
      * Список всех занятий этого вида
      */
     @JsonIgnore
     @OneToMany(mappedBy = "template", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    Set<Lesson> lessons = new HashSet<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     public LessonTemplate(String name, String note, Source source) {
         this.name = name;
