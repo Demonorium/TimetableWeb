@@ -1,6 +1,7 @@
 package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -44,6 +45,7 @@ public class SourcesPriority implements Comparable<SourcesPriority> {
     /**
      * Токен, который дал доступ
      */
+    @JsonIgnore
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="token_id", nullable = true)
     private AccessToken token;
