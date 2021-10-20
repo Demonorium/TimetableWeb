@@ -39,6 +39,8 @@ public class YearDayPair {
     @Column(name="day")
     private int day;
 
+
+
     public YearDayPair(int year, int day) {
         this.year = year;
         this.day = day;

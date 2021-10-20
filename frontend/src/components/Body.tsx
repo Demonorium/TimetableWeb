@@ -1,56 +1,47 @@
 import * as React from 'react';
 import axios from "axios";
-import {Box, Container} from '@mui/material';
-import Day from "./Day";
-import {useAppDispatch, useAppSelector} from "../store/hooks";
+import {Container} from '@mui/material';
 import InfiniteDaysSlider from "./InfiniteDaysSlider";
 import {connect} from "react-redux";
+import {SourcePriority} from "../store/database";
+import {useEffect, useState} from "react";
 
 interface BodyProps {
     sources: Array<{[key: string]: any}>
     store: any,
     container: any
 }
-class Body extends React.Component<any, any>{
-    constructor(props: BodyProps) {
-        super(props);
-        this.state = {store: props.store, sources: props.sources, container: props.container}
-    }
 
-    componentDidMount() {
-        const user = this.state.store.user;
+function Body(props: BodyProps) {
+    const store = props.store;
+    const container = props.container;
+    const [sources, setSources] = useState(new Array<SourcePriority>());
+    const [update, setUpdate] = useState(true)
 
-        console.log(user.username)
-        axios.get("api/find/all", {
-            auth: {
-                username: user.username,
-                password: user.password
-            }
-        }).then((response) => {
-            this.setState({
-                sources: response.data
-            });
-        }).catch((response) => {
-        })
-    }
-
-    componentWillUnmount() {
-    }
-    render() {
-        if (this.state.sources == null) {
-            return (
-                <Container maxWidth="sm" component="main">
-
-                </Container>
-            );
-        } else {
-            let days: Array<{[key:string] : any}> = this.state.sources[0]['days']
-            return (
-                <Container sx={{bgcolor:'#FFFFFF'}}  maxWidth="sm" component="main" >
-                    <InfiniteDaysSlider containerReference={this.state.container}/>
-                </Container>
-            );
+    useEffect(() =>{
+        if (update) {
+            axios.get("/api/find/current_sources", {
+                auth: store.user
+            }).then((response) => {
+               setSources(response.data);
+            }).catch((response) => {
+            })
+            setUpdate(false);
         }
+    }, [update])
+
+    if (sources.length == 0) {
+        return (
+            <Container maxWidth="sm" component="main">
+
+            </Container>
+        );
+    } else {
+        return (
+            <Container sx={{bgcolor:'#FFFFFF'}}  maxWidth="sm" component="main" >
+                <InfiniteDaysSlider containerReference={container} sources={sources}/>
+            </Container>
+        );
     }
 }
 

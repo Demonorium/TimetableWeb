@@ -1,6 +1,7 @@
 package com.demonorium.database.entity;
 
 import com.demonorium.database.PartOfSource;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,7 @@ public class WeekDay implements PartOfSource {
     @JoinColumn(name="day_id", nullable = false)
     private Day day;
 
+    @JsonIgnore
     @Override
     public Source getSource() {
         return week.getSource();

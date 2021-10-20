@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Box, List, ListItem, ListItemText, styled} from "@mui/material";
+import {Box, List, ListItem, ListItemText} from "@mui/material";
 import Lesson from "./Lesson";
 import {DAY, DAY_NAMES, MONTH_OF_YEAR, nameOffset, SimpleCalendar, WEEK, YEAR} from "../utils/time";
 import {connect} from "react-redux";

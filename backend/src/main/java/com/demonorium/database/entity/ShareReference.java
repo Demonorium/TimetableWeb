@@ -1,5 +1,6 @@
 package com.demonorium.database.entity;
 
+import com.demonorium.database.PartOfSource;
 import com.demonorium.database.Rights;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name="share_references")
-public class ShareReference {
+public class ShareReference implements PartOfSource {
     /**
      * ИД объекта в базе
      */

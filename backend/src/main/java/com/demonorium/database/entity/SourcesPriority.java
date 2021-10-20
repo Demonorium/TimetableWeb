@@ -25,17 +25,10 @@ public class SourcesPriority implements Comparable<SourcesPriority> {
     /**
      * Пользователь, которому принадлежит список приоритетов
      */
+    @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    /**
-     * @return имя вледельца источника
-     */
-    @JsonGetter("user")
-    public String getUserName() {
-        return user.getUsername();
-    }
 
     /**
      * Источник, к которому предоставлен доступ

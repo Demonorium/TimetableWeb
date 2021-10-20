@@ -2,6 +2,7 @@ package com.demonorium.database.entity;
 
 import com.demonorium.database.PartOfSource;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -58,7 +59,7 @@ public class Lesson implements Comparable<Lesson>, PartOfSource {
     @JoinColumn(name="place_id", nullable = false)
     private Place place;
 
-
+    @JsonIgnore
     @Override
     public Source getSource() {
         return template.getSource();

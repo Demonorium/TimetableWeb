@@ -1,6 +1,5 @@
 import * as React from 'react';
-import {Collapse, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
-import {ExpandLess, ExpandMore} from "@material-ui/icons";
+import {Collapse, Divider, List, ListItem, ListItemText} from "@mui/material";
 
 interface LessonProps {
     lesson: {[key: string]: any},

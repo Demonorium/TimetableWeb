@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Header from './components/Header';
 import Body from './components/Body';
 import {Box, createTheme, ThemeProvider} from "@mui/material";
@@ -25,82 +25,64 @@ enum SiteState {
     CRUSH
 }
 
+//Класс приложения
+//Выбирает в каком режиме сейчас отображается приложение(загрузка, логин, регистрация, норм обработка, ошибка)
+function App(props: any) {
+    const containerReference = useRef<any>();
+    const store = props.store;
+    const [state, setState] = useState(SiteState.LOADING);
+    const [update, setUpdate] = useState(false);
 
-//Класс предназначен для создания
-//Отвечает за выбор глобального состояния
-class App extends React.Component<any, any> {
-    containerReference: any;
-
-    constructor(props: any) {
-        super(props);
-        this.state = {
-            store: props.store,
-            current_state: SiteState.LOADING,
-            token: null
-        }
-        this.containerReference = React.createRef();
-    }
-
-    componentDidMount() {
-        const user = this.state.store.user
-
+    useEffect(() => {
         axios.get("/user/register", {
-            params: {
-                username: user.username,
-                password: user.password
-            }
+            params: store.user
         }).then((response) => {
-            this.setState({
-                token: response.data,
-                current_state: SiteState.PROCESS,
-            });
-
+            setState(SiteState.PROCESS);
         }).catch((error) => {
             console.log(error);
             if ((error.response) && (error.response.data != "duplicate username"))
-                this.setState({current_state: SiteState.CRUSH});
+                setState(SiteState.CRUSH);
             else
-                this.setState({current_state: SiteState.PROCESS});
-        })
+                setState(SiteState.PROCESS);
+        });
+
+        setUpdate(false);
+    }, [update]);
+
+    switch (state) {
+        case SiteState.LOADING:
+            return (
+                <ThemeProvider theme={theme}>
+                    <div className="fillscreen">
+                        <Loading />
+                    </div>
+                </ThemeProvider>
+            )
+        case SiteState.CRUSH:
+            return (
+                <ThemeProvider theme={theme}>
+                    <div className="fillscreen">
+                        <Loading />
+                    </div>
+                </ThemeProvider>
+            )
     }
 
-    componentWillUnmount() {
-    }
-    render() {
-        switch (this.state.current_state) {
-            case SiteState.LOADING:
-                return (
-                    <ThemeProvider theme={theme}>
-                        <div className="fillscreen">
-                            <Loading />
-                        </div>
-                    </ThemeProvider>
-                )
-            case SiteState.CRUSH:
-                return (
-                    <ThemeProvider theme={theme}>
-                        <div className="fillscreen">
-                            <Loading />
-                        </div>
-                    </ThemeProvider>
-                )
-        }
-
-        return (
-            <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <Header theme={theme} serviceName="Учебное расписание"/>
-                <Box ref={this.containerReference} sx={{position: 'absolute',
-                    width: '100%', height: '100vh',
-                    display: 'block',
-                    overflow: 'hidden scroll',
-                    padding: '0', margin: '0'}}>
-                    <Body container={this.containerReference}/>
-                </Box>
-            </ThemeProvider>
-        );
-    }
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Header theme={theme} serviceName="Учебное расписание"/>
+            <Box ref={containerReference} sx={{position: 'absolute',
+                width: '100%', height: '100vh',
+                display: 'block',
+                overflow: 'hidden scroll',
+                padding: '0', margin: '0'}}>
+                <Body container={containerReference}/>
+            </Box>
+        </ThemeProvider>
+    );
 }
+
 
 function mapStateToProps(state: any) {
     return {
