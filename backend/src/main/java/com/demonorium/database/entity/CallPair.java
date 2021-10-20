@@ -1,28 +1,31 @@
 package com.demonorium.database.entity;
 
+import com.demonorium.database.PartOfSource;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 /**
- * Хранит пару час-минута, используется в классе CallSchedule для представления
- * расписания звонков. Имеет возможность сортировки по штампу времени.
+ * Хранит пару (час,минута), представляет описание звонка для CallSchedule
+ * Имеет возможность сортировки по времени.
  */
 @Data
+@EqualsAndHashCode(exclude = {"schedule"})
 @NoArgsConstructor
 @Entity
-@Table(name = "hmstamps")
-public class HMStamp implements Comparable<HMStamp> {
+@Table(name = "call_pairs")
+public class CallPair implements Comparable<CallPair>, PartOfSource {
     /**
      * ИД объекта в базе
      */
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name="call_pair_id")
     private Long id;
 
     /**
@@ -51,11 +54,18 @@ public class HMStamp implements Comparable<HMStamp> {
         return schedule.getId();
     }
 
-    public HMStamp(byte hour, byte minute, CallSchedule schedule) {
+    public CallPair(CallSchedule schedule, byte hour, byte minute) {
         this.hour = hour;
         this.minute = minute;
         this.schedule = schedule;
     }
+
+    @JsonIgnore
+    @Override
+    public Source getSource() {
+        return schedule.getSource();
+    }
+
 
     @JsonGetter("time")
     public short getTime() {
@@ -68,12 +78,7 @@ public class HMStamp implements Comparable<HMStamp> {
     }
 
     @Override
-    public int compareTo(HMStamp o) {
+    public int compareTo(CallPair o) {
         return this.getTime() - o.getTime();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

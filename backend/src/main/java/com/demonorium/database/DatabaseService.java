@@ -1,53 +1,43 @@
 package com.demonorium.database;
 
-import com.demonorium.database.entity.*;
+import com.demonorium.database.entity.Source;
+import com.demonorium.database.entity.User;
+import com.demonorium.database.repository.*;
 
 public interface DatabaseService {
-    boolean access(User user, SourcesPriority priority, Rights rights);
+    boolean hasAccess(User user, PartOfSource partOfSource, Rights rights);
+    boolean hasAccess(User user, Source source, Rights rights);
 
-    boolean access(User user, CallSchedule schedule, Rights rights);
 
-    boolean access(User user, Day day, Rights rights);
+    CallScheduleRepository getCallScheduleRepository();
 
-    boolean access(User user, HMStamp stamp, Rights rights);
+    DayRepository getDayRepository();
 
-    boolean access(User user, Lesson lesson, Rights rights);
+    CallPairRepository getCallPairRepository();
 
-    boolean access(User user, LessonTemplate lessonTemplate, Rights rights);
+    LessonRepository getLessonRepository();
 
-    boolean access(User user, Place place, Rights rights);
+    LessonTemplateRepository getLessonTemplateRepository();
 
-    boolean access(User user, Teacher teacher, Rights rights);
+    PlaceRepository getPlaceRepository();
 
-    boolean access(User user, Week week, Rights rights);
+    SourceRepository getSourceRepository();
 
-    boolean access(User user, AccessToken token, Rights rights);
+    TeacherRepository getTeacherRepository();
 
-    boolean access(User user, Source source, Rights rights);
+    UserRepository getUserRepository();
 
-    com.demonorium.database.repository.CallScheduleRepository getSchedules();
+    WeekRepository getWeekRepository();
 
-    com.demonorium.database.repository.DayRepository getDays();
+    AccessTokenRepository getTokenRepository();
 
-    com.demonorium.database.repository.HMStampRepository getHmstamps();
+    ShareReferenceRepository getReferenceRepository();
 
-    com.demonorium.database.repository.LessonRepository getLessons();
+    SourcesPriorityRepository getSourcesPriorityRepository();
 
-    com.demonorium.database.repository.LessonTemplateRepository getLessonTemplates();
+    TimetableChangesRepository getTimetableChangesRepository();
 
-    com.demonorium.database.repository.PlaceRepository getPlaces();
+    WeekDayRepository getWeekDayRepository();
 
-    com.demonorium.database.repository.SourceRepository getSources();
-
-    com.demonorium.database.repository.TeacherRepository getTeachers();
-
-    com.demonorium.database.repository.UserRepository getUsers();
-
-    com.demonorium.database.repository.WeekRepository getWeeks();
-
-    com.demonorium.database.repository.AccessTokenRepository getTokens();
-
-    com.demonorium.database.repository.ShareReferenceRepository getReferences();
-
-    com.demonorium.database.repository.SourcesPriorityRepository getSourcesPriorities();
+    YearDayPairRepository getYearDayPairRepository();
 }

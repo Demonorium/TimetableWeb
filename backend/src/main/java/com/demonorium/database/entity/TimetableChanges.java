@@ -7,30 +7,20 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
-/**
- * Класс представляет ссылки на 7 дней и хранит номер недели
- */
 @Data
-@EqualsAndHashCode(exclude = {"source", "days"})
+@EqualsAndHashCode(exclude = {"source", "day"})
 @NoArgsConstructor
 @Entity
-@Table(name = "weeks")
-public class Week implements PartOfSource {
+@Table(name = "timetable_changes")
+public class TimetableChanges implements PartOfSource {
     /**
      * ИД объекта в базе
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="week_id")
+    @Column(name="changes_id")
     private Long id;
-
-    /**
-     * Номер недели
-     */
-    private int number;
 
     /**
      * Источник, хранящий описание этой недели
@@ -48,13 +38,22 @@ public class Week implements PartOfSource {
     }
 
     /**
-     * Список всех дней недели
+     *  Дата, на которую произошли изменения
      */
-    @OneToMany(mappedBy = "week", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private Set<WeekDay> days = new HashSet<>();
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @JoinColumn(name="date_pair_id", nullable = false)
+    private YearDayPair date;
 
-    public Week(int number, Source source) {
-        this.number = number;
+    /**
+     *  Новое рассписание
+     */
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @JoinColumn(name="day_id", nullable = false)
+    private Day day;
+
+    public TimetableChanges(Source source, YearDayPair date, Day day) {
         this.source = source;
+        this.date = date;
+        this.day = day;
     }
 }

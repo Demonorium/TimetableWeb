@@ -1,49 +1,58 @@
 import * as React from 'react';
 import {Box, List, ListItem, ListItemText, styled} from "@mui/material";
 import Lesson from "./Lesson";
+import {DAY, DAY_NAMES, MONTH_OF_YEAR, nameOffset, SimpleCalendar, WEEK, YEAR} from "../utils/time";
+import {connect} from "react-redux";
+import {RootState} from "../store/global";
+import {ScheduleState} from "../store/schedule";
 
 interface DayProps {
-    days: Array<{[key: string]: any}>
-    dayIndex: string
-    schedule: {[key: string]: any}
+    index: number;
+    calendar: SimpleCalendar;
+
+    days: Array<{[key: string]: any}>;
+    store: RootState;
 }
 
 
-const DayInfo = styled(List)<{ component?: React.ElementType }>({
-    '& .MuiListItemButton-root': {
-        paddingLeft: 24,
-        paddingRight: 24,
-    },
-    '& .MuiListItemIcon-root': {
-        minWidth: '100%',
-        marginRight: 16,
-    },
-    '& .MuiSvgIcon-root': {
-        fontSize: 20,
-    },
-    "& .MuiList-root": {width: "100%", display:"block"}
-});
-
-export default function Day({days, dayIndex, schedule}: DayProps) {
-    //TODO: add many days support
+function Day({index, calendar, days, store}: DayProps) {
     let lessons : Array<React.ReactElement> = new Array<React.ReactElement>();
+    //Заголовок, который описывает, что за день перед нами
+    let dayHeader = (
+        <List>
+            <ListItem
+                secondaryAction={
+                    <ListItemText primary={calendar.get(YEAR) + ":" + calendar.get(MONTH_OF_YEAR) + ":" + (calendar.get(DAY))}  />
+                }>
+                <ListItemText primary={DAY_NAMES[calendar.getValueOf(DAY, WEEK)]} secondary={nameOffset(index)}/>
+            </ListItem>
+        </List>
+    )
+
     if (days.length == 0) {
         return (
-            <Box sx={{display: "block", width: "100%"}}>
-                <List sx={{width: "100%", display:"block",
-                    "& .MuiList-root": {width: "100%", display:"block"}
-                }} >
-                    <DayInfo>
-                        <ListItemText primary={dayIndex}/>
-                    </DayInfo>
+            <Box sx={{ display: 'flex' }}>
+                <List sx = {{width: "100%"}}>
+                    {dayHeader}
                     <ListItemText primary={'Нет занятий'}/>
                 </List>
             </Box>
         );
     }
-    let tt: {[key: string]: any};
+
+    //Ищем расписание звонков
+    let scheduleState: ScheduleState = store.schedule;
+    for (let i = 0; i < days.length; ++i) {
+        if (days[i].priority < scheduleState.priority) {
+            break;
+        } else if (days[i].schedule ) {
+
+        }
+    }
+
+
     if (days[0]['schedule'] == null) {
-        tt = schedule['schedule']
+        tt = store.schedule
     } else {
         tt = days[0]['schedule']['schedule']
     }
@@ -63,11 +72,16 @@ export default function Day({days, dayIndex, schedule}: DayProps) {
     return (
         <Box sx={{ display: 'flex' }}>
             <List sx = {{width: "100%"}}>
-                <DayInfo>
-                    <ListItemText primary={dayIndex}/>
-                </DayInfo>
+                {dayHeader}
                 {lessons}
             </List>
         </Box>
     );
 }
+
+function mapStateToProps(state: any) {
+    return {
+        store: state
+    }
+}
+export default connect(mapStateToProps, Day);

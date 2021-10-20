@@ -1,6 +1,7 @@
 package com.demonorium.database.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -14,15 +15,24 @@ import java.util.Set;
  * Класс описывает пользователя, хранит ник и пароль
  */
 @Data
+@EqualsAndHashCode(exclude = {"sources", "tokens", "priorities"})
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
+
+    /**
+     * ИД объекта в базе
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="user_id")
+    private Long id;
+
     /**
      * Имя пользователя, является уникальным идентификатором пользователя
      */
-    @Id
-    @Column(name="username", length = 50)
+    @Column(name="username", length = 50, unique = true)
     private String username;
     /**
      * Хэшкод пароля пользователя

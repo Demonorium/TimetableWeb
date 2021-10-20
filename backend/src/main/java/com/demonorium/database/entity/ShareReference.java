@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -37,5 +39,10 @@ public class ShareReference {
     @Column(name = "rights", nullable = false)
     private Rights rights;
 
+    /**
+     * Список токнов доступа, которым дала доступ эта ссылка
+     */
+    @OneToMany(mappedBy = "reference", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Set<AccessToken> tokens = new HashSet<>();
 
 }

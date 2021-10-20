@@ -30,7 +30,7 @@ public class UserAuthentication extends
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        Optional<User> user = repository.findById(username);
+        Optional<User> user = repository.findByUsername(username);
         if (!user.isPresent())
             throw new UsernameNotFoundException("Unknown username: " + username);
 
@@ -48,7 +48,7 @@ public class UserAuthentication extends
      * @return true в случае успешного создания, false в случае ошибки
      */
     public User newUser(String username, String password) {
-        Optional<User> user = repository.findById(username);
+        Optional<User> user = repository.findByUsername(username);
         if (!user.isPresent()) {
             User newUser = new User(username, encoder.encode(password));
             repository.save(newUser);
@@ -60,12 +60,12 @@ public class UserAuthentication extends
 
     /**
      * Удалить пользователя
-     * @param username уникальное пользователя
+     * @param username имя пользователя
      * @param password пароль пользователя
      * @return true в случае успешного удаления, false в случае ошибки
      */
     public boolean removeUser(String username, String password) {
-        Optional<User> user = repository.findById(username);
+        Optional<User> user = repository.findByUsername(username);
         if (user.isPresent() && encoder.matches(password, user.get().getPassword())) {
             repository.delete(user.get());
             return true;
@@ -81,7 +81,7 @@ public class UserAuthentication extends
      * @return true в случае успешной смены пароля, false иначе
      */
     public boolean changePassword(String username, String password, String newPassword) {
-        Optional<User> user = repository.findById(username);
+        Optional<User> user = repository.findByUsername(username);
         if (user.isPresent() && encoder.matches(password, user.get().getPassword())) {
             user.get().setPassword(encoder.encode(newPassword));
             repository.save(user.get());

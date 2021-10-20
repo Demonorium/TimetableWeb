@@ -1,13 +1,14 @@
 package com.demonorium.database.entity;
 
+import com.demonorium.database.PartOfSource;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Описывает одно конкретное занятие в один конкретный день,
@@ -15,15 +16,17 @@ import java.util.Objects;
  * Если список пуст должен использоваться список вида занятия.
  */
 @Data
+@EqualsAndHashCode(exclude = {"template", "day", "place", "teachers"})
 @NoArgsConstructor
 @Entity
 @Table(name = "lessons")
-public class Lesson implements Comparable<Lesson> {
+public class Lesson implements Comparable<Lesson>, PartOfSource {
     /**
      * ИД объекта в базе
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="lesson_id")
     private Long id;
 
     /**
@@ -55,6 +58,12 @@ public class Lesson implements Comparable<Lesson> {
     @JoinColumn(name="place_id", nullable = false)
     private Place place;
 
+
+    @Override
+    public Source getSource() {
+        return template.getSource();
+    }
+
     /**
      * Список всех учителей проводящих занятие, перекрывает список из template
      */
@@ -76,11 +85,6 @@ public class Lesson implements Comparable<Lesson> {
     @Override
     public int compareTo(Lesson o) {
         return number - o.number;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
 

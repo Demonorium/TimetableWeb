@@ -1,7 +1,9 @@
 package com.demonorium.web;
 
 import com.demonorium.database.DatabaseService;
+import com.demonorium.database.PartOfSource;
 import com.demonorium.database.Rights;
+import com.demonorium.database.dto.ChangesDto;
 import com.demonorium.database.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,232 +12,220 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class CrudApiController {
     @Autowired
-    DatabaseService database;
+    private DatabaseService databaseService;
 
     @Autowired
-    WebUtils utils;
+    private WebUtils webUtils;
 
-    boolean access(HttpServletRequest request, CallSchedule schedule, Rights rights) {
-        return database.access(utils.getUser(request), schedule, rights);
+    private <T extends PartOfSource> boolean hasAccess(HttpServletRequest request, Optional<T> partOfSource, Rights rights) {
+        return databaseService.hasAccess(webUtils.getUser(request), partOfSource.get(), rights);
     }
-    boolean access(HttpServletRequest request, Day day, Rights rights) {
-        return database.access(utils.getUser(request), day, rights);
+    private boolean hasAccess(HttpServletRequest request, PartOfSource partOfSource, Rights rights) {
+        return databaseService.hasAccess(webUtils.getUser(request), partOfSource, rights);
     }
-    boolean access(HttpServletRequest request, HMStamp stamp, Rights rights) {
-        return database.access(utils.getUser(request), stamp, rights);
-    }
-    boolean access(HttpServletRequest request, Lesson lesson, Rights rights) {
-        return database.access(utils.getUser(request), lesson, rights);
-    }
-    boolean access(HttpServletRequest request, LessonTemplate lessonTemplate, Rights rights) {
-        return database.access(utils.getUser(request), lessonTemplate, rights);
-    }
-    boolean access(HttpServletRequest request, Place place, Rights rights) {
-        return database.access(utils.getUser(request), place, rights);
-    }
-    boolean access(HttpServletRequest request, Source source, Rights rights) {
-        return database.access(utils.getUser(request), source, rights);
-    }
-    boolean access(HttpServletRequest request, Teacher teacher, Rights rights) {
-        return database.access(utils.getUser(request), teacher, rights);
-    }
-    boolean access(HttpServletRequest request, Week week, Rights rights) {
-        return database.access(utils.getUser(request), week, rights);
-    }
-    boolean access(HttpServletRequest request, SourcesPriority priority, Rights rights) {
-        return database.access(utils.getUser(request), priority, rights);
+    private boolean hasAccess(HttpServletRequest request, Source source, Rights rights) {
+        return databaseService.hasAccess(webUtils.getUser(request), source, rights);
     }
 
+    /**
+     * Запрос всех источников в порядке их приоритета
+     * @param request
+     * @return
+     */
+    @GetMapping("/api/find/current_sources")
+    ResponseEntity<List<SourcesPriority>> findSources(HttpServletRequest request) {
+        User user = webUtils.getUser(request);
 
-    @GetMapping("/api/edit/schedule")
-    ResponseEntity<CallSchedule> editSchedule(HttpServletRequest request, @RequestParam(name="id", required = false) Long id, @RequestParam("source") Long source) {
-        Optional<Source> object = database.getSources().findById(source);
-        if (!object.isPresent())
+        ArrayList<SourcesPriority> priorities = new ArrayList<>(user.getPriorities());
+        Collections.sort(priorities);
+
+        return ResponseEntity.ok(priorities);
+    }
+
+    @GetMapping("/api/find/changes")
+    ResponseEntity<ChangesDto> findChanges(HttpServletRequest request,
+                                           @RequestParam(name="sourceId") Long sourceId,
+                                           @RequestParam(name="year")   Integer year,
+                                           @RequestParam(name="day")    Integer day) {
+        Optional<TimetableChanges> changes = databaseService.getTimetableChangesRepository()
+                .findBySourceAndDate_YearAndDayIs(sourceId, year, day);
+
+        if (!changes.isPresent()) {
             return ResponseEntity.notFound().build();
+        }
 
-        if (access(request, object.get(), Rights.UPDATE)) {
-            Optional<CallSchedule> schedule = database.getSchedules().findById(id);
-            if (schedule.isPresent()) {
-                return ResponseEntity.unprocessableEntity().build();
+        if (hasAccess(request, changes, Rights.READ)) {
+            Day changesOnDay = changes.get().getDay();
+
+            List<CallPair> callPairs;
+            if (changesOnDay.getSchedule() != null) {
+                callPairs = changesOnDay.getSchedule().getSchedule();
+                Collections.sort(callPairs);
+            } else {
+                callPairs = new ArrayList<>();
             }
-            CallSchedule newSchedule = new CallSchedule(object.get());
-            database.getSchedules().save(newSchedule);
+            List<Lesson> lessons = new ArrayList<>(changesOnDay.getLessons());
 
-            return ResponseEntity.ok(newSchedule);
+            Collections.sort(callPairs);
+            Collections.sort(lessons);
+
+            return ResponseEntity.ok(ChangesDto.builder()
+                .id(changes.get().getId())
+                .day(day).year(year)
+
+                .schedule(callPairs)
+                .lessons(lessons)
+                    .build());
         }
+
         return ResponseEntity.unprocessableEntity().build();
     }
 
-    @GetMapping("/api/edit/day")
-    ResponseEntity<Day> editDay(HttpServletRequest request,
-                                              @RequestParam(name="id", required = false) Long id,
-                                              @RequestParam("source") Long source,
-                                              @RequestParam(value = "scheduleId", required = false) Long scheduleId) {
-        Optional<Source> object = database.getSources().findById(source);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
+    @GetMapping("/api/create/call")
+    ResponseEntity<Long> createCall(HttpServletRequest request,
+                                      @RequestParam(name="scheduleId") Long id,
+                                      @RequestParam(name="hour") Byte hour,
+                                      @RequestParam(name="minute") Byte minute) {
+        Optional<CallSchedule> schedule = databaseService.getCallScheduleRepository().findById(id);
 
-        if (access(request, object.get(), Rights.UPDATE)) {
-            CallSchedule schedule = null;
-            {
-                Optional<CallSchedule> temp = database.getSchedules().findById(scheduleId);
-                if (temp.isPresent())
-                    schedule = temp.get();
+        if (!schedule.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, schedule, Rights.UPDATE)) {
+            CallPair callPair = new CallPair(schedule.get(), hour, minute);
+
+            return ResponseEntity.ok(databaseService.getCallPairRepository().save(callPair).getId());
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/update/call")
+    ResponseEntity<String> updateCall(HttpServletRequest request,
+                                      @RequestParam(name="id") Long id,
+                                      @RequestParam(name="hour") Byte hour,
+                                      @RequestParam(name="minute") Byte minute) {
+        Optional<CallPair> callPair = databaseService.getCallPairRepository().findById(id);
+
+        if (!callPair.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, callPair, Rights.UPDATE)) {
+            callPair.get().setHour(hour);
+            callPair.get().setMinute(minute);
+
+            databaseService.getCallPairRepository().save(callPair.get());
+
+            return ResponseEntity.ok("success");
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/create/schedule")
+    ResponseEntity<Long> createSchedule(HttpServletRequest request, @RequestParam("sourceId") Long id) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, source.get(), Rights.UPDATE)) {
+            CallSchedule schedule = new CallSchedule(source.get());
+
+            return ResponseEntity.ok(databaseService.getCallScheduleRepository().save(schedule).getId());
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/delete/schedule")
+    ResponseEntity<String> updateSchedule(HttpServletRequest request, @RequestParam(name="id") Long id) {
+        Optional<CallSchedule> schedule = databaseService.getCallScheduleRepository().findById(id);
+
+        if (!schedule.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, schedule, Rights.UPDATE)) {
+            databaseService.getCallScheduleRepository().delete(schedule.get());
+
+            return ResponseEntity.ok("success");
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+
+    @GetMapping("/api/find/all_sources")
+    ResponseEntity<List<Long>> findAll(HttpServletRequest request) {
+        User user = webUtils.getUser(request);
+
+        List<Source> sources = user.getSources();
+
+        List<Long> result = new ArrayList<>(sources.size());
+        sources.forEach(source -> result.add(source.getId()));
+
+        Set<AccessToken> tokens = user.getTokens();
+        tokens.forEach((accessToken -> result.add(accessToken.getReference().getSource().getId())));
+
+        return ResponseEntity.ok(result);
+    }
+
+
+    @GetMapping("/api/update/priority")
+    ResponseEntity<String> findPriority(HttpServletRequest request,
+                                                 @RequestParam(name="sourceId") Long id,
+                                                 @RequestParam(name="priority") Integer newPriority) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User user = webUtils.getUser(request);
+
+        if (databaseService.hasAccess(user, source.get(), Rights.READ)) {
+            Optional<SourcesPriority> priority = databaseService.getSourcesPriorityRepository()
+                    .findByUserAndSource(user, source.get());
+            if (!priority.isPresent()) {
+                return ResponseEntity.notFound().build();
             }
-            if (schedule == null) {
-                schedule = object.get().getDefaultSchedule();
-            }
-            if (schedule != null) {
-                Day day = null;
-                if (id != null) {
-                    Optional<Day> temp = database.getDays().findById(id);
-                    if (temp.isPresent())
-                        day = temp.get();
-                }
-                if (day == null)
-                    day = new Day();
-                day.setSource(object.get());
-                day.setSchedule(schedule);
-                database.getDays().save(day);
-                return ResponseEntity.ok(day);
 
-            } else
-                return ResponseEntity.internalServerError().build();
+            priority.get().setPriority(newPriority);
+            databaseService.getSourcesPriorityRepository().save(priority.get());
+
+            return ResponseEntity.ok("success");
         }
+
         return ResponseEntity.unprocessableEntity().build();
     }
 
+    @GetMapping("/api/create/priority")
+    ResponseEntity<Long> createPriority(HttpServletRequest request,
+                                        @RequestParam(name="sourceId") Long id,
+                                        @RequestParam(name="priority") Integer newPriority) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
 
-    @GetMapping("/api/find/all")
-    ResponseEntity<List<Source>> findAll(HttpServletRequest request) {
-        User user = utils.getUser(request);
-
-        if (user != null) {
-            List<Source> sources = user.getSources();
-            List<Source> result = new ArrayList<>(sources);
-            Set<AccessToken> tokens = user.getTokens();
-            tokens.forEach((accessToken -> result.add(accessToken.getReference().getSource())));
-
-            return ResponseEntity.ok(result);
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @GetMapping("/api/find/priority")
-    ResponseEntity<SourcesPriority> findPriority(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<SourcesPriority> object = database.getSourcesPriorities().findById(id);
-        if (!object.isPresent())
+        if (!source.isPresent()) {
             return ResponseEntity.notFound().build();
-
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
         }
-        return ResponseEntity.unprocessableEntity().build();
-    }
 
-    @GetMapping("/api/find/schedule")
-    ResponseEntity<CallSchedule> findSchedule(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<CallSchedule> object = database.getSchedules().findById(id);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
+        User user = webUtils.getUser(request);
 
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
+        if (databaseService.hasAccess(user, source.get(), Rights.READ)) {
+            SourcesPriority priority = new SourcesPriority(user, source.get(), newPriority);
+
+            return ResponseEntity.ok(databaseService.getSourcesPriorityRepository().save(priority).getId());
         }
-        return ResponseEntity.unprocessableEntity().build();
-    }
 
-
-
-    @GetMapping("/api/find/day")
-    ResponseEntity<Day> findDay(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Day> object = database.getDays().findById(id);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
-
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
-        }
-        return ResponseEntity.unprocessableEntity().build();
-    }
-
-    @GetMapping("/api/find/lesson")
-    ResponseEntity<Lesson> findLesson(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Lesson> object = database.getLessons().findById(id);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
-
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
-        }
-        return ResponseEntity.unprocessableEntity().build();
-    }
-
-    @GetMapping("/api/find/lesson_template")
-    ResponseEntity<LessonTemplate> findLessonTemplate(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<LessonTemplate> object = database.getLessonTemplates().findById(id);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
-
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
-        }
-        return ResponseEntity.unprocessableEntity().build();
-    }
-
-    @GetMapping("/api/find/place")
-    ResponseEntity<Place> findPlace(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Place> object = database.getPlaces().findById(id);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
-
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
-        }
-        return ResponseEntity.unprocessableEntity().build();
-    }
-
-    @GetMapping("/api/find/source")
-    ResponseEntity<Source> findSource(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Source> object = database.getSources().findById(id);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
-
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
-        }
-        return ResponseEntity.unprocessableEntity().build();
-    }
-
-    @GetMapping("/api/find/teacher")
-    ResponseEntity<Teacher> findTeacher(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Teacher> object = database.getTeachers().findById(id);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
-
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
-        }
-        return ResponseEntity.unprocessableEntity().build();
-    }
-
-    @GetMapping("/api/find/week")
-    ResponseEntity<Week> findWeek(HttpServletRequest request, @RequestParam(name="id") long id) {
-        Optional<Week> object = database.getWeeks().findById(id);
-        if (!object.isPresent())
-            return ResponseEntity.notFound().build();
-
-        if (access(request, object.get(), Rights.READ)) {
-            return ResponseEntity.ok(object.get());
-        }
         return ResponseEntity.unprocessableEntity().build();
     }
 }

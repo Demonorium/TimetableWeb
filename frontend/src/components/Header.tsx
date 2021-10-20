@@ -8,7 +8,7 @@ export interface HeaderProps {
 
 export default function Header({theme, serviceName}: HeaderProps) {
     return (
-        <AppBar position="relative" color="default">
+        <AppBar position="absolute" color="default">
             <Container maxWidth="lg" disableGutters={true}>
                 <Toolbar>
                     <Typography variant="h6" color="blue" noWrap>

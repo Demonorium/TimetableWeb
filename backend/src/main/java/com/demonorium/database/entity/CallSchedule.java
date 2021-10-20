@@ -1,13 +1,16 @@
 package com.demonorium.database.entity;
 
+import com.demonorium.database.PartOfSource;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,23 +19,25 @@ import java.util.Set;
  * списка в отсортированном виде.
  */
 @Data
+@EqualsAndHashCode(exclude = {"source", "schedule", "days"})
 @NoArgsConstructor
 @Entity
 @Table(name = "schedules")
-public class CallSchedule {
+public class CallSchedule implements PartOfSource {
     /**
      * ИД объекта в базе
      */
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name = "id")
+    @Column(name = "schedule_id")
     private Long id;
 
     /**
      * Множество всех объектов времени, относящихся в данному расписанию звонков
      */
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private Set<HMStamp> schedule = new HashSet<>();
+    private List<CallPair> schedule = new ArrayList<>();
+
     /**
      * Множество всех дней, использующих данное расписание звонков
      */
@@ -57,11 +62,5 @@ public class CallSchedule {
 
     public CallSchedule(Source source) {
         this.source = source;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

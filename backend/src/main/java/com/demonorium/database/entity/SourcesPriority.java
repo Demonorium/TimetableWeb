@@ -3,11 +3,13 @@ package com.demonorium.database.entity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
+@EqualsAndHashCode(exclude = {"user", "source", "token"})
 @NoArgsConstructor
 @Entity
 @Table(name = "priorities")
@@ -17,7 +19,7 @@ public class SourcesPriority implements Comparable<SourcesPriority> {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name="priority_id")
     private Long id;
 
     /**
@@ -43,7 +45,7 @@ public class SourcesPriority implements Comparable<SourcesPriority> {
     private Source source;
 
     /**
-     * Токен, который дал доступ
+     * Токен, который дал доступ (если есть)
      */
     @JsonIgnore
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
@@ -63,6 +65,19 @@ public class SourcesPriority implements Comparable<SourcesPriority> {
      */
     @Column(name="priority", nullable = false)
     private int priority;
+
+    public SourcesPriority(User user, AccessToken token, int priority) {
+        this.user = user;
+        this.source = token.getReference().getSource();
+        this.token = token;
+        this.priority = priority;
+    }
+
+    public SourcesPriority(User user, Source source, int priority) {
+        this.user = user;
+        this.source = source;
+        this.priority = priority;
+    }
 
     @Override
     public int compareTo(SourcesPriority o) {

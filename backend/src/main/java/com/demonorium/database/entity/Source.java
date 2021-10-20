@@ -3,17 +3,23 @@ package com.demonorium.database.entity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
  * Описывает источник информации о расписании.
  */
 @Data
+@EqualsAndHashCode(exclude = {
+        "defaultSchedule", "owner", "teachers",
+        "days", "schedules", "templates",
+        "places", "weeks", "reference",
+        "priorities", "changes"
+})
 @NoArgsConstructor
 @Entity
 @Table(name = "sources")
@@ -23,15 +29,21 @@ public class Source {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name="source_id")
     private Long id;
+
+    /**
+     * Название расписания
+     */
+    @Column(length = 50)
+    private String name;
 
     /**
      * Стандартное расписание звокнов, указывается для дня, если не было указано другого или
      * раписание звонков было удалено
      */
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    @JoinColumn(name="default_schedule", nullable = true)
+    @JoinColumn(name="default_schedule_id", nullable = true)
     private CallSchedule defaultSchedule;
 
     /**
@@ -107,8 +119,9 @@ public class Source {
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<SourcesPriority> priorities = new HashSet<>();
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    /**
+     * Список изменений
+     */
+    @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Set<TimetableChanges> changes = new HashSet<>();
 }

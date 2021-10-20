@@ -1,28 +1,31 @@
 package com.demonorium.database.entity;
 
+import com.demonorium.database.PartOfSource;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
  * Описывает вид занятия. Хранит название, короткую заметку.
  */
 @Data
+@EqualsAndHashCode(exclude = {"source", "defaultTeachers", "lessons"})
 @NoArgsConstructor
 @Entity
 @Table(name = "lesson_templates")
-public class LessonTemplate {
+public class LessonTemplate implements PartOfSource {
     /**
      * ИД объекта в базе
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="template_id")
     private Long id;
 
     /**
@@ -70,9 +73,4 @@ public class LessonTemplate {
         this.note = note;
         this.source = source;
     }
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
 }

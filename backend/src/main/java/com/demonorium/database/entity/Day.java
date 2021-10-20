@@ -2,10 +2,12 @@ package com.demonorium.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Описывает какой-либо конкретный день
@@ -13,6 +15,7 @@ import java.util.*;
  * Также имеет либо ссылку на неделю, либо дату, когда он действует
  */
 @Data
+@EqualsAndHashCode(exclude = {"source", "schedule", "lessons"})
 @NoArgsConstructor
 @Entity
 @Table(name = "days")
@@ -22,6 +25,7 @@ public class Day {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="day_id")
     private Long id;
 
     /**
@@ -52,53 +56,13 @@ public class Day {
     @OneToMany(mappedBy = "day", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Lesson> lessons = new HashSet<>();
 
-    /**
-     * Если день привязан к какому-то дню одной из недель, то данное поле указывает на эту неделю.
-     * В противном случае данное поле должно быть null.
-     */
-    @OneToOne(optional = true, fetch = FetchType.EAGER)
-    @JoinColumn(name="week_id", nullable = true)
-    private Week week;
 
-    /**
-     * @return Возвращает ИД недели, если день привязан к неделе, в противном случае null.
-     */
-    @JsonGetter("week")
-    public Long getWeekId() {
-        if (week == null)
-            return null;
-        return week.getId();
-    }
-
-    /**
-     * Хранит дату которой привязан данный день, если день привязан к неделе, то поле равно null.
-     * Если данное поле установлено, то в эту дату будет использовано это расписание.
-     */
-    private Date targetDate;
-
-    public Day(Source source, Date targetDate) {
+    public Day(Source source) {
         this.source = source;
-        this.setTargetDate(targetDate);
     }
 
-    public Day(Source source, Week week) {
+    public Day(Source source, CallSchedule callSchedule) {
         this.source = source;
-        this.week = week;
-    }
-
-    public void setTargetDate(Date targetDate) {
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(targetDate);
-
-        Calendar simpleCalendar = new GregorianCalendar();
-        simpleCalendar.set(GregorianCalendar.YEAR, calendar.get(GregorianCalendar.YEAR));
-        simpleCalendar.set(GregorianCalendar.DAY_OF_YEAR, calendar.get(GregorianCalendar.DAY_OF_YEAR));
-
-        this.targetDate = simpleCalendar.getTime();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+        this.schedule = callSchedule;
     }
 }

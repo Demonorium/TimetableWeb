@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 
 
@@ -32,52 +30,69 @@ public class UserAuthController {
         User user = authentication.newUser(username, password);
         if (user != null) {
             //todo: remove
+
+            //Создаём источник
             Source source = new Source(user);
-            database.getSources().save(source);
+            database.getSourceRepository().save(source);
+
+            //Создаём расписание звонков поумолчанию
             CallSchedule schedule = new CallSchedule(source);
-            database.getSchedules().save(schedule);
+            schedule = database.getCallScheduleRepository().save(schedule);
+
             source.setDefaultSchedule(schedule);
-            database.getSources().save(source);
+            database.getSourceRepository().save(source);
+
+            //Наполняем расписание 4 звонками для 2 уроков
+            //10:00 - 10:40
+            //20:10 - 20:50
+
             {
-                HMStamp stamp = new HMStamp((byte) 10, (byte) 0, schedule);
-                database.getHmstamps().save(stamp);
+                CallPair call = new CallPair(schedule, (byte) 10, (byte) 0);
+                database.getCallPairRepository().save(call);
             }
             {
-                HMStamp stamp = new HMStamp((byte) 10, (byte) 40, schedule);
-                database.getHmstamps().save(stamp);
+                CallPair call = new CallPair(schedule, (byte) 10, (byte) 40);
+                database.getCallPairRepository().save(call);
             }
             {
-                HMStamp stamp = new HMStamp((byte) 20, (byte) 10, schedule);
-                database.getHmstamps().save(stamp);
+                CallPair call = new CallPair(schedule, (byte) 20, (byte) 10);
+                database.getCallPairRepository().save(call);
             }
             {
-                HMStamp stamp = new HMStamp((byte) 20, (byte) 50, schedule);
-                database.getHmstamps().save(stamp);
+                CallPair call = new CallPair(schedule, (byte) 20, (byte) 50);
+                database.getCallPairRepository().save(call);
             }
 
-
+            //Создаём шаблон занятия
             LessonTemplate template = new LessonTemplate("Тестовый урок", "Заметка об уроке", source);
-            database.getLessonTemplates().save(template);
+            database.getLessonTemplateRepository().save(template);
 
-            Place place = new Place("324", "6k", "лучший кабинет", source);
-            database.getPlaces().save(place);
+            //Создаём место занятия
+            Place place = new Place("324", "6К", "Лучший кабинет", source);
+            database.getPlaceRepository().save(place);
 
-            Day day = new Day(source, new Date());
-            database.getDays().save(day);
+            //Создаём описание дня
+            Day day = new Day(source);
+            database.getDayRepository().save(day);
 
             {
                 Lesson lesson = new Lesson(template, day, place, 0);
-                database.getLessons().save(lesson);
+                database.getLessonRepository().save(lesson);
             }
             {
                 Lesson lesson = new Lesson(template, day, place, 1);
-                database.getLessons().save(lesson);
+                database.getLessonRepository().save(lesson);
             }
 
-            byte[] encoded = Base64.getEncoder()
-                    .encode((username + ':' + password)
-                            .getBytes(StandardCharsets.UTF_8));
-            return ResponseEntity.ok(new String(encoded, StandardCharsets.UTF_8));
+            //Создаём дату (текущий день)
+            YearDayPair yearDayPair = new YearDayPair(new Date());
+            database.getYearDayPairRepository().save(yearDayPair);
+
+            //Создаём изменений в расписании на сегодня
+            TimetableChanges changes = new TimetableChanges(source, yearDayPair, day);
+            database.getTimetableChangesRepository().save(changes);
+
+            return ResponseEntity.ok("success");
         }
         return ResponseEntity.badRequest().body("duplicate username");
     }

@@ -1,97 +1,68 @@
 package com.demonorium.database;
 
 
-import com.demonorium.database.entity.*;
+import com.demonorium.database.entity.AccessToken;
+import com.demonorium.database.entity.Source;
+import com.demonorium.database.entity.User;
 import com.demonorium.database.repository.*;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Component
 @Getter
+@Service
 public class DatabaseServiceImpl implements DatabaseService {
     @Autowired
-    private CallScheduleRepository schedules;
+    private CallScheduleRepository callScheduleRepository;
     @Autowired
-    private DayRepository days;
+    private DayRepository dayRepository;
     @Autowired
-    private HMStampRepository hmstamps;
+    private CallPairRepository callPairRepository;
     @Autowired
-    private LessonRepository lessons;
+    private LessonRepository lessonRepository;
     @Autowired
-    private LessonTemplateRepository lessonTemplates;
+    private LessonTemplateRepository lessonTemplateRepository;
     @Autowired
-    private PlaceRepository places;
+    private PlaceRepository placeRepository;
     @Autowired
-    private SourceRepository sources;
+    private SourceRepository sourceRepository;
     @Autowired
-    private TeacherRepository teachers;
+    private TeacherRepository teacherRepository;
     @Autowired
-    private UserRepository users;
+    private UserRepository userRepository;
     @Autowired
-    private WeekRepository weeks;
+    private WeekRepository weekRepository;
     @Autowired
-    private AccessTokenRepository tokens;
+    private AccessTokenRepository tokenRepository;
     @Autowired
-    private ShareReferenceRepository references;
+    private ShareReferenceRepository referenceRepository;
 
     @Autowired
-    private SourcesPriorityRepository sourcesPriorities;
+    private SourcesPriorityRepository sourcesPriorityRepository;
+
+    @Autowired
+    private TimetableChangesRepository timetableChangesRepository;
+    @Autowired
+    private WeekDayRepository weekDayRepository;
+    @Autowired
+    private YearDayPairRepository yearDayPairRepository;
 
     @Override
-    public boolean access(User user, SourcesPriority priority, Rights rights) {
-        return access(user, priority.getSource(), rights);
-    }
-
-    @Override
-    public boolean access(User user, CallSchedule schedule, Rights rights) {
-        return access(user, schedule.getSource(), rights);
-    }
-    @Override
-    public boolean access(User user, Day day, Rights rights) {
-        return access(user, day.getSource(), rights);
-    }
-    @Override
-    public boolean access(User user, HMStamp stamp, Rights rights) {
-        return access(user, stamp.getSchedule(), rights);
-    }
-    @Override
-    public boolean access(User user, Lesson lesson, Rights rights) {
-        return access(user, lesson.getDay(), rights);
-    }
-    @Override
-    public boolean access(User user, LessonTemplate lessonTemplate, Rights rights) {
-        return access(user, lessonTemplate.getSource(), rights);
-    }
-    @Override
-    public boolean access(User user, Place place, Rights rights) {
-        return access(user, place.getSource(), rights);
+    public boolean hasAccess(User user, PartOfSource partOfSource, Rights rights) {
+        return hasAccess(user, partOfSource.getSource(), rights);
     }
 
     @Override
-    public boolean access(User user, Teacher teacher, Rights rights) {
-        return access(user, teacher.getSource(), rights);
-    }
-    @Override
-    public boolean access(User user, Week week, Rights rights) {
-        return access(user, week.getSource(), rights);
-    }
-
-    @Override
-    public boolean access(User user, AccessToken token, Rights rights) {
-        return token.getUser() == user;
-    }
-
-    @Override
-    public boolean access(User user, Source source, Rights rights) {
-        if (user == null) return false;
-        if (source == null) return false;
-        if (rights == null) return false;
+    public boolean hasAccess(User user, Source source, Rights rights) {
+        if ((user == null) || (source == null) || (rights == null)) return false;
         if (source.getOwner().equals(user)) return true;
-        Optional<AccessToken> access = getTokens().findByUserAndReference_Source(user, source);
+
+        Optional<AccessToken> access = tokenRepository.findByUserAndReference_Source(user, source);
 
         return access.filter(accessToken -> Rights.compatible(accessToken.getReference().getRights(), rights)).isPresent();
     }
+
+
 }

@@ -11,7 +11,10 @@
     height: 30vmin;
     pointer-events: none;
 }
-
+.loading-animation-small {
+    height: 5vmin;
+    pointer-events: none;
+}
 @media (prefers-reduced-motion: no-preference) {
     .loading-animation {
         animation: loading-spin infinite 10s linear;

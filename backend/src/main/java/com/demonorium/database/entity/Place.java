@@ -1,29 +1,31 @@
 package com.demonorium.database.entity;
 
+import com.demonorium.database.PartOfSource;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Описывает место проведения занятия аудиторией, зданием, заметкой
  */
 @Data
+@EqualsAndHashCode(exclude = {"source", "lessons"})
 @NoArgsConstructor
 @Entity
 @Table(name = "places")
-public class Place {
+public class Place implements PartOfSource {
     /**
      * ИД объекта в базе
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name="place_id")
     private Long id;
 
     /**
@@ -69,10 +71,5 @@ public class Place {
         this.building = building;
         this.note = note;
         this.source = source;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

@@ -18,7 +18,7 @@ public class WebUtils {
         Principal principal = request.getUserPrincipal();
         if (principal == null)
             return null;
-        Optional<User> user = userRepository.findById(principal.getName());
+        Optional<User> user = userRepository.findByUsername(principal.getName());
         return user.orElse(null);
     }
 }

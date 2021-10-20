@@ -2,24 +2,29 @@ import * as React from 'react';
 import axios from "axios";
 import {Box, Container} from '@mui/material';
 import Day from "./Day";
+import {useAppDispatch, useAppSelector} from "../store/hooks";
+import InfiniteDaysSlider from "./InfiniteDaysSlider";
+import {connect} from "react-redux";
 
 interface BodyProps {
-    username: string
-    password: string
     sources: Array<{[key: string]: any}>
+    store: any,
+    container: any
 }
-export default class Body extends React.Component<any, any>{
+class Body extends React.Component<any, any>{
     constructor(props: BodyProps) {
         super(props);
-        this.state = {sources: props.sources, username: props.username, password: props.password}
+        this.state = {store: props.store, sources: props.sources, container: props.container}
     }
 
     componentDidMount() {
-        console.log(this.state.username)
+        const user = this.state.store.user;
+
+        console.log(user.username)
         axios.get("api/find/all", {
             auth: {
-                username: this.state.username,
-                password: this.state.password
+                username: user.username,
+                password: user.password
             }
         }).then((response) => {
             this.setState({
@@ -31,9 +36,7 @@ export default class Body extends React.Component<any, any>{
 
     componentWillUnmount() {
     }
-
     render() {
-
         if (this.state.sources == null) {
             return (
                 <Container maxWidth="sm" component="main">
@@ -43,14 +46,17 @@ export default class Body extends React.Component<any, any>{
         } else {
             let days: Array<{[key:string] : any}> = this.state.sources[0]['days']
             return (
-                <Box sx={{display:"flex", flexDirection:"column"}}>
-                    <Container sx={{bgcolor:'#FFFFFF'}}  maxWidth="sm" component="main">
-                        <Day days={days} dayIndex={"Сегодня"} schedule={this.state.sources[0]['defaultSchedule']}/>
-                    </Container>
-                </Box>
+                <Container sx={{bgcolor:'#FFFFFF'}}  maxWidth="sm" component="main" >
+                    <InfiniteDaysSlider containerReference={this.state.container}/>
+                </Container>
             );
         }
-
     }
-
 }
+
+function mapStateToProps(state: any) {
+    return {
+        store: state
+    }
+}
+export default connect(mapStateToProps)(Body);

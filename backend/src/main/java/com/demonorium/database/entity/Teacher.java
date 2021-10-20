@@ -1,13 +1,14 @@
 package com.demonorium.database.entity;
 
+import com.demonorium.database.PartOfSource;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -15,15 +16,17 @@ import java.util.Set;
  * При удалении везде удаляет себя из списка преподавателей.
  */
 @Data
+@EqualsAndHashCode(exclude = {"source", "templates", "lessons"})
 @NoArgsConstructor
 @Entity
 @Table(name = "teachers")
-public class Teacher {
+public class Teacher implements PartOfSource {
     /**
      * ИД объекта в базе
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="teacher_id")
     private Long id;
 
     /**
@@ -47,6 +50,13 @@ public class Teacher {
      */
     @Column(name="name", length = 50)
     private String name;
+
+    /**
+     * Должность преподавателя
+     */
+    @Column(name="position", length = 50)
+    private String position;
+
     /**
      * Короткая заметка (не более 1 строки)
      */
@@ -65,9 +75,4 @@ public class Teacher {
         this.name = name;
         this.note = note;
     }
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
 }
