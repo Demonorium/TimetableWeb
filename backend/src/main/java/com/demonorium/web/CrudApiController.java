@@ -42,7 +42,7 @@ public class CrudApiController {
         User user = webUtils.getUser(request);
 
         ArrayList<SourcesPriority> priorities = new ArrayList<>(user.getPriorities());
-        Collections.sort(priorities);
+        priorities.sort(Collections.reverseOrder());
 
         return ResponseEntity.ok(priorities);
     }
@@ -52,19 +52,24 @@ public class CrudApiController {
                                            @RequestParam(name="sourceId") Long sourceId,
                                            @RequestParam(name="year")   Integer year,
                                            @RequestParam(name="day")    Integer day) {
-        Optional<TimetableChanges> changes = databaseService.getTimetableChangesRepository()
-                .findBySourceAndDate_YearAndDayIs(sourceId, year, day);
-
-        if (!changes.isPresent()) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(sourceId);
+        if (!source.isPresent()) {
             return ResponseEntity.notFound().build();
         }
 
-        if (hasAccess(request, changes, Rights.READ)) {
+        if (hasAccess(request, source.get(), Rights.READ)) {
+            Optional<TimetableChanges> changes = databaseService.getTimetableChangesRepository()
+                    .findBySourceAndDate_YearAndDate_DayIs(source.get(), year, day);
+
+            if (!changes.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+
             Day changesOnDay = changes.get().getDay();
 
             List<CallPair> callPairs;
             if (changesOnDay.getSchedule() != null) {
-                callPairs = changesOnDay.getSchedule().getSchedule();
+                callPairs = new ArrayList<>(changesOnDay.getSchedule().getSchedule());
                 Collections.sort(callPairs);
             } else {
                 callPairs = new ArrayList<>();
@@ -75,11 +80,11 @@ public class CrudApiController {
             Collections.sort(lessons);
 
             return ResponseEntity.ok(ChangesDto.builder()
-                .id(changes.get().getId())
-                .day(day).year(year)
+                .withId(changes.get().getId())
+                .withDay(day).withYear(year)
 
-                .schedule(callPairs)
-                .lessons(lessons)
+                .withSchedule(callPairs)
+                .withLessons(lessons)
                     .build());
         }
 
@@ -128,7 +133,22 @@ public class CrudApiController {
 
         return ResponseEntity.unprocessableEntity().build();
     }
+    @GetMapping("/api/delete/call")
+    ResponseEntity<String> deleteCall(HttpServletRequest request, @RequestParam(name="id") Long id) {
+        Optional<CallPair> callPair = databaseService.getCallPairRepository().findById(id);
 
+        if (!callPair.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, callPair, Rights.UPDATE)) {
+            databaseService.getCallPairRepository().delete(callPair.get());
+
+            return ResponseEntity.ok("success");
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
     @GetMapping("/api/create/schedule")
     ResponseEntity<Long> createSchedule(HttpServletRequest request, @RequestParam("sourceId") Long id) {
         Optional<Source> source = databaseService.getSourceRepository().findById(id);
@@ -164,20 +184,6 @@ public class CrudApiController {
     }
 
 
-    @GetMapping("/api/find/all_sources")
-    ResponseEntity<List<Long>> findAll(HttpServletRequest request) {
-        User user = webUtils.getUser(request);
-
-        List<Source> sources = user.getSources();
-
-        List<Long> result = new ArrayList<>(sources.size());
-        sources.forEach(source -> result.add(source.getId()));
-
-        Set<AccessToken> tokens = user.getTokens();
-        tokens.forEach((accessToken -> result.add(accessToken.getReference().getSource().getId())));
-
-        return ResponseEntity.ok(result);
-    }
 
 
     @GetMapping("/api/update/priority")
@@ -208,6 +214,8 @@ public class CrudApiController {
         return ResponseEntity.unprocessableEntity().build();
     }
 
+
+
     @GetMapping("/api/create/priority")
     ResponseEntity<Long> createPriority(HttpServletRequest request,
                                         @RequestParam(name="sourceId") Long id,
@@ -227,5 +235,80 @@ public class CrudApiController {
         }
 
         return ResponseEntity.unprocessableEntity().build();
+    }
+    @GetMapping("/api/delete/priority")
+    ResponseEntity<String> findPriority(HttpServletRequest request, @RequestParam(name="sourceId") Long id) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User user = webUtils.getUser(request);
+
+        Optional<SourcesPriority> priority = databaseService.getSourcesPriorityRepository()
+                .findByUserAndSource(user, source.get());
+
+        if (!priority.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        databaseService.getSourcesPriorityRepository().delete(priority.get());
+
+        return ResponseEntity.ok("success");
+    }
+
+    @GetMapping("/api/part-find/source/defaultSchedule")
+    ResponseEntity<CallSchedule> partFindSourceDefaultSchedule(HttpServletRequest request, @RequestParam(name="sourceId") Long id) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, source.get(), Rights.READ)) {
+            return ResponseEntity.ok(source.get().getDefaultSchedule());
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+    @GetMapping("/api/part-update/source/defaultSchedule")
+    ResponseEntity<String> createPriority(HttpServletRequest request,
+                                                @RequestParam(name="sourceId") Long sourceId,
+                                                @RequestParam(name="scheduleId") Long scheduleId) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(sourceId);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Optional<CallSchedule> schedule = databaseService.getCallScheduleRepository().findById(scheduleId);
+        if (!schedule.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, source.get(), Rights.UPDATE) && hasAccess(request, schedule, Rights.READ)) {
+            source.get().setDefaultSchedule(schedule.get());
+            databaseService.getSourceRepository().save(source.get());
+
+            return ResponseEntity.ok("success");
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/find/all_sources")
+    ResponseEntity<List<Long>> findAll(HttpServletRequest request) {
+        User user = webUtils.getUser(request);
+
+        List<Source> sources = user.getSources();
+
+        List<Long> result = new ArrayList<>(sources.size());
+        sources.forEach(source -> result.add(source.getId()));
+
+        Set<AccessToken> tokens = user.getTokens();
+        tokens.forEach((accessToken -> result.add(accessToken.getReference().getSource().getId())));
+
+        return ResponseEntity.ok(result);
     }
 }

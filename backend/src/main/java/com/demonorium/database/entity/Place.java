@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Описывает место проведения занятия аудиторией, зданием, заметкой
@@ -64,7 +66,7 @@ public class Place implements PartOfSource {
      */
     @JsonIgnore
     @OneToMany(mappedBy = "place", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    private List<Lesson> lessons = new ArrayList<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     public Place(String auditory, String building, String note, Source source) {
         this.auditory = auditory;

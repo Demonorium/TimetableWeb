@@ -90,4 +90,7 @@ public class UserAuthentication extends
         return false;
     }
 
+    public boolean checkPassword(String userpassword, String password) {
+        return encoder.matches(password, userpassword);
+    }
 }

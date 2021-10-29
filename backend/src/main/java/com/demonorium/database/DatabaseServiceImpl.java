@@ -63,6 +63,4 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         return access.filter(accessToken -> Rights.compatible(accessToken.getReference().getRights(), rights)).isPresent();
     }
-
-
 }

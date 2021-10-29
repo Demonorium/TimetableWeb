@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@Builder
+@Builder(setterPrefix="with")
 public class ChangesDto {
     /**
      * ИД объекта изменений в базе данных
@@ -28,6 +28,7 @@ public class ChangesDto {
      * Год на который запрошены изменений
      */
     private int year;
+
     /**
      * День года на который запрошены изменения
      */

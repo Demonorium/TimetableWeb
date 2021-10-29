@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.Optional;
 
 
 @RestController
@@ -20,13 +21,25 @@ public class UserAuthController {
     @Autowired
     private UserAuthentication authentication;
     @Autowired
-    private WebUtils utils;
+    private WebUtils webUtils;
 
+    @GetMapping("/user/login")
+    ResponseEntity<String> login(@RequestParam("username") String username,
+                                 @RequestParam("password") String password) {
+        Optional<User> user = database.getUserRepository().findByUsername(username);
+        if (user.isPresent()) {
+            if (authentication.checkPassword(user.get().getPassword(), password)) {
+                return ResponseEntity.ok().body("success");
+            } else {
+                return ResponseEntity.badRequest().body("password incorrect");
+            }
+        } else
+            return ResponseEntity.notFound().build();
+    }
 
     @GetMapping("/user/register")
-    ResponseEntity<String> register(HttpServletRequest request,
-                                     @RequestParam("username") String username,
-                                     @RequestParam("password") String password) {
+    ResponseEntity<String> register(@RequestParam("username") String username,
+                                    @RequestParam("password") String password) {
         User user = authentication.newUser(username, password);
         if (user != null) {
             //todo: remove
@@ -72,7 +85,7 @@ public class UserAuthController {
             database.getPlaceRepository().save(place);
 
             //Создаём описание дня
-            Day day = new Day(source);
+            Day day = new Day(source, schedule);
             database.getDayRepository().save(day);
 
             {
@@ -91,6 +104,9 @@ public class UserAuthController {
             //Создаём изменений в расписании на сегодня
             TimetableChanges changes = new TimetableChanges(source, yearDayPair, day);
             database.getTimetableChangesRepository().save(changes);
+
+            //Добавляем текущее расписание в отображаемые, как 0
+            database.getSourcesPriorityRepository().save(new SourcesPriority(user, source, 0));
 
             return ResponseEntity.ok("success");
         }

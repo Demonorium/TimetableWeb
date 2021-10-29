@@ -36,7 +36,7 @@ public class CallSchedule implements PartOfSource {
      * Множество всех объектов времени, относящихся в данному расписанию звонков
      */
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private List<CallPair> schedule = new ArrayList<>();
+    private Set<CallPair> schedule = new HashSet<>();
 
     /**
      * Множество всех дней, использующих данное расписание звонков

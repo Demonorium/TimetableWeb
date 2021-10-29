@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Описывает одно конкретное занятие в один конкретный день,
@@ -69,7 +71,7 @@ public class Lesson implements Comparable<Lesson>, PartOfSource {
      * Список всех учителей проводящих занятие, перекрывает список из template
      */
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    private List<Teacher> teachers = new ArrayList<>();
+    private Set<Teacher> teachers = new HashSet<>();
 
     /**
      * Номер данного занятия среди все занятий в течении дня
