@@ -6,12 +6,15 @@ export default class RangeObject {
     last: number;
     readonly size: number;
 
+    constructor(size: number, origin?: number, first?: number, last?: number) {
+        if (origin == undefined) {
+            origin = 0;
+        }
 
-    constructor(size: number, first?: number, last?: number) {
         if ((first == undefined) || (last == undefined)) {
             const range = Math.floor(size) / 2;
-            this.first = -range;
-            this.last = range;
+            this.first = origin-range;
+            this.last = origin+range;
         } else {
             this.first = first;
             this.last = last;
@@ -22,7 +25,7 @@ export default class RangeObject {
 
 
     move(amount: number) {
-        const range = new RangeObject(this.size, this.first, this.last);
+        const range = new RangeObject(this.size, 0, this.first, this.last);
 
         if (amount > 0) {
             range.last += amount;
