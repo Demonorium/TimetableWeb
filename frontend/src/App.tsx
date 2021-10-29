@@ -1,92 +1,112 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Header from './components/Header';
 import Body from './components/Body';
-import {Box, createTheme, ThemeProvider} from "@mui/material";
+import {createTheme, ThemeProvider} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
-import axios from "axios";
 import Loading from "./components/Loading";
-import {connect} from "react-redux";
+import {useAppSelector} from "./store/hooks";
+import LoginOrRegister from "./components/LoginOrRegister";
+import dayjs from "dayjs";
 
 const theme = createTheme({components:{
     MuiCssBaseline: {
         styleOverrides: {
             body: {
-                backgroundColor: "#e8e8e8"
+                backgroundColor: "#e8e8e8",
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+                minHeight: "100%"
+            },
+            html: {
+                height: "100%",
+                minHeight: "100%"
+            },
+            "& #root": {
+                margin: '0',
+                height: '100%',
+                minHeight: '100%',
+                display: 'flex',
+                flexDirection: 'column'
             }
+
         }
     }
 }});
 
 enum SiteState {
     LOADING,
-    LOGIN,
-    REGISTER,
     PROCESS,
     CRUSH
 }
 
-//Класс приложения
-//Выбирает в каком режиме сейчас отображается приложение(загрузка, логин, регистрация, норм обработка, ошибка)
-function App(props: any) {
-    const containerReference = useRef<any>();
-    const store = props.store;
-    const [state, setState] = useState(SiteState.LOADING);
-    const [update, setUpdate] = useState(false);
-
-    useEffect(() => {
-        axios.get("/user/register", {
-            params: store.user
-        }).then((response) => {
-            setState(SiteState.PROCESS);
-        }).catch((error) => {
-            console.log(error);
-            if ((error.response) && (error.response.data != "duplicate username"))
-                setState(SiteState.CRUSH);
-            else
-                setState(SiteState.PROCESS);
-        });
-
-        setUpdate(false);
-    }, [update]);
-
-    switch (state) {
-        case SiteState.LOADING:
-            return (
-                <ThemeProvider theme={theme}>
-                    <div className="fillscreen">
-                        <Loading />
-                    </div>
-                </ThemeProvider>
-            )
-        case SiteState.CRUSH:
-            return (
-                <ThemeProvider theme={theme}>
-                    <div className="fillscreen">
-                        <Loading />
-                    </div>
-                </ThemeProvider>
-            )
-    }
-
-    return (
+/**
+ * Отображается во время загрузки
+ */
+function LoadingScreen() {
+    return  (
         <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Header theme={theme} serviceName="Учебное расписание"/>
-            <Box ref={containerReference} sx={{position: 'absolute',
-                width: '100%', height: '100vh',
-                display: 'block',
-                overflow: 'hidden scroll',
-                padding: '0', margin: '0'}}>
-                <Body container={containerReference}/>
-            </Box>
+            <div className="fillscreen">
+                <Loading />
+            </div>
         </ThemeProvider>
     );
 }
 
-
-function mapStateToProps(state: any) {
-    return {
-        store: state
-    }
+/**
+ * Отображается в случае критической ошибки
+ */
+function CrushScreen() {
+    return <LoadingScreen/>;
 }
-export default connect(mapStateToProps)(App);
+
+/**
+ * Нормальное отображение приложения, содержит загловок, ссылку на него, указывает тему
+ */
+function NormalScreen(props: any) {
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Header headerRef={props.headerRef} serviceName="Учебное расписание"/>
+            {props.children}
+        </ThemeProvider>
+    );
+}
+
+//Класс приложения
+//Выбирает в каком режиме сейчас отображается приложение(загрузка, логин, регистрация, норм обработка, ошибка)
+export default function App() {
+    const user = useAppSelector((state) => state.user);
+
+    //Ссылка на header, используется для определения положение компонент с абсолютным позиционированием
+    const headerRef = useRef<any>();
+
+    const [state, setState] = useState(SiteState.LOADING);
+    const [update, setUpdate] = useState(false);
+
+    useEffect(() => {
+        //Настройки
+        dayjs.locale('ru');
+
+        //После завершения настроек начинаем обработку
+        setState(SiteState.PROCESS);
+    }, [update]);
+
+    switch (state) {
+        case SiteState.LOADING:
+            return <LoadingScreen/>
+        case SiteState.CRUSH:
+            return <CrushScreen/>
+    }
+
+
+    return (
+        <NormalScreen headerRef={headerRef}>
+            { //Если нет пользователя выводим модалку для логина
+                (user.logout) ?
+                    <LoginOrRegister open={true} isRegister={false} /> :
+                    <Body headerRef={headerRef}/>
+            }
+        </NormalScreen>
+    );
+}

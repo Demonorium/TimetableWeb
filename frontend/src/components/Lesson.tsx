@@ -1,22 +1,31 @@
 import * as React from 'react';
 import {Collapse, Divider, List, ListItem, ListItemText} from "@mui/material";
+import {Lesson, ScheduleElement} from "../database";
 
 interface LessonProps {
-    lesson: {[key: string]: any},
-    start: {[key: string]: any},
-    end: {[key: string]: any}
+    lesson: Lesson,
+    start: ScheduleElement,
+    end: ScheduleElement
+}
+function minuteToStr(m: number) {
+    if (m < 10) {
+        return ':0' + m
+    }
+    return ':' + m;
 }
 
-export default  function Lesson({lesson, start, end}: LessonProps) {
+export default function Lesson({lesson, start, end}: LessonProps) {
     const [open, setOpen] = React.useState(false);
-    let template = lesson['template']
-    let place = lesson['place']
+    const template = lesson.template;
+    const place = lesson.place;
+
     const onClick = () => {
         setOpen(true);
     };
     const offClick = () => {
         setOpen(false);
     }
+
     return (
         <React.Fragment>
             <Divider />
@@ -25,13 +34,11 @@ export default  function Lesson({lesson, start, end}: LessonProps) {
                                 <ListItemText  primary={place['auditory']} secondary={place['building']}  />
                             }>
                 <ListItemText primary={template['name']} secondary={
-                    start['hour'] + ':' + start['minute']
+                    start.hour + minuteToStr(start.minute)
                     + ' - ' +
-                    end['hour'] + ':' + end['minute']}
+                    end.hour + minuteToStr(end.minute)}
                 />
 
-
-                {/*{open ? <ExpandLess /> : <ExpandMore />}*/}
             </ListItem>
             <Collapse in={open} timeout="auto" unmountOnExit>
 

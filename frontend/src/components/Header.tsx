@@ -1,15 +1,15 @@
 import * as React from 'react';
-import {AppBar, Container, Theme, Toolbar, Typography} from "@mui/material";
+import {AppBar, Container, Toolbar, Typography} from "@mui/material";
 
 export interface HeaderProps {
-    theme: Theme
+    headerRef: any;
     serviceName: String
 }
 
-export default function Header({theme, serviceName}: HeaderProps) {
+export default function Header({headerRef, serviceName}: HeaderProps) {
     return (
-        <AppBar position="absolute" color="default">
-            <Container maxWidth="lg" disableGutters={true}>
+        <AppBar position="relative" color="default" sx={{flex: "none"}}>
+            <Container maxWidth="xl" disableGutters={true}>
                 <Toolbar>
                     <Typography variant="h6" color="blue" noWrap>
                         {serviceName}

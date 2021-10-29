@@ -1,87 +1,95 @@
 import * as React from 'react';
-import {Box, List, ListItem, ListItemText} from "@mui/material";
+import {CircularProgress, Divider, List, ListItem, ListItemText} from "@mui/material";
 import Lesson from "./Lesson";
-import {DAY, DAY_NAMES, MONTH_OF_YEAR, nameOffset, SimpleCalendar, WEEK, YEAR} from "../utils/time";
-import {connect} from "react-redux";
-import {RootState} from "../store/global";
-import {ScheduleState} from "../store/schedule";
+import {Changes, Lesson as LessonRepresentation, ScheduleElement} from "../database";
+
+
+export interface InternalDayRepresentation {
+    lessons: Array<LessonRepresentation>;
+    schedule: Array<ScheduleElement>;
+
+    priority: number;
+}
+
+export function makeInternalDayRepresentation(changes: Changes, priority: number): InternalDayRepresentation {
+
+    return {
+        lessons: changes.lessons,
+        schedule: changes.schedule,
+        priority: priority
+    }
+}
 
 interface DayProps {
     index: number;
-    calendar: SimpleCalendar;
 
-    days: Array<{[key: string]: any}>;
-    store: RootState;
+    date: string;
+    dayOfWeek: string;
+    dateOffset: string;
+
+    day?: InternalDayRepresentation;
+
+    currentRef?: any;
 }
 
 
-function Day({index, calendar, days, store}: DayProps) {
-    let lessons : Array<React.ReactElement> = new Array<React.ReactElement>();
-    //Заголовок, который описывает, что за день перед нами
-    let dayHeader = (
-        <List>
-            <ListItem
-                secondaryAction={
-                    <ListItemText primary={calendar.get(YEAR) + ":" + calendar.get(MONTH_OF_YEAR) + ":" + (calendar.get(DAY))}  />
-                }>
-                <ListItemText primary={DAY_NAMES[calendar.getValueOf(DAY, WEEK)]} secondary={nameOffset(index)}/>
-            </ListItem>
-        </List>
-    )
-
-    if (days.length == 0) {
-        return (
-            <Box sx={{ display: 'flex' }}>
-                <List sx = {{width: "100%"}}>
-                    {dayHeader}
-                    <ListItemText primary={'Нет занятий'}/>
-                </List>
-            </Box>
-        );
-    }
-
-    //Ищем расписание звонков
-    let scheduleState: ScheduleState = store.schedule;
-    for (let i = 0; i < days.length; ++i) {
-        if (days[i].priority < scheduleState.priority) {
-            break;
-        } else if (days[i].schedule ) {
-
-        }
-    }
-
-
-    if (days[0]['schedule'] == null) {
-        tt = store.schedule
-    } else {
-        tt = days[0]['schedule']['schedule']
-    }
-    console.log(tt)
-    let arr: Array<any> = new Array<any>()
-    for (let stm in tt) {
-        arr.push(tt[stm]);
-    }
-    arr = arr.sort((x1:any,x2:any) => x1['time'] - x2['time']);
-    console.log(arr)
-    for (let lesson_k in days[0]['lessons']) {
-        let lesson: {[key: string]: any} = days[0]['lessons'][lesson_k]
-        let lnumb: number = lesson['number'] * 2;
-        lessons.push(<Lesson lesson={lesson} start={arr[lnumb]} end={arr[lnumb + 1]}/>);
-    }
-
+function DayContainer(props: any) {
     return (
-        <Box sx={{ display: 'flex' }}>
-            <List sx = {{width: "100%"}}>
-                {dayHeader}
-                {lessons}
+        <ListItem sx={{ display: 'flex', paddingTop: "0" }} ref={props.currentRef} key={props.list_key}>
+            <List sx={{width: "100%", paddingTop: "0", paddingBottom: "0"}}>
+                <Divider />
+                {props.dayHeader}
+                {props.list.length == 0 ? <Divider /> : undefined}
+                <ListItem sx = {{padding: "8px 32px"}}>
+                    <List sx = {{width: "100%", paddingTop: "0", paddingBottom: "0"}}>
+                        {props.list}
+                    </List>
+                </ListItem>
             </List>
-        </Box>
+        </ListItem>
     );
 }
 
-function mapStateToProps(state: any) {
-    return {
-        store: state
-    }
+
+//Заголовок, который описывает, что за день перед нами
+function DayHeader(props: any) {
+    return (
+        <ListItem
+            secondaryAction={
+                <ListItemText primary={props.date} key={1}  />
+            }>
+            <ListItemText primary={props.dayOfWeek} secondary={props.dateOffset} key={2}/>
+        </ListItem>
+    );
 }
-export default connect(mapStateToProps, Day);
+
+function Day(props: DayProps) {
+    const lessons = new Array<React.ReactElement>();
+    const dayHeader = <DayHeader date={props.date} dayOfWeek={props.dayOfWeek} dateOffset={props.dateOffset}/>
+
+    //Если описание дня небыло передано, то мы считаем, что день всё ещё загружается
+    if (props.day == undefined) {
+        return <DayContainer dayHeader = {dayHeader} list={[<CircularProgress />]} currentRef={props.currentRef} list_key={props.index}/>;
+        //return <DayContainer dayHeader = {dayHeader} list={[<ListItemText primary={'Идёт загрузка'}/>]} currentRef={props.currentRef} list_key={props.index}/>;
+    }
+
+    //Если расписания нет, значит нет занятий
+    if (props.day.lessons.length == 0) {
+        return <DayContainer dayHeader = {dayHeader} list={[<ListItemText primary={'Нет занятий'}/>]} currentRef={props.currentRef} list_key={props.index}/>;
+    }
+
+    for (let i = 0; i < props.day.lessons.length; ++i) {
+        const lesson = props.day.lessons[i];
+        const callNumber = lesson.number * 2;
+
+        if ((callNumber+1) >= props.day.schedule.length) break;
+
+        lessons.push(<Lesson lesson={lesson}
+                             start={props.day.schedule[callNumber]}
+                             end={props.day.schedule[callNumber + 1]}/>)
+    }
+
+    return <DayContainer dayHeader = {dayHeader} list={lessons} currentRef={props.currentRef} key={props.index}/>;
+}
+
+export default Day;

@@ -1,53 +1,84 @@
 import * as React from 'react';
+import {useEffect, useRef, useState} from 'react';
 import axios from "axios";
-import {Container} from '@mui/material';
+import {Box, Container, Grid, Paper} from '@mui/material';
 import InfiniteDaysSlider from "./InfiniteDaysSlider";
-import {connect} from "react-redux";
-import {SourcePriority} from "../store/database";
-import {useEffect, useState} from "react";
+import {SourcePriority} from "../database";
+import {setSources} from "../store/sources";
+import {useAppDispatch, useAppSelector} from "../store/hooks";
+import CalendarPicker from '@mui/lab/CalendarPicker';
+import dayjs from "dayjs";
 
 interface BodyProps {
-    sources: Array<{[key: string]: any}>
-    store: any,
-    container: any
+    /**
+     * Ссылка на заголовок, используется для определения размера слайдера дней
+     */
+    headerRef: any;
 }
 
-function Body(props: BodyProps) {
-    const store = props.store;
-    const container = props.container;
-    const [sources, setSources] = useState(new Array<SourcePriority>());
-    const [update, setUpdate] = useState(true)
+enum BodyState {
+    DAYS
+}
+
+function DaysList() {
+    const user = useAppSelector((state) => state.user);
+    const dispatch = useAppDispatch();
+
+    const containerRef = useRef<any>();
+
+    const [update, setUpdate] = useState(true);
+    const [date, setDate] = useState(dayjs());
 
     useEffect(() =>{
         if (update) {
             axios.get("/api/find/current_sources", {
-                auth: store.user
+                auth: user
             }).then((response) => {
-               setSources(response.data);
+                dispatch(setSources(response.data));
             }).catch((response) => {
+                dispatch(setSources(new Array<SourcePriority>()));
             })
             setUpdate(false);
         }
-    }, [update])
+    }, [update]);
 
-    if (sources.length == 0) {
-        return (
-            <Container maxWidth="sm" component="main">
+    const handleCalendar = (date: any) => {
+        setDate(date);
+    };
 
-            </Container>
-        );
-    } else {
-        return (
-            <Container sx={{bgcolor:'#FFFFFF'}}  maxWidth="sm" component="main" >
-                <InfiniteDaysSlider containerReference={container} sources={sources}/>
-            </Container>
-        );
-    }
+    return (
+        <Grid container spacing={2} sx={{height: '100%'}}>
+            <Grid item xs={3}>
+                <Paper color="main" sx={{marginTop:"32px"}}>
+                    <CalendarPicker date={date} onChange={handleCalendar}/>
+                </Paper>
+            </Grid>
+
+            <Grid item xs={6} sx={{height: "100%"}}>
+                <Box ref={containerRef} sx={{
+                    width: '100%', height: '100%',
+                    overflow: 'hidden scroll',
+                    padding: '0', margin: '0'}}>
+                    <Paper color="main">
+                        <InfiniteDaysSlider containerRef={containerRef} listSize={20} downloadsForRender={10}/>
+                    </Paper>
+                </Box>
+            </Grid>
+            <Grid item xs={3} sx={{paddingTop:"16px"}}>
+
+            </Grid>
+        </Grid>
+    );
 }
 
-function mapStateToProps(state: any) {
-    return {
-        store: state
-    }
+
+export default function Body(props: BodyProps) {
+    const [state, setState] = useState(BodyState.DAYS);
+
+    return (
+        <Container sx={{maxHeight: '92%'}} maxWidth="xl" component="main">
+            <DaysList/>
+        </Container>
+    );
 }
-export default connect(mapStateToProps)(Body);
+
