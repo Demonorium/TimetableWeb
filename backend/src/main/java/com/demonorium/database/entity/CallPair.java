@@ -66,11 +66,21 @@ public class CallPair implements Comparable<CallPair>, PartOfSource {
         return schedule.getSource();
     }
 
-
+    /**
+     * Возвращает числовое представление объекта, так, что
+     * CallPair(H1, M1).getTime() < CallPair(H2, M2).getTime()
+     * Если (H1 < H2) || ((H1 == H2) && (M1 < M2))
+     * @return 16 бит содержащие штамп времени
+     */
     @JsonGetter("time")
     public short getTime() {
         return (short)(((short)hour << 8) | ((short)minute));
     }
+
+    /**
+     * Принимает штамп полученный из getTime
+     * @param time шестнадцатибитный штамп
+     */
     @JsonSetter("time")
     public void setTime(short time) {
         hour = (byte)(time >> 8);

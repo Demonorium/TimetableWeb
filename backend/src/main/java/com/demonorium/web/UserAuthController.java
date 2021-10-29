@@ -20,8 +20,6 @@ public class UserAuthController {
 
     @Autowired
     private UserAuthentication authentication;
-    @Autowired
-    private WebUtils webUtils;
 
     @GetMapping("/user/login")
     ResponseEntity<String> login(@RequestParam("username") String username,
@@ -33,14 +31,16 @@ public class UserAuthController {
             } else {
                 return ResponseEntity.badRequest().body("password incorrect");
             }
-        } else
+        } else {
             return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/user/register")
     ResponseEntity<String> register(@RequestParam("username") String username,
                                     @RequestParam("password") String password) {
         User user = authentication.newUser(username, password);
+
         if (user != null) {
             //todo: remove
 
@@ -110,6 +110,7 @@ public class UserAuthController {
 
             return ResponseEntity.ok("success");
         }
+
         return ResponseEntity.badRequest().body("duplicate username");
     }
 }

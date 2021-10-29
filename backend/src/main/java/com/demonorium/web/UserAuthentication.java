@@ -31,8 +31,9 @@ public class UserAuthentication extends
     @Override
     public UserDetails loadUserByUsername(String username) {
         Optional<User> user = repository.findByUsername(username);
-        if (!user.isPresent())
+        if (!user.isPresent()) {
             throw new UsernameNotFoundException("Unknown username: " + username);
+        }
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.get().getUsername())
@@ -87,9 +88,16 @@ public class UserAuthentication extends
             repository.save(user.get());
             return true;
         }
+
         return false;
     }
 
+    /**
+     * Проверка что пароли совпадают
+     * @param userpassword хэшированный пароль
+     * @param password пароль для проверки
+     * @return true если пароли совпадают
+     */
     public boolean checkPassword(String userpassword, String password) {
         return encoder.matches(password, userpassword);
     }

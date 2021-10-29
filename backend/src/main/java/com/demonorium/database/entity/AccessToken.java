@@ -45,6 +45,10 @@ public class AccessToken {
     @JoinColumn(name="reference_id", nullable = false)
     private ShareReference reference;
 
+    /**
+     * Возвращает окончание ссылки
+     * @return окончание ссылки
+     */
     @JsonGetter("reference")
     public String getReferenceCode() {
         return reference.getCode();

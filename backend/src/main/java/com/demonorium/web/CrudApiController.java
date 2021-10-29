@@ -74,15 +74,14 @@ public class CrudApiController {
             } else {
                 callPairs = new ArrayList<>();
             }
-            List<Lesson> lessons = new ArrayList<>(changesOnDay.getLessons());
-
             Collections.sort(callPairs);
+
+            List<Lesson> lessons = new ArrayList<>(changesOnDay.getLessons());
             Collections.sort(lessons);
 
             return ResponseEntity.ok(ChangesDto.builder()
                 .withId(changes.get().getId())
                 .withDay(day).withYear(year)
-
                 .withSchedule(callPairs)
                 .withLessons(lessons)
                     .build());
