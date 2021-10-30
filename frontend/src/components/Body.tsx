@@ -60,7 +60,7 @@ function DaysList() {
                     overflow: 'hidden scroll',
                     padding: '0', margin: '0'}}>
                     <Paper color="main">
-                        <InfiniteDaysSlider containerRef={containerRef} listSize={20} downloadsForRender={10}/>
+                        <InfiniteDaysSlider containerRef={containerRef} listSize={20} downloadsForRender={10} origin={date}/>
                     </Paper>
                 </Box>
             </Grid>
@@ -73,10 +73,23 @@ function DaysList() {
 
 
 export default function Body(props: BodyProps) {
+    const root = useRef<any>();
     const [state, setState] = useState(BodyState.DAYS);
 
+    useEffect(() => {
+        console.log("effect")
+        if (root.current != null) {
+            console.log("root_active")
+            if (props.headerRef.current != null) {
+                console.log("head_active")
+                root.current.style.height=(innerHeight - props.headerRef.current.height) + "px";
+                console.log("style update");
+            }
+        }
+    }, [root.current, props.headerRef.current])
+
     return (
-        <Container sx={{maxHeight: '92%'}} maxWidth="xl" component="main">
+        <Container sx={{maxHeight: '92%'}} maxWidth="xl" component="main" ref={root}>
             <DaysList/>
         </Container>
     );

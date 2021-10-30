@@ -7,6 +7,12 @@ import store from './store/store'
 import {LocalizationProvider} from "@mui/lab";
 import DateAdapter from '@mui/lab/AdapterDayjs';
 
+import dayjs from "dayjs";
+
+import dayOfYear from 'dayjs/plugin/dayOfYear';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(dayOfYear)
+dayjs.extend(duration)
 
 ReactDOM.render(
     <Provider store={store}>

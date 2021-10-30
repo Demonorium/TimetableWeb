@@ -8,7 +8,7 @@ export interface HeaderProps {
 
 export default function Header({headerRef, serviceName}: HeaderProps) {
     return (
-        <AppBar position="relative" color="default" sx={{flex: "none"}}>
+        <AppBar position="relative" color="default" sx={{flex: "none"}} ref={headerRef}>
             <Container maxWidth="xl" disableGutters={true}>
                 <Toolbar>
                     <Typography variant="h6" color="blue" noWrap>

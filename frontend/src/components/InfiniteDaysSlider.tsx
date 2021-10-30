@@ -1,6 +1,6 @@
 import React from 'react';
 import {List} from "@mui/material";
-import {DAY, DAY_NAMES, MONTH_OF_YEAR, nameOffset, SimpleCalendar, WEEK, YEAR} from "../utils/time";
+import {DAY_NAMES, nameOffset} from "../utils/time";
 import {connect} from "react-redux";
 import Day, {InternalDayRepresentation, makeInternalDayRepresentation} from "./Day";
 import {RootState} from "../store/store";
@@ -10,26 +10,27 @@ import axios from "axios";
 import {ScheduleState} from "../store/schedule";
 import {SourcesState} from "../store/sources";
 import getComponentInfo, {Scrolls} from "../utils/componentInfo";
+import dayjs from "dayjs";
 
-async function downloadChangesFromSource(user: User, priority: SourcePriority, calendar: SimpleCalendar): Promise<Changes> {
+async function downloadChangesFromSource(user: User, priority: SourcePriority, date: dayjs.Dayjs): Promise<Changes> {
     return axios.get("/api/find/changes",{
             auth: user,
 
             params: {
                 sourceId: priority.source,
-                year: calendar.get(YEAR),
-                day: calendar.getValueOf(DAY, YEAR)
+                year: date.year(),
+                day: date.dayOfYear()
             }
         }
     )
 }
 
-async function downloadDay(user: User, calendar: SimpleCalendar, priorities: Array<SourcePriority>) {
+async function downloadDay(user: User, date: dayjs.Dayjs, priorities: Array<SourcePriority>) {
     const array = new Array<Promise<any>>();
 
     for (let i=0; i < priorities.length; ++i) {
         try {
-            array.push(downloadChangesFromSource(user, priorities[i], calendar));
+            array.push(downloadChangesFromSource(user, priorities[i], date));
         } catch (ignore:any) {}
     }
 
@@ -60,19 +61,20 @@ class DayState {
 
     downloadedState?: Array<InternalDayRepresentation>;
 
-    constructor(index: number, calendar: SimpleCalendar, ref?: any) {
+    constructor(index: number, date: dayjs.Dayjs, ref?: any) {
         this.index = index;
         this.ref = (index == 0) ? ref : undefined;
 
-        this.date = calendar.get(YEAR) + "." + (calendar.get(MONTH_OF_YEAR)+1) + "." + (calendar.get(DAY));
-        this.dayOfWeek = DAY_NAMES[calendar.getValueOf(DAY, WEEK)];
-        this.dateOffset = nameOffset(index);
+        this.date = date.format("YYYY.MM.DD");
+        this.dayOfWeek = DAY_NAMES[date.day()];
+        this.dateOffset = nameOffset(date.diff(dayjs(), 'day'));
     }
 
     getState(defaultSchedule?: Array<ScheduleElement>): InternalDayRepresentation | undefined {
         //Если нет загруженного состояния - значит загрузка ещё идёт
         if (this.downloadedState == undefined)
             return undefined;
+
         //Если загруженное состояние пустое, значит нет занятий
         if (this.downloadedState.length == 0)
             return {
@@ -106,13 +108,13 @@ class DayState {
             priority: 0
         }
     }
-    startDownload(user: User, calendar: SimpleCalendar, successCounter: any, downloadCounter: any, priorities?: Array<SourcePriority>) {
+    startDownload(user: User, date: dayjs.Dayjs, successCounter: any, downloadCounter: any, priorities?: Array<SourcePriority>) {
         if (priorities == undefined) {
             this.downloadedState = new Array<InternalDayRepresentation>();
         } else {
             downloadCounter();
 
-            downloadDay(user, calendar, priorities).then((data) => {
+            downloadDay(user, date, priorities).then((data) => {
                 this.downloadedState = data;
             }).catch((reason) => {
             }).finally(() => {
@@ -170,6 +172,11 @@ interface InfiniteDaysSliderProps {
      * Количество загрузок, после которого страница должна обновиться
      */
     downloadsForRender: number;
+
+    /**
+     *  Описывает день, который должен находится первый при загрузке
+     */
+    origin: dayjs.Dayjs;
 }
 
 interface InfiniteDaysSliderState {
@@ -247,10 +254,6 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
      * Ссылка на сегодняшний день
      */
     currentRef: any;
-    /**
-     * Календарь, указывающий на сегодня
-     */
-    calendar: SimpleCalendar;
 
     /**
      * Событие для регистрации в DOM
@@ -299,7 +302,6 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
         this.currentRef = React.createRef<any>();
 
         this.scrollToStart = true;
-        this.calendar = new SimpleCalendar();
         this.eventHandler = () => {this.handleContainerChanges()};
         this.incSuccessDownloadCounter = () => {this.setState({successDownloadCount: this.state.successDownloadCount + 1})};
         this.incDownloadCounter = () => {++this.currentDownloadCount;};
@@ -333,6 +335,7 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
         return nextState.update
             || (nextState.successDownloadCount >= nextProps.downloadsForRender) //Если число загрузок, больше лимита, обновляем стр
             || ((nextState.successDownloadCount == this.currentDownloadCount) && (this.currentDownloadCount > 0)) //Если число загрузок равно числу ожидаемых загрузок и мы ожидаем загрузки - обновляем стр
+            || (nextProps.origin != this.props.origin)
             || (nextProps.containerRef.current !== this.prevContainer) //Если сменился контейнер - обновляем
             || this.isRangeChanged(nextState.range)           //Если сменился промежуток - обновляем
             || this.isStorageUpdated(nextProps);    //Если сменилось хранилище - обновляемся
@@ -443,9 +446,14 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
             this.prevRange = new RangeObject(this.props.listSize, 0, 0, 0);
             this.setState({update: true});
         }
+        if (this.props.origin != prevProps.origin) {
+            this.list = new Array<DayState>();
+            this.prevRange = new RangeObject(this.props.listSize, 0, 0, 0);
 
-        console.log("postRender")
-        console.log(this.list)
+            this.scrollToStart = true;
+            this.setState({update: true});
+        }
+
     }
 
     //Перемотать скрол к текущему элементу, так, чтобы верх текущего компонента стал серединой экрана
@@ -468,15 +476,13 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
 
     //Добавляет описание дня в список
     appendDay(list: Array<DayState>, i: number) {
-        const calendar = this.calendar.add(i, DAY);
+        const calendar = this.props.origin.add(i, "day");
         const data = new DayState(i, calendar, this.currentRef);
         data.startDownload(this.props.user, calendar, this.incSuccessDownloadCounter, this.incDownloadCounter,  this.props.priorities.list);
         list.push(data);
     }
 
     constructList() {
-        console.log("preRender")
-        console.log(this.list)
         //Если промежуток отображения сменился
         if (this.isRangeChanged(this.prevRange)) {
             //Запоминаем его
@@ -510,8 +516,6 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
                 this.list = list;
             }
             this.prevRange = range;
-            console.log("update")
-            console.log(this.list)
         }
 
     }
