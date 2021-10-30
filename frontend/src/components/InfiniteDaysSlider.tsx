@@ -67,7 +67,7 @@ class DayState {
 
         this.date = date.format("YYYY.MM.DD");
         this.dayOfWeek = DAY_NAMES[date.day()];
-        this.dateOffset = nameOffset(date.diff(dayjs(), 'day'));
+        this.dateOffset = nameOffset(Math.ceil(date.diff(dayjs(), 'day', true)));
     }
 
     getState(defaultSchedule?: Array<ScheduleElement>): InternalDayRepresentation | undefined {

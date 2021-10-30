@@ -30,7 +30,6 @@ export const OFFSET_NAMES: {[key: string]: string} = {
     '0': "сегодня",
     '1': "завтра",
     '2': "послезавтра",
-    '7': "через неделю"
 };
 
 
@@ -40,6 +39,8 @@ export function nameOffset(index: number) {
     if (str in OFFSET_NAMES) {
         return OFFSET_NAMES[str];
     }
+    if (index > 0)
+        index -= 1
     if (Math.abs(index) < 5) {
         if (index > 0)
             return "через " + index + " дня";

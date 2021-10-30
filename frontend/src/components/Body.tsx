@@ -8,6 +8,7 @@ import {setSources} from "../store/sources";
 import {useAppDispatch, useAppSelector} from "../store/hooks";
 import CalendarPicker from '@mui/lab/CalendarPicker';
 import dayjs from "dayjs";
+import {getDimensions} from "../utils/componentInfo";
 
 interface BodyProps {
     /**
@@ -47,14 +48,14 @@ function DaysList() {
     };
 
     return (
-        <Grid container spacing={2} sx={{height: '100%'}}>
+        <Grid container spacing={2} sx={{height: '100%', marginTop: '0'}}>
             <Grid item xs={3}>
                 <Paper color="main" sx={{marginTop:"32px"}}>
                     <CalendarPicker date={date} onChange={handleCalendar}/>
                 </Paper>
             </Grid>
 
-            <Grid item xs={6} sx={{height: "100%"}}>
+            <Grid item xs={6} sx={{height: "100%", paddingTop: '0!important' }}>
                 <Box ref={containerRef} sx={{
                     width: '100%', height: '100%',
                     overflow: 'hidden scroll',
@@ -73,23 +74,15 @@ function DaysList() {
 
 
 export default function Body(props: BodyProps) {
-    const root = useRef<any>();
     const [state, setState] = useState(BodyState.DAYS);
+    const [update, setUpdate] = useState(false);
 
     useEffect(() => {
-        console.log("effect")
-        if (root.current != null) {
-            console.log("root_active")
-            if (props.headerRef.current != null) {
-                console.log("head_active")
-                root.current.style.height=(innerHeight - props.headerRef.current.height) + "px";
-                console.log("style update");
-            }
-        }
-    }, [root.current, props.headerRef.current])
+        setUpdate(update => !update);
+    }, [props.headerRef.current])
 
     return (
-        <Container sx={{maxHeight: '92%'}} maxWidth="xl" component="main" ref={root}>
+        <Container sx={{maxHeight: (props.headerRef.current == null)? '92%' : ((window.innerHeight - getDimensions(props.headerRef).height) + "px")}} maxWidth="xl" component="main">
             <DaysList/>
         </Container>
     );
