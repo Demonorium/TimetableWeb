@@ -39,17 +39,22 @@ export function nameOffset(index: number) {
     if (str in OFFSET_NAMES) {
         return OFFSET_NAMES[str];
     }
-    if (index > 0)
+
+    if (index > 0) {
         index -= 1
-    if (Math.abs(index) < 5) {
-        if (index > 0)
-            return "через " + index + " дня";
-        else
-            return -index + " дня назад";
     }
-    if (index > 0)
+
+    if (Math.abs(index) < 5) {
+        if (index > 0) {
+            return "через " + index + " дня";
+        } else {
+            return -index + " дня назад";
+        }
+    }
+    if (index > 0) {
         return "через " + index + " дней";
-    else
+    } else {
         return -index + " дней назад";
+    }
 }
 

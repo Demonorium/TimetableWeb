@@ -67,10 +67,9 @@ function Day(props: DayProps) {
     const lessons = new Array<React.ReactElement>();
     const dayHeader = <DayHeader date={props.date} dayOfWeek={props.dayOfWeek} dateOffset={props.dateOffset}/>
 
-    //Если описание дня небыло передано, то мы считаем, что день всё ещё загружается
+    //Если описание дня не было передано, то мы считаем, что день всё ещё загружается
     if (props.day == undefined) {
         return <DayContainer dayHeader = {dayHeader} list={[<CircularProgress />]} currentRef={props.currentRef} list_key={props.index}/>;
-        //return <DayContainer dayHeader = {dayHeader} list={[<ListItemText primary={'Идёт загрузка'}/>]} currentRef={props.currentRef} list_key={props.index}/>;
     }
 
     //Если расписания нет, значит нет занятий
