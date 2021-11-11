@@ -12,7 +12,7 @@ import {
     ListItemButton, Tooltip, Typography
 } from "@mui/material";
 import {Add, Close} from "@material-ui/icons";
-import {useState} from "react";
+import {MutableRefObject, useState} from "react";
 import ModalEditor, {Editor} from "../../modals/ModalEditor";
 import {useAppDispatch} from "../../../store/hooks";
 import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
@@ -58,7 +58,7 @@ interface EditListEditorProps<T> {
 
 
 
-function ItemListEditor<T>(props: EditListEditorProps<T>) {
+export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
     const [selected, select] = useState(-1);
     const [open, setOpen] = useState(false);
 
@@ -72,7 +72,14 @@ function ItemListEditor<T>(props: EditListEditorProps<T>) {
 
     return (
         <>
-            <Typography variant="h6">{props.listTitle}</Typography>
+            <ListItem secondaryAction={
+                <Button variant="outlined" onClick={() => {setOpen(true)}}>
+                    Создать
+                </Button>
+            }>
+                <Typography variant="h5">{props.listTitle}</Typography>
+            </ListItem>
+
             <ModalEditor
                 title={props.editorTitle}
                 editor={props.editor}
@@ -81,7 +88,7 @@ function ItemListEditor<T>(props: EditListEditorProps<T>) {
                 open={open}
                 item={selected >= 0 ? props.list[selected] : undefined}
             />
-            <Fab color="primary" aria-label="add" onClick={() => {setOpen(true)}}><Add/></Fab>
+
             <Divider/>
             <List>
                 {

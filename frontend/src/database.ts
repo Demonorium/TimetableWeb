@@ -12,7 +12,7 @@ export interface Priority {
     priority: number;
 }
 export interface Noted {
-    note: string;
+    note?: string;
 }
 
 export interface NamedEntity extends Entity, Named{

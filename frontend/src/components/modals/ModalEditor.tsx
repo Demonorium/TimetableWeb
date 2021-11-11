@@ -1,6 +1,7 @@
 import * as React from "react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
+import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@material-ui/icons";
+import {MutableRefObject, ReactNode, useEffect} from "react";
 
 export interface Editor<T> {
     onPartCreate: (item: T) => void;
@@ -9,8 +10,8 @@ export interface Editor<T> {
     createPartFromUI: () => T | undefined;
     isPartChanged: (prev: T, next: T) => boolean;
 
-    editUI: (item: T) => any;
-    createUI: () => any;
+    changeItem: (item?: T) => void;
+    UI: ReactNode;
 }
 
 export interface ModalEditorProps<T> {
@@ -47,6 +48,11 @@ export interface ModalEditorProps<T> {
 
 
 export default function ModalEditor<T>({title, isSelect, item, editor, requestClose, open}: ModalEditorProps<T>) {
+    useEffect(() => {
+        if (open) {
+            editor.changeItem(item);
+        }
+    }, [open])
 
     return (
         <Dialog
@@ -67,27 +73,27 @@ export default function ModalEditor<T>({title, isSelect, item, editor, requestCl
                     <Close />
                 </IconButton>
             </DialogTitle>
-            <DialogContent dividers>
-                {item == null ? editor.createUI() : editor.editUI(item)}
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => requestClose()}>
-                    Отмена
-                </Button>
-                <Button autoFocus onClick={() => {
-                    const part = editor.createPartFromUI();
-                    if (part != undefined) {
-                        if (item == undefined) {
-                            editor.onPartCreate(part);
-                        } else if (editor.isPartChanged(item, part)) {
-                            editor.onPartUpdate(part);
+                <DialogContent dividers>
+                    {editor.UI}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => requestClose()}>
+                        Отмена
+                    </Button>
+                    <Button autoFocus onClick={() => {
+                        const part = editor.createPartFromUI();
+                        if (part != undefined) {
+                            if (item == undefined) {
+                                editor.onPartCreate(part);
+                            } else if (editor.isPartChanged(item, part)) {
+                                editor.onPartUpdate(part);
+                            }
                         }
-                    }
-                    requestClose(part);
-                }}>
-                    {isSelect ? "Сохранить и выбрать" : "Сохранить"}
-                </Button>
-            </DialogActions>
+                        requestClose(part);
+                    }}>
+                        {isSelect ? "Сохранить и выбрать" : "Сохранить"}
+                    </Button>
+                </DialogActions>
         </Dialog>
     )
 }

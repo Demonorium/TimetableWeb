@@ -18,55 +18,13 @@ import {updateSource, removeSource, SourcesRepresentation} from "../../../store/
 import dayjs from "dayjs";
 import {setScreen} from "../../../store/appStatus";
 
+interface SourceTitleProps {
+    source: SourcesRepresentation;
+}
 
-export default function SourceTitle() {
-    const user = useAppSelector(state => state.user)
+export default function SourceTitle({source}: SourceTitleProps) {
     const params = useAppSelector(state => state.app.screen.params) as EditSourceParams;
-    const source = useAppSelector(state => state.sourceMap.sources[params.sourceId]) as SourcesRepresentation | undefined;
-
     const dispatch = useAppDispatch();
-
-    useEffect(() => {
-        if (source == undefined) {
-            axios.get("api/find/source",
-                {
-                    auth: user,
-                    params: {
-                        id: params.sourceId
-                    }
-                }
-            ).then((response) => {
-                dispatch(updateSource(response.data));
-            }).catch(() => {
-                dispatch(removeSource(params.sourceId));
-            });
-        }
-        return () => {
-            if (source != undefined) {
-
-                const toSend: {[keys: string] : any} = {
-                    id: params.sourceId,
-                    name: source.source.name,
-                    startDate: source.source.startDate,
-                    startWeek: source.source.startWeek
-                }
-                if (source.source.endDate != undefined) {
-                    toSend['endDate'] = source.source.endDate
-                }
-
-                axios.get("api/part-update/source/basic-info",
-                    {
-                        auth: user,
-                        params: toSend
-                    }
-                );
-            }
-        }
-    }, [source])
-
-    if (source == undefined) {
-        return <CircularProgress />;
-    }
 
     const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         dispatch(updateSource({
@@ -78,7 +36,7 @@ export default function SourceTitle() {
     };
 
     return (
-        <Grid container spacing={2 }>
+        <Grid container spacing={2} sx={{marginTop: "0"}}>
             <Grid item xs={12}>
                 <Typography variant="h6">Редактирование источника</Typography>
             </Grid>
