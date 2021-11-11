@@ -1,23 +1,24 @@
 import React from 'react';
 import {List} from "@mui/material";
-import {DAY_NAMES, nameOffset} from "../utils/time";
+import {DAY_NAMES, nameOffset} from "../../utils/time";
 import {connect} from "react-redux";
 import Day, {InternalDayRepresentation, makeInternalDayRepresentation} from "./Day";
-import {RootState} from "../store/store";
-import RangeObject from "../utils/range";
-import {Changes, Lesson, ScheduleElement, SourcePriority, User} from "../database";
+import {RootState} from "../../store/store";
+import RangeObject from "../../utils/range";
+import {Changes, Lesson, ScheduleElement, SourcePriority, User} from "../../database";
 import axios from "axios";
-import {ScheduleState} from "../store/schedule";
-import {SourcesState} from "../store/sources";
-import getComponentInfo, {Scrolls} from "../utils/componentInfo";
+import {ScheduleState} from "../../store/schedule";
+import {PrioritiesState} from "../../store/priorities";
+import getComponentInfo, {Scrolls} from "../../utils/componentInfo";
 import dayjs from "dayjs";
+import arraysEquals from "../../utils/arraysEquals";
 
 async function downloadChangesFromSource(user: User, priority: SourcePriority, date: dayjs.Dayjs): Promise<Changes> {
     return axios.get("/api/find/changes",{
             auth: user,
 
             params: {
-                sourceId: priority.source,
+                sourceId: priority.sourceId,
                 year: date.year(),
                 day: date.dayOfYear()
             }
@@ -92,7 +93,7 @@ class DayState {
             }
         }
 
-        //Если нет расписание или расписание пустое: нельзя составить уроки, возврат
+        //Если нет расписания или расписание пустое: нельзя составить уроки, возврат
         if ((selectedSchedule == undefined) || (selectedSchedule.length == 0)) {
             return {
                 lessons: new Array<Lesson>(),
@@ -119,7 +120,7 @@ class DayState {
             }).catch((reason) => {
             }).finally(() => {
                 successCounter();
-            })
+            });
         }
     }
 }
@@ -159,7 +160,7 @@ interface InfiniteDaysSliderProps {
     /**
      * Список источников для загрузки
      */
-    priorities: SourcesState;
+    priorities: PrioritiesState;
     /**
      * Текущее раписание звонков поумолчанию
      */
@@ -192,33 +193,6 @@ interface InfiniteDaysSliderState {
      * Запрос на обновление страницы
      */
     update: boolean;
-}
-
-/**
- * Проверяет 2 массава на равенство ссылок и содержимого
- * @param l1 массив 1
- * @param l2 массив 2
- */
-function listEq(l1?: Array<any>, l2?: Array<any>) {
-    if (l1 == l2)
-        return true;
-    if (((l1 == undefined) || (l2 == undefined)) && ((l1 != undefined) || (l2 != undefined)))
-        return false;
-
-    //l1 и l2 определены, в противном случае условия выше выполнятся, компилятор не смог распознать
-    //поэтому ошибки тайпскрипта подавлены
-
-    // @ts-ignore
-    if (l1.length != l2.length)
-        return false;
-
-    // @ts-ignore
-    for (let i = 0; i < l1.length; ++i) {
-        // @ts-ignore
-        if (l1[i] !== l2[i])
-            return false;
-    }
-    return true;
 }
 
 /**
@@ -314,8 +288,8 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
             prevProps = this.props;
 
         return ( //Если сменилось хранилище - обновляем
-            !listEq(nextProps.priorities.list, prevProps.priorities.list)
-            || !listEq(nextProps.schedule.schedule, prevProps.schedule.schedule)
+            !arraysEquals(nextProps.priorities.list, prevProps.priorities.list)
+            || !arraysEquals(nextProps.schedule.schedule, prevProps.schedule.schedule)
             || (nextProps.user.username !== prevProps.user.username)
         );
     }
@@ -542,7 +516,7 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
 
 function mapStateToProps(state: RootState) {
     return {
-        priorities: state.sources,
+        priorities: state.priorities,
         schedule: state.schedule,
         user: state.user
     }

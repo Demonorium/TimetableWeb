@@ -1,12 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Header from './components/Header';
-import Body from './components/Body';
+import ScreenDisplay from './components/ScreenDisplay';
 import {createTheme, ThemeProvider} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import Loading from "./components/Loading";
-import {useAppSelector} from "./store/hooks";
-import LoginOrRegister from "./components/LoginOrRegister";
+import {useAppDispatch, useAppSelector} from "./store/hooks";
+import LoginOrRegister from "./components/modals/LoginOrRegister";
 import dayjs from "dayjs";
+import {GlobalState, setAppState} from "./store/appStatus";
 
 const theme = createTheme({components:{
     MuiCssBaseline: {
@@ -33,12 +34,6 @@ const theme = createTheme({components:{
         }
     }
 }});
-
-enum SiteState {
-    LOADING,
-    PROCESS,
-    CRUSH
-}
 
 /**
  * Отображается во время загрузки
@@ -77,11 +72,12 @@ function NormalScreen(props: any) {
 //Выбирает в каком режиме сейчас отображается приложение(загрузка, логин, регистрация, норм обработка, ошибка)
 export default function App() {
     const user = useAppSelector((state) => state.user);
+    const state = useAppSelector((state) => state.app);
+
+    const dispatch = useAppDispatch();
 
     //Ссылка на header, используется для определения положение компонент с абсолютным позиционированием
     const headerRef = useRef<any>();
-
-    const [state, setState] = useState(SiteState.LOADING);
     const [update, setUpdate] = useState(false);
 
     useEffect(() => {
@@ -89,23 +85,22 @@ export default function App() {
         dayjs.locale('ru');
 
         //После завершения настроек начинаем обработку
-        setState(SiteState.PROCESS);
+        dispatch(setAppState(GlobalState.PROCESS));
     }, [update]);
 
-    switch (state) {
-        case SiteState.LOADING:
+    switch (state.app) {
+        case GlobalState.LOADING:
             return <LoadingScreen/>
-        case SiteState.CRUSH:
+        case GlobalState.CRUSH:
             return <CrushScreen/>
     }
-
 
     return (
         <NormalScreen headerRef={headerRef}>
             { //Если нет пользователя выводим модалку для логина
                 (user.logout) ?
                     <LoginOrRegister open={true} isRegister={false} /> :
-                    <Body headerRef={headerRef}/>
+                    <ScreenDisplay headerRef={headerRef}/>
             }
         </NormalScreen>
     );

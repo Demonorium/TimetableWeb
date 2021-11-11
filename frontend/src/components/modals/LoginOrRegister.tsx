@@ -1,9 +1,10 @@
-import {useAppDispatch, useAppSelector} from "../store/hooks";
+import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import React, {useState} from "react";
 import {Box, Button, Container, IconButton, InputAdornment, Modal, TextField} from "@mui/material";
 import {Visibility, VisibilityOff} from "@material-ui/icons";
 import axios from "axios";
-import {setUser} from "../store/user";
+import {setUser} from "../../store/user";
+import {LoadingButton} from "@mui/lab";
 
 interface State {
     name: string,
@@ -146,7 +147,12 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
         >
-            <Container sx={{bgcolor:'#FFFFFF',  textAlign: 'center', '& .MuiTextField-root': { m: 1}}}  maxWidth="xs">
+            <Container sx={{bgcolor:'#FFFFFF',  textAlign: 'center',
+                position: 'absolute' as 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                '& .MuiTextField-root': { m: 1}}}  maxWidth="xs">
                 {isRegister ? <h1>Регистрация</h1> : <h1>Вход</h1>}
                 <div>
                     <TextField
@@ -193,9 +199,9 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
                 : undefined}
 
                 <div>
-                    <Button variant="contained" disabled={offButton || isAwait} onClick={handleSendButton}>
-                        {(isRegister ? "Зарегистрироваться": "Войти") + (isAwait ? "(Ожидание)" : "")}
-                    </Button>
+                    <LoadingButton loading={isAwait} disabled={offButton} variant="contained" onClick={handleSendButton}>
+                        {isRegister ? "Зарегистрироваться": "Войти"}
+                    </LoadingButton>
                 </div>
 
                 <Box sx={{textAlign: 'right', margin: "20px 5px"}}>

@@ -4,6 +4,9 @@ import com.demonorium.database.DatabaseService;
 import com.demonorium.database.PartOfSource;
 import com.demonorium.database.Rights;
 import com.demonorium.database.dto.ChangesDto;
+import com.demonorium.database.dto.SourceContentDto;
+import com.demonorium.database.dto.SourceDto;
+import com.demonorium.database.dto.SourcesPriorityDto;
 import com.demonorium.database.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.function.Consumer;
 
 @RestController
 public class CrudApiController {
@@ -35,13 +39,23 @@ public class CrudApiController {
     /**
      * Запрос всех источников в порядке их приоритета
      * @param request
-     * @return
      */
     @GetMapping("/api/find/current_sources")
-    ResponseEntity<List<SourcesPriority>> findSources(HttpServletRequest request) {
+    ResponseEntity<List<SourcesPriorityDto>> findSources(HttpServletRequest request) {
         User user = webUtils.getUser(request);
+        Set<SourcesPriority> rawPriorities = user.getPriorities();
 
-        ArrayList<SourcesPriority> priorities = new ArrayList<>(user.getPriorities());
+        ArrayList<SourcesPriorityDto> priorities = new ArrayList<>(rawPriorities.size());
+        for (SourcesPriority priority: rawPriorities) {
+            priorities.add(SourcesPriorityDto.builder()
+                    .withId(priority.getId())
+                    .withName(priority.getSource().getName())
+                    .withSourceId(priority.getSourceId())
+                    .withPriority(priority.getPriority())
+                    .build()
+            );
+        }
+
         priorities.sort(Collections.reverseOrder());
 
         return ResponseEntity.ok(priorities);
@@ -166,7 +180,7 @@ public class CrudApiController {
     }
 
     @GetMapping("/api/delete/schedule")
-    ResponseEntity<String> updateSchedule(HttpServletRequest request, @RequestParam(name="id") Long id) {
+    ResponseEntity<String> deleteSchedule(HttpServletRequest request, @RequestParam(name="id") Long id) {
         Optional<CallSchedule> schedule = databaseService.getCallScheduleRepository().findById(id);
 
         if (!schedule.isPresent()) {
@@ -186,7 +200,7 @@ public class CrudApiController {
 
 
     @GetMapping("/api/update/priority")
-    ResponseEntity<String> findPriority(HttpServletRequest request,
+    ResponseEntity<String> updatePriority(HttpServletRequest request,
                                                  @RequestParam(name="sourceId") Long id,
                                                  @RequestParam(name="priority") Integer newPriority) {
         Optional<Source> source = databaseService.getSourceRepository().findById(id);
@@ -218,7 +232,7 @@ public class CrudApiController {
     @GetMapping("/api/create/priority")
     ResponseEntity<Long> createPriority(HttpServletRequest request,
                                         @RequestParam(name="sourceId") Long id,
-                                        @RequestParam(name="priority") Integer newPriority) {
+                                        @RequestParam(name="priority") Integer newPriorityNum) {
         Optional<Source> source = databaseService.getSourceRepository().findById(id);
 
         if (!source.isPresent()) {
@@ -228,15 +242,21 @@ public class CrudApiController {
         User user = webUtils.getUser(request);
 
         if (databaseService.hasAccess(user, source.get(), Rights.READ)) {
-            SourcesPriority priority = new SourcesPriority(user, source.get(), newPriority);
+            Optional<SourcesPriority> priority = databaseService.getSourcesPriorityRepository()
+                    .findByUserAndSource(user, source.get());
+            if (priority.isPresent()) {
+                return ResponseEntity.unprocessableEntity().build();
+            }
 
-            return ResponseEntity.ok(databaseService.getSourcesPriorityRepository().save(priority).getId());
+            SourcesPriority newPriority = new SourcesPriority(user, source.get(), newPriorityNum);
+
+            return ResponseEntity.ok(databaseService.getSourcesPriorityRepository().save(newPriority).getId());
         }
 
         return ResponseEntity.unprocessableEntity().build();
     }
     @GetMapping("/api/delete/priority")
-    ResponseEntity<String> findPriority(HttpServletRequest request, @RequestParam(name="sourceId") Long id) {
+    ResponseEntity<String> deletePriority(HttpServletRequest request, @RequestParam(name="sourceId") Long id) {
         Optional<Source> source = databaseService.getSourceRepository().findById(id);
 
         if (!source.isPresent()) {
@@ -271,8 +291,9 @@ public class CrudApiController {
 
         return ResponseEntity.unprocessableEntity().build();
     }
+
     @GetMapping("/api/part-update/source/defaultSchedule")
-    ResponseEntity<String> createPriority(HttpServletRequest request,
+    ResponseEntity<String> partUpdateSourceDefaultSchedule(HttpServletRequest request,
                                                 @RequestParam(name="sourceId") Long sourceId,
                                                 @RequestParam(name="scheduleId") Long scheduleId) {
         Optional<Source> source = databaseService.getSourceRepository().findById(sourceId);
@@ -296,17 +317,69 @@ public class CrudApiController {
         return ResponseEntity.unprocessableEntity().build();
     }
 
+    @GetMapping("/api/part-update/source/basic-info")
+    ResponseEntity<String> partUpdateSourceBasicInfo(HttpServletRequest request,
+                                          @RequestParam(name="id") Long id,
+                                          @RequestParam(name="name") String name,
+                                            @RequestParam(name="startDate") Long startDate,
+                                            @RequestParam(name="startWeek") Integer startWeek,
+                                            @RequestParam(name="endDate", required = false) Long endDate){
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, source.get(), Rights.UPDATE)) {
+            Source sourceSrk = source.get();
+            sourceSrk.setName(name);
+            sourceSrk.setStartWeek(startWeek);
+            sourceSrk.setStartDate(new Date(startDate));
+            sourceSrk.setEndDate(endDate == null ? null : new Date(endDate));
+
+            databaseService.getSourceRepository().save(sourceSrk);
+            return ResponseEntity.ok("success");
+        }
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/create/source")
+    ResponseEntity<Long> createSource(HttpServletRequest request,
+                                                    @RequestParam(name="name") String name,
+                                                    @RequestParam(name="startDate") Long startDate,
+                                                    @RequestParam(name="startWeek") Integer startWeek,
+                                                    @RequestParam(name="endDate", required = false) Long endDate){
+        Source source = new Source(name, new Date(startDate), startWeek, webUtils.getUser(request));
+        source.setEndDate(endDate == null ? null : new Date(endDate));
+
+        return ResponseEntity.ok(databaseService.getSourceRepository().save(source).getId());
+    }
+
+    @GetMapping("api/find/source")
+    ResponseEntity<SourceContentDto> findSource(HttpServletRequest request, @RequestParam(name="id") Long id) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, source.get(), Rights.READ)) {
+            return ResponseEntity.ok(new SourceContentDto(source.get()));
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
     @GetMapping("/api/find/all_sources")
-    ResponseEntity<List<Long>> findAll(HttpServletRequest request) {
+    ResponseEntity<List<SourceDto>> findAll(HttpServletRequest request) {
         User user = webUtils.getUser(request);
 
         List<Source> sources = user.getSources();
 
-        List<Long> result = new ArrayList<>(sources.size());
-        sources.forEach(source -> result.add(source.getId()));
+        List<SourceDto> result = new ArrayList<>(sources.size());
+        sources.forEach(source -> result.add(new SourceDto(source)));
 
         Set<AccessToken> tokens = user.getTokens();
-        tokens.forEach((accessToken -> result.add(accessToken.getReference().getSource().getId())));
+        tokens.forEach(accessToken -> result.add(new SourceDto(accessToken.getReference().getSource())));
 
         return ResponseEntity.ok(result);
     }

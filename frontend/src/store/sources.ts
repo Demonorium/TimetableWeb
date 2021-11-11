@@ -1,20 +1,19 @@
-import {SourcePriority} from "../database";
+import {Source, SourcePriority} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
-
 export interface SourcesState {
-    list?: Array<SourcePriority>;
+    list?: Array<Source>;
 }
 
 const initialState: SourcesState = {
-    list: new Array<SourcePriority>()
+    list: new Array<Source>()
 }
 
 export const sourcesSlice = createSlice({
     name: 'sources',
     initialState,
     reducers: {
-        setSources: (state, action: PayloadAction<Array<SourcePriority>>) => {
+        setSources: (state, action: PayloadAction<Array<Source>>) => {
             state.list = action.payload
         }
     },

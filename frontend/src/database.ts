@@ -1,6 +1,6 @@
 import axios from "axios";
 
-type ID = number;
+export type ID = number;
 
 export interface Entity {
     id: ID;
@@ -18,10 +18,10 @@ export interface Noted {
 export interface NamedEntity extends Entity, Named{
 }
 
-interface Teacher extends NamedEntity, Noted {
+export interface Teacher extends NamedEntity, Noted {
     source: ID;
 }
-interface Place extends Entity, Noted {
+export interface Place extends Entity, Noted {
     source: ID;
 
     auditory: string;
@@ -65,18 +65,16 @@ export interface Week extends Entity {
     source: ID;
 
     number: number;
+    days: Array<Day>;
 }
 
-export interface Source extends Entity {
+export interface Source extends NamedEntity {
     defaultSchedule: Schedule;
     owner: string;
-    teachers: Array<Teacher>;
-    days: Array<Day>;
-    schedules: Array<Schedule>;
-    templates: Array<LessonTemplate>;
-    places: Array<Place>;
-    weeks: Array<Week>;
-    reference?: Reference;
+
+    startDate: number;
+    endDate?: number;
+    startWeek: number;
 }
 
 export interface Reference {
@@ -91,9 +89,10 @@ export interface User {
 }
 
 
-export interface SourcePriority {
-    source: ID;
+export interface SourcePriority extends Entity {
+    sourceId: ID;
     priority: number;
+    name: string;
 }
 
 export interface Changes {
@@ -109,4 +108,8 @@ async function updateRequest<T extends Entity>(name: string, user: User, e: T) {
 }
 async function getRequest<T extends Entity>(name: string, id: ID): Promise<T> {
     return axios.get("/api/find/"+name);
+}
+
+async function getRequestPart<T extends Entity>(name: string, part: string, id: ID): Promise<T> {
+    return axios.get("/api/part-find/"+name+"/"+part);
 }

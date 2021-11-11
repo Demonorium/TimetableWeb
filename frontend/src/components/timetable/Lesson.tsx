@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Collapse, Divider, List, ListItem, ListItemText} from "@mui/material";
-import {Lesson, ScheduleElement} from "../database";
+import {Lesson, ScheduleElement} from "../../database";
 
 interface LessonProps {
     lesson: Lesson,

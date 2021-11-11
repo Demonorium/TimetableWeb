@@ -16,7 +16,7 @@ dayjs.extend(duration)
 
 ReactDOM.render(
     <Provider store={store}>
-        <LocalizationProvider dateAdapter={DateAdapter}>
+        <LocalizationProvider dateAdapter={DateAdapter} locale="ru">
             <App />
         </LocalizationProvider>
     </Provider>, document.querySelector('#root'));

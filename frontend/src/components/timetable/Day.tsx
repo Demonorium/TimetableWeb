@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {CircularProgress, Divider, List, ListItem, ListItemText} from "@mui/material";
 import Lesson from "./Lesson";
-import {Changes, Lesson as LessonRepresentation, ScheduleElement} from "../database";
+import {Changes, Lesson as LessonRepresentation, ScheduleElement} from "../../database";
 
 
 export interface InternalDayRepresentation {

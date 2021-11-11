@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,14 +30,35 @@ public class Source {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="source_id")
+    @Column(name="source_id", nullable = false)
     private Long id;
 
     /**
      * Название расписания
      */
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String name;
+
+
+    /**
+     * Дата начала занятий
+     */
+    @Column(name="start_date", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date startDate;
+
+    /**
+     * Первая неделя
+     */
+    @Column(name="start_week", nullable = false)
+    private int startWeek;
+
+    /**
+     * Дата окончания занятий
+     */
+    @Column(name="insiration_date", nullable = true)
+    @Temporal(TemporalType.DATE)
+    private Date endDate;
 
     /**
      * Стандартное расписание звокнов, указывается для дня, если не было указано другого или
@@ -61,12 +83,20 @@ public class Source {
         return owner.getUsername();
     }
 
-    public Source(CallSchedule defaultSchedule, User owner) {
-        this.defaultSchedule = defaultSchedule;
+
+    public Source(String name, Date startDate, int startWeek, User owner) {
+        this.name = name;
+        this.startDate = startDate;
+        this.startWeek = startWeek;
         this.owner = owner;
     }
-    public Source(User owner) {
+
+    public Source(String name, Date startDate, int startWeek, User owner, CallSchedule callSchedule) {
+        this.name = name;
+        this.startDate = startDate;
+        this.startWeek = startWeek;
         this.owner = owner;
+        this.defaultSchedule = callSchedule;
     }
 
     /**

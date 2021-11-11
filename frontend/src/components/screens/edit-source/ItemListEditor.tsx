@@ -1,0 +1,108 @@
+import * as React from "react";
+import {
+    Button,
+    Dialog,
+    DialogActions, DialogContent,
+    DialogTitle,
+    Divider,
+    Fab, Fade,
+    IconButton,
+    List,
+    ListItem,
+    ListItemButton, Tooltip, Typography
+} from "@mui/material";
+import {Add, Close} from "@material-ui/icons";
+import {useState} from "react";
+import ModalEditor, {Editor} from "../../modals/ModalEditor";
+import {useAppDispatch} from "../../../store/hooks";
+import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
+
+
+interface EditListEditorProps<T> {
+    /**
+     * Закрыть это окно
+     */
+    requestClose?: (item: T) => {};
+
+    //Редактирование списка
+    /**
+     * Заголовок списка
+     */
+    listTitle: string;
+
+    /**
+     * Список
+     */
+    list: Array<T>;
+    /**
+     * Является ли текущее меню - меню выбора
+     */
+    isSelect: boolean;
+
+    /**
+     * Конструирует внутреннее устройство элементов списка
+     */
+    constructor: (item: T, index: number) => any;
+
+    remove: (item: T) => void;
+    //Редактирование отдельного элемента списка
+    /**
+     * Заголовок окна редактирования
+     */
+    editorTitle: string;
+    /**
+     * Редактор
+     */
+    editor: Editor<T>;
+}
+
+
+
+function ItemListEditor<T>(props: EditListEditorProps<T>) {
+    const [selected, select] = useState(-1);
+    const [open, setOpen] = useState(false);
+
+    const requestClose = (item?: T) => {
+        setOpen(false);
+        if (props.requestClose && props.isSelect && (item != undefined))
+            props.requestClose(item);
+
+        select(-1);
+    }
+
+    return (
+        <>
+            <Typography variant="h6">{props.listTitle}</Typography>
+            <ModalEditor
+                title={props.editorTitle}
+                editor={props.editor}
+                isSelect={props.isSelect}
+                requestClose={requestClose}
+                open={open}
+                item={selected >= 0 ? props.list[selected] : undefined}
+            />
+            <Fab color="primary" aria-label="add" onClick={() => {setOpen(true)}}><Add/></Fab>
+            <Divider/>
+            <List>
+                {
+                    props.list.map((item, index) => (
+                        <>
+                            <ButtonWithFadeAction
+                                actions={
+                                    <Tooltip title="Удалить" arrow>
+                                        <IconButton onClick={() => props.remove(item)}>
+                                            <Close />
+                                        </IconButton>
+                                    </Tooltip>
+                                }
+                                onClick={() => {select(index); setOpen(true)}}>
+                                {props.constructor(item, index)}
+                            </ButtonWithFadeAction>
+                            {index == (props.list.length - 1)? undefined: <Divider/>}
+                        </>
+                    ))
+                }
+            </List>
+        </>
+    );
+}

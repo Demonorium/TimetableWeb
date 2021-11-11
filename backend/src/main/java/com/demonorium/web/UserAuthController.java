@@ -44,7 +44,7 @@ public class UserAuthController {
             //todo: remove
 
             //Создаём источник
-            Source source = new Source(user);
+            Source source = new Source("default", new Date(), 0, user);
             database.getSourceRepository().save(source);
 
             //Создаём расписание звонков поумолчанию
