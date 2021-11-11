@@ -1,8 +1,5 @@
-
-
-import {Changes, Day, Source, SourcePriority, Week, Place, Teacher} from "../database";
+import {Place, Source, Teacher, Week} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-
 
 
 export interface SourcesRepresentation {

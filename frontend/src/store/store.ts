@@ -1,7 +1,7 @@
 import {configureStore} from '@reduxjs/toolkit'
 import userReducer from './user'
 import scheduleReducer from './schedule'
-import prioritiesReducer, {prioritiesSlice} from './priorities'
+import prioritiesReducer from './priorities'
 import sourcesReducer from './sources'
 import appStatusReducer from "./appStatus";
 import sourceMapReducer from "./sourceMap";

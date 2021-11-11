@@ -11,7 +11,7 @@ import {ScheduleState} from "../../store/schedule";
 import {PrioritiesState} from "../../store/priorities";
 import getComponentInfo, {Scrolls} from "../../utils/componentInfo";
 import dayjs from "dayjs";
-import arraysEquals from "../../utils/arraysEquals";
+import {arrayEq} from "../../utils/arrayUtils";
 
 async function downloadChangesFromSource(user: User, priority: SourcePriority, date: dayjs.Dayjs): Promise<Changes> {
     return axios.get("/api/find/changes",{
@@ -288,8 +288,8 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
             prevProps = this.props;
 
         return ( //Если сменилось хранилище - обновляем
-            !arraysEquals(nextProps.priorities.list, prevProps.priorities.list)
-            || !arraysEquals(nextProps.schedule.schedule, prevProps.schedule.schedule)
+            !arrayEq(nextProps.priorities.list, prevProps.priorities.list)
+            || !arrayEq(nextProps.schedule.schedule, prevProps.schedule.schedule)
             || (nextProps.user.username !== prevProps.user.username)
         );
     }

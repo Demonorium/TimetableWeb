@@ -1,22 +1,10 @@
 import * as React from 'react';
-import {
-    CircularProgress,
-    Grid,
-    InputLabel,
-    MenuItem,
-    Select,
-    SelectChangeEvent,
-    TextField,
-    Typography
-} from "@mui/material";
+import {Grid, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography} from "@mui/material";
 import {DatePicker} from "@mui/lab";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {EditSourceParams} from "../EditSource";
-import {useEffect} from "react";
-import axios from "axios";
-import {updateSource, removeSource, SourcesRepresentation} from "../../../store/sourceMap";
+import {SourcesRepresentation, updateSource} from "../../../store/sourceMap";
 import dayjs from "dayjs";
-import {setScreen} from "../../../store/appStatus";
 
 interface SourceTitleProps {
     source: SourcesRepresentation;

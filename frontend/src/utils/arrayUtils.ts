@@ -3,7 +3,7 @@
  * @param l1 массив 1
  * @param l2 массив 2
  */
-export default function arraysEquals(l1?: Array<any>, l2?: Array<any>) {
+export function arrayEq(l1?: Array<any>, l2?: Array<any>) {
     if (l1 == l2)
         return true;
     if (((l1 == undefined) || (l2 == undefined)) && ((l1 != undefined) || (l2 != undefined)))
@@ -24,3 +24,4 @@ export default function arraysEquals(l1?: Array<any>, l2?: Array<any>) {
     }
     return true;
 }
+

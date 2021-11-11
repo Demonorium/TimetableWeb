@@ -1,4 +1,4 @@
-import {Source, SourcePriority} from "../database";
+import {Source} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface SourcesState {

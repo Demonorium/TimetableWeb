@@ -1,7 +1,7 @@
 import * as React from "react";
-import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
+import {ReactNode, useEffect} from "react";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@material-ui/icons";
-import {MutableRefObject, ReactNode, useEffect} from "react";
 
 export interface Editor<T> {
     onPartCreate: (item: T) => void;

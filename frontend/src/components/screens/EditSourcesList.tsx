@@ -3,13 +3,12 @@ import {TripleGrid} from "../ScreenStruct/TripleGrid";
 import {
     CircularProgress,
     Divider,
-    Grid, IconButton,
+    Grid,
+    IconButton,
     List,
-    ListItem, ListItemButton,
-    ListItemIcon,
+    ListItem,
     ListItemText,
     Paper,
-    Stack,
     Typography
 } from "@mui/material";
 import SortableArray from "../../utils/sortableUtils";
@@ -18,9 +17,9 @@ import {setPriorities} from "../../store/priorities";
 import axios from "axios";
 import {ReactSortable} from "react-sortablejs";
 import * as React from "react";
-import {ScreenInterface} from "../ScreenDisplay";
 import {useEffect, useState} from "react";
-import arraysEquals from "../../utils/arraysEquals";
+import {ScreenInterface} from "../ScreenDisplay";
+import arrayEq from "../../utils/arrayUtils";
 import {setSources} from "../../store/sources";
 import EditIcon from '@mui/icons-material/Edit';
 import {setScreen} from "../../store/appStatus";
@@ -81,20 +80,20 @@ export function EditSourcesList(props: ScreenInterface) {
             const r1 = axios.get("/api/find/current_sources", {
                 auth: user
             }).then((response) => {
-                if (!arraysEquals(response.data, priorities))
+                if (!arrayEq(response.data, priorities))
                     dispatch(setPriorities(response.data));
             }).catch((response) => {
-                if (!arraysEquals(response.data, priorities))
+                if (!arrayEq(response.data, priorities))
                     dispatch(setPriorities(new Array<SourcePriority>()));
             })
 
             const r2 = axios.get("/api/find/all_sources", {
                 auth: user
             }).then((response) => {
-                if (!arraysEquals(response.data, sources))
+                if (!arrayEq(response.data, sources))
                     dispatch(setSources(response.data));
             }).catch((response) => {
-                if (!arraysEquals(response.data, sources))
+                if (!arrayEq(response.data, sources))
                     dispatch(setSources(new Array<Source>()));
             })
 

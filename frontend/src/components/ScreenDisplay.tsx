@@ -1,12 +1,11 @@
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import LeftMenu, {TargetScreen} from "./ScreenStruct/LeftMenu";
 import {Filler} from "./ScreenStruct/Filler";
 import {DaysList} from "./screens/DaysList";
 import {EditSourcesList} from "./screens/EditSourcesList";
-import {reverse, Screen} from "../store/appStatus";
+import {reverse} from "../store/appStatus";
 import {useAppDispatch, useAppSelector} from "../store/hooks";
-import {TripleGrid} from "./ScreenStruct/TripleGrid";
 import Tasks from "./screens/Tasks";
 import EditSource from "./screens/EditSource";
 

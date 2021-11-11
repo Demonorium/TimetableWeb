@@ -2,16 +2,10 @@ package com.demonorium.database.dto;
 
 import com.demonorium.database.entity.CallPair;
 import com.demonorium.database.entity.Source;
-import lombok.Builder;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 @Data
 public class SourceDto {

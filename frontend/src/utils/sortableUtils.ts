@@ -1,7 +1,6 @@
 import {ItemInterface} from "react-sortablejs";
 
 
-
 export class SortableItem<T> implements ItemInterface{
     id: string;
 

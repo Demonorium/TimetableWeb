@@ -1,4 +1,5 @@
 import * as React from "react";
+import {useEffect} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
 import {TripleGrid} from "../ScreenStruct/TripleGrid";
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
@@ -8,7 +9,6 @@ import SourceTitle from "./edit-source/SourceTitle";
 import {CircularProgress, Paper} from "@mui/material";
 import PlaceListEditor from "./edit-source/PlaceListEditor";
 import {removeSource, SourcesRepresentation, updateSource} from "../../store/sourceMap";
-import {useEffect} from "react";
 import axios from "axios";
 
 export interface EditSourceParams {
