@@ -1,26 +1,16 @@
 import * as React from 'react';
 import {useState} from 'react';
 import ItemListEditor from "./ItemListEditor";
-import {addPlace, changePlace, removePlace, SourcesRepresentation} from "../../../store/sourceMap";
+import {addPlace, changePlace, removePlace} from "../../../store/sourceMap";
 import {Place} from "../../../database";
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {Editor} from "../../modals/ModalEditor";
 import {Grid, ListItemText, TextField, Typography} from "@mui/material";
+import {EditorProps} from "../EditSource";
 
 
-interface PlaceListEditorProps {
-    isSelect: boolean;
-    overrideTitle?: string;
-
-    source: SourcesRepresentation;
-    /**
-     * Закрыть это окно
-     */
-    requestClose?: (item: Place) => {};
-}
-
-export default function PlaceListEditor(props: PlaceListEditorProps) {
+export default function PlaceListEditor(props: EditorProps<Place>) {
     const user = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
 

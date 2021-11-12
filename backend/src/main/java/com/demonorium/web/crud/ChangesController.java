@@ -1,12 +1,8 @@
 package com.demonorium.web.crud;
 
 import com.demonorium.database.DatabaseService;
-import com.demonorium.database.PartOfSource;
 import com.demonorium.database.Rights;
-import com.demonorium.database.dto.ChangesDto;
-import com.demonorium.database.dto.SourceContentDto;
-import com.demonorium.database.dto.SourceDto;
-import com.demonorium.database.dto.SourcesPriorityDto;
+import com.demonorium.database.dto.ChangesDTO;
 import com.demonorium.database.entity.*;
 import com.demonorium.web.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class ChangesController {
@@ -29,7 +28,7 @@ public class ChangesController {
 
 
     @GetMapping("/api/find/changes")
-    ResponseEntity<ChangesDto> findChanges(HttpServletRequest request,
+    ResponseEntity<ChangesDTO> findChanges(HttpServletRequest request,
                                            @RequestParam(name="sourceId") Long sourceId,
                                            @RequestParam(name="year")   Integer year,
                                            @RequestParam(name="day")    Integer day) {
@@ -60,7 +59,7 @@ public class ChangesController {
             List<Lesson> lessons = new ArrayList<>(changesOnDay.getLessons());
             Collections.sort(lessons);
 
-            return ResponseEntity.ok(ChangesDto.builder()
+            return ResponseEntity.ok(ChangesDTO.builder()
                 .withId(changes.get().getId())
                 .withDay(day).withYear(year)
                 .withSchedule(callPairs)

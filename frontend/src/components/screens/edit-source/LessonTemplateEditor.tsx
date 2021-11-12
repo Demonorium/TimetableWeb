@@ -1,33 +1,16 @@
 import * as React from 'react';
 import {useState} from 'react';
 import ItemListEditor from "./ItemListEditor";
-import {
-    addPlace,
-    addTemplate,
-    changePlace,
-    changeTemplate,
-    removePlace, removeTemplate,
-    SourcesRepresentation
-} from "../../../store/sourceMap";
-import {LessonTemplateDto, Place} from "../../../database";
+import {addTemplate, changeTemplate, removeTemplate} from "../../../store/sourceMap";
+import {LessonTemplateDto} from "../../../database";
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {Editor} from "../../modals/ModalEditor";
-import {Grid, ListItemText, TextField, Typography} from "@mui/material";
+import {Grid, ListItemText, TextField} from "@mui/material";
+import {EditorProps} from "../EditSource";
 
 
-interface LessonTemplateEditorProps {
-    isSelect: boolean;
-    overrideTitle?: string;
-
-    source: SourcesRepresentation;
-    /**
-     * Закрыть это окно
-     */
-    requestClose?: (item: LessonTemplateDto) => {};
-}
-
-export default function LessonTemplateEditor(props: LessonTemplateEditorProps) {
+export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDto>) {
     const user = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
 

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder(setterPrefix="with")
-public class SourcesPriorityDto implements Comparable<SourcesPriorityDto> {
+public class SourcesPriorityDTO implements Comparable<SourcesPriorityDTO> {
     /**
      * id этого приоритета
      */
@@ -24,7 +24,7 @@ public class SourcesPriorityDto implements Comparable<SourcesPriorityDto> {
     private int priority;
 
     @Override
-    public int compareTo(SourcesPriorityDto o) {
+    public int compareTo(SourcesPriorityDTO o) {
         return this.priority - o.priority;
     }
 }

@@ -1,4 +1,4 @@
-import {compareEntity, LessonTemplate, LessonTemplateDto, Place, Source, Teacher, Week} from "../database";
+import {compareEntity, LessonTemplateDto, Place, Source, Teacher, Week} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {removeElement, updateElement} from "../utils/arrayUtils";
 

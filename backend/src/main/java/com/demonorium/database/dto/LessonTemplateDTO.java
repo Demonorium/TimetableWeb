@@ -1,14 +1,13 @@
 package com.demonorium.database.dto;
 
 import com.demonorium.database.entity.LessonTemplate;
-import com.demonorium.database.entity.Teacher;
 import lombok.Data;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
-public class LessonTemplateDto {
+public class LessonTemplateDTO {
     /**
      * ИД объекта в базе
      */
@@ -31,7 +30,7 @@ public class LessonTemplateDto {
      */
     private int hours;
 
-    public LessonTemplateDto(LessonTemplate template) {
+    public LessonTemplateDTO(LessonTemplate template) {
         this.id = template.getId();
         this.name = template.getName();
         this.note = template.getNote();

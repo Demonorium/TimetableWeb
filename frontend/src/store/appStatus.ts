@@ -1,5 +1,4 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {Simulate} from "react-dom/test-utils";
 import {removeElement} from "../utils/arrayUtils";
 
 

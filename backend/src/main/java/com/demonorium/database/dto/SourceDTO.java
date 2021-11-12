@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 @Data
-public class SourceDto {
+public class SourceDTO {
     /**
      * Ид источника
      */
@@ -42,7 +42,7 @@ public class SourceDto {
      */
     private Long endDate;
 
-    public SourceDto(Source source) {
+    public SourceDTO(Source source) {
         this.id = source.getId();
         this.name = source.getName();
         this.owner = source.getOwnerName();

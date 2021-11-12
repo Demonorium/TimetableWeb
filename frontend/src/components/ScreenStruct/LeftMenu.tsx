@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {useEffect} from 'react';
 import {Divider, IconButton, List, ListItemButton, Tooltip} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import {closeScreens, setScreen} from "../../store/appStatus";
@@ -6,7 +7,6 @@ import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
 import {Close} from "@material-ui/icons";
 import {removeEditorTab} from "../../store/editorList";
 import {EditSourceParams} from "../screens/EditSource";
-import {useEffect} from "react";
 import {containsElement, findElement} from "../../utils/arrayUtils";
 
 export interface TargetScreen {

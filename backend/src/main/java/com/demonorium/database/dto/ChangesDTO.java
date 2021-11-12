@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Builder(setterPrefix="with")
-public class ChangesDto {
+public class ChangesDTO {
     /**
      * ИД объекта изменений в базе данных
      */

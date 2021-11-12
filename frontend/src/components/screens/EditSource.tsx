@@ -11,6 +11,7 @@ import PlaceListEditor from "./edit-source/PlaceListEditor";
 import {removeSource, SourcesRepresentation, updateSource} from "../../store/sourceMap";
 import axios from "axios";
 import TeacherListEditor from "./edit-source/TeacherListEditor";
+import LessonTemplateEditor from "./edit-source/LessonTemplateEditor";
 
 export interface EditSourceParams {
     sourceId: number;
@@ -25,6 +26,17 @@ const MENU: Array<TargetScreen> = [
     {id: "PLACES", data: "Места проведения занятий"},
     {id: "TEACHERS", data: "Преподаватели"},
 ]
+
+export interface EditorProps<T> {
+    isSelect: boolean;
+    overrideTitle?: string;
+
+    source: SourcesRepresentation;
+    /**
+     * Закрыть это окно
+     */
+    requestClose?: (item: T) => {};
+}
 
 export default function EditSource(props: ScreenInterface) {
     const user = useAppSelector(state => state.user)
@@ -78,8 +90,9 @@ export default function EditSource(props: ScreenInterface) {
                         <CircularProgress />
                     </Paper> :
                     <Paper color="main" sx={{paddingLeft: "16px", paddingRight: "16px", paddingBottom: "16px", marginTop: "16px"}}>
-                        {params.subscreen == "TITLE" ? <SourceTitle source={source} /> :undefined}
-                        {params.subscreen == "PLACES" ? <PlaceListEditor isSelect={false} source={source}/> :undefined}
+                        {params.subscreen == "TITLE"    ? <SourceTitle source={source} /> :undefined}
+                        {params.subscreen == "LESSONS"  ? <LessonTemplateEditor isSelect={false} source={source}/> :undefined}
+                        {params.subscreen == "PLACES"   ? <PlaceListEditor isSelect={false} source={source}/> :undefined}
                         {params.subscreen == "TEACHERS" ? <TeacherListEditor isSelect={false} source={source}/> :undefined}
                     </Paper>
             }

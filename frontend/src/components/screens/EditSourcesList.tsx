@@ -1,16 +1,6 @@
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import {TripleGrid} from "../ScreenStruct/TripleGrid";
-import {
-    CircularProgress,
-    Divider,
-    Grid,
-    IconButton,
-    List,
-    ListItem,
-    ListItemText,
-    Paper,
-    Typography
-} from "@mui/material";
+import {CircularProgress, Divider, Grid, IconButton, List, Paper, Typography} from "@mui/material";
 import SortableArray from "../../utils/sortableUtils";
 import {Source, SourcePriority} from "../../database";
 import {setPriorities} from "../../store/priorities";
@@ -24,7 +14,7 @@ import {setSources} from "../../store/sources";
 import EditIcon from '@mui/icons-material/Edit';
 import {setScreen} from "../../store/appStatus";
 import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
-import {addEditorTab, removeEditorTab} from "../../store/editorList";
+import {addEditorTab} from "../../store/editorList";
 import {EditSourceParams} from "./EditSource";
 
 async function combine(promise1: Promise<any>, promise2: Promise<any>) {

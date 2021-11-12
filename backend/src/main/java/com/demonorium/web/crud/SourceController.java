@@ -2,9 +2,9 @@ package com.demonorium.web.crud;
 
 import com.demonorium.database.DatabaseService;
 import com.demonorium.database.Rights;
-import com.demonorium.database.dto.SourceContentDto;
-import com.demonorium.database.dto.SourceDto;
-import com.demonorium.database.dto.SourcesPriorityDto;
+import com.demonorium.database.dto.SourceContentDTO;
+import com.demonorium.database.dto.SourceDTO;
+import com.demonorium.database.dto.SourcesPriorityDTO;
 import com.demonorium.database.entity.*;
 import com.demonorium.web.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +28,13 @@ public class SourceController {
      * Запрос всех источников в порядке их приоритета
      */
     @GetMapping("/api/find/current_sources")
-    ResponseEntity<List<SourcesPriorityDto>> findSources(HttpServletRequest request) {
+    ResponseEntity<List<SourcesPriorityDTO>> findSources(HttpServletRequest request) {
         User user = webUtils.getUser(request);
         Set<SourcesPriority> rawPriorities = user.getPriorities();
 
-        ArrayList<SourcesPriorityDto> priorities = new ArrayList<>(rawPriorities.size());
+        ArrayList<SourcesPriorityDTO> priorities = new ArrayList<>(rawPriorities.size());
         for (SourcesPriority priority: rawPriorities) {
-            priorities.add(SourcesPriorityDto.builder()
+            priorities.add(SourcesPriorityDTO.builder()
                     .withId(priority.getId())
                     .withName(priority.getSource().getName())
                     .withSourceId(priority.getSourceId())
@@ -156,7 +156,7 @@ public class SourceController {
      * @param id ид источника
      */
     @GetMapping("api/find/source")
-    ResponseEntity<SourceContentDto> findSource(HttpServletRequest request, @RequestParam(name="id") Long id) {
+    ResponseEntity<SourceContentDTO> findSource(HttpServletRequest request, @RequestParam(name="id") Long id) {
         Optional<Source> source = databaseService.getSourceRepository().findById(id);
 
         if (!source.isPresent()) {
@@ -164,7 +164,7 @@ public class SourceController {
         }
 
         if (webUtils.hasAccess(request, source.get(), Rights.READ)) {
-            return ResponseEntity.ok(new SourceContentDto(source.get()));
+            return ResponseEntity.ok(new SourceContentDTO(source.get()));
         }
 
         return ResponseEntity.unprocessableEntity().build();
@@ -193,16 +193,16 @@ public class SourceController {
     }
 
     @GetMapping("/api/find/all_sources")
-    ResponseEntity<List<SourceDto>> findAllSources(HttpServletRequest request) {
+    ResponseEntity<List<SourceDTO>> findAllSources(HttpServletRequest request) {
         User user = webUtils.getUser(request);
 
         List<Source> sources = user.getSources();
 
-        List<SourceDto> result = new ArrayList<>(sources.size());
-        sources.forEach(source -> result.add(new SourceDto(source)));
+        List<SourceDTO> result = new ArrayList<>(sources.size());
+        sources.forEach(source -> result.add(new SourceDTO(source)));
 
         Set<AccessToken> tokens = user.getTokens();
-        tokens.forEach(accessToken -> result.add(new SourceDto(accessToken.getReference().getSource())));
+        tokens.forEach(accessToken -> result.add(new SourceDTO(accessToken.getReference().getSource())));
 
         return ResponseEntity.ok(result);
     }
