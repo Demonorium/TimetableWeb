@@ -30,8 +30,15 @@ export default function PlaceListEditor(props: PlaceListEditorProps) {
     }
     const [state, setState] = useState<Place>(defaultState);
     const handleChange = (prop: keyof Place) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        let value = event.target.value;
+        if (value.length > 8) {
+            if (prop == "building" || prop == "auditory")
+                value = value.substr(0, 8);
+            else if (value.length > 50)
+                value = value.substr(0, 50);
+        }
         setState({ ...state,
-            [prop]: event.target.value
+            [prop]: value
         });
     };
 

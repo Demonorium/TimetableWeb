@@ -5,6 +5,7 @@ import prioritiesReducer from './priorities'
 import sourcesReducer from './sources'
 import appStatusReducer from "./appStatus";
 import sourceMapReducer from "./sourceMap";
+import editorListReducer from "./editorList";
 
 const store = configureStore({
     reducer: {
@@ -13,7 +14,8 @@ const store = configureStore({
         "priorities": prioritiesReducer,
         "sources": sourcesReducer,
         "app": appStatusReducer,
-        "sourceMap": sourceMapReducer
+        "sourceMap": sourceMapReducer,
+        "editorList": editorListReducer
     }
 });
 

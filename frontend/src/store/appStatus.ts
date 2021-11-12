@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {Simulate} from "react-dom/test-utils";
+import {removeElement} from "../utils/arrayUtils";
 
 
 export enum GlobalState {
@@ -17,6 +18,11 @@ export interface ApplicationStatus {
     app: GlobalState;
     screen: Screen;
     back: Array<Screen>;
+}
+
+export interface ScreenCloser {
+    screen: Screen;
+    comparator: (s1: Screen, s2: Screen) => boolean;
 }
 
 const initialState: ApplicationStatus = {
@@ -44,11 +50,20 @@ export const appStateSlice = createSlice({
             if (last != undefined) {
                 state.screen = last
             }
+        },
+        closeScreens: (state, action: PayloadAction<ScreenCloser>) => {
+            state.back = removeElement(state.back, action.payload.screen, action.payload.comparator);
+            if (action.payload.comparator(state.screen, action.payload.screen)) {
+                const last = state.back.pop();
+                if (last != undefined) {
+                    state.screen = last
+                }
+            }
         }
     },
 });
 
-export const {ERROR, setAppState, setScreen, reverse} = appStateSlice.actions;
+export const {ERROR, setAppState, setScreen, reverse, closeScreens} = appStateSlice.actions;
 
 export default appStateSlice.reducer;
 

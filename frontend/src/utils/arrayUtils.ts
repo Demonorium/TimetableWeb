@@ -46,3 +46,19 @@ export function removeElement<T>(array: Array<T>, element: T, comparator:(el1: T
     }
     return newArray;
 }
+
+export function findElement<T>(array: Array<T>, search: (element: T) => boolean): T | undefined {
+    for (let i = 0; i < array.length; ++i) {
+        if (search(array[i]))
+            return array[i];
+    }
+    return undefined;
+}
+
+export function containsElement<T>(array: Array<T>, search: (element: T) => boolean): boolean {
+    for (let i = 0; i < array.length; ++i) {
+        if (search(array[i]))
+            return true;
+    }
+    return false;
+}

@@ -23,6 +23,9 @@ import {arrayEq} from "../../utils/arrayUtils";
 import {setSources} from "../../store/sources";
 import EditIcon from '@mui/icons-material/Edit';
 import {setScreen} from "../../store/appStatus";
+import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
+import {addEditorTab, removeEditorTab} from "../../store/editorList";
+import {EditSourceParams} from "./EditSource";
 
 async function combine(promise1: Promise<any>, promise2: Promise<any>) {
     await promise1;
@@ -34,24 +37,42 @@ interface SourceRepresentProps {
 }
 
 function SourceRepresent(props: SourceRepresentProps) {
+    const editorList = useAppSelector(state => state.editorList.list);
     const dispatch = useAppDispatch();
 
     return (
-        <ListItem key={props.source.sourceId}
-                  secondaryAction={
-                      <IconButton onClick={() => dispatch(setScreen(
-                          {
-                              name: "EDIT_SOURCE",
-                              params: {
-                                  subscreen: "TITLE",
-                                  sourceId: props.source.sourceId
-                              }
-                          }))}>
-                          <EditIcon />
-                      </IconButton>
-                  }>
-            <ListItemText primary={props.source.name}/>
-        </ListItem>
+        <ButtonWithFadeAction toKey={props.source.sourceId} actions={
+            <IconButton onClick={() => {
+                const screen = {
+                    name: "EDIT_SOURCE",
+                    params: {
+                        subscreen: "TITLE",
+                        sourceId: props.source.sourceId
+                    }
+                }
+                dispatch(setScreen(screen));
+
+                let addToMenu = true;
+                for (let i = 0; i < editorList.length; ++i) {
+                    const params = editorList[i].params as EditSourceParams | undefined;
+                    if (params == undefined) {
+                        continue;
+                    }
+
+                    if (params.sourceId == screen.params.sourceId) {
+                        addToMenu = false;
+                        break;
+                    }
+                }
+                if (addToMenu) {
+                    dispatch(addEditorTab(screen));
+                }
+            }}>
+                <EditIcon />
+            </IconButton>
+        }>
+            {props.source.name}
+        </ButtonWithFadeAction>
     );
 }
 

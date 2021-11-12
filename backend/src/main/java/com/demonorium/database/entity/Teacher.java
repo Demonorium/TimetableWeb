@@ -36,7 +36,6 @@ public class Teacher implements PartOfSource {
     @JoinColumn(name="source", nullable = false)
     private Source source;
 
-
     /**
      * @return ИД источника, хранящего этого преподавателя
      */

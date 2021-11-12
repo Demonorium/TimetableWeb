@@ -38,8 +38,12 @@ export default function TeacherListEditor(props: TeacherListEditorProps) {
     const [state, setState] = useState<Teacher>(defaultState);
 
     const handleChange = (prop: keyof Teacher) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        let value = event.target.value;
+        if (value.length > 50)
+            value = value.substr(0, 50);
+
         setState({ ...state,
-            [prop]: event.target.value
+            [prop]: value
         });
     };
 
@@ -120,7 +124,7 @@ export default function TeacherListEditor(props: TeacherListEditorProps) {
                 dispatch(removeTeacher({item: item, source: props.source.source.id}))
             });
         }}
-        editorTitle="Преподатель"
+        editorTitle="Преподаватель"
         editor={editor}
     />;
 }
