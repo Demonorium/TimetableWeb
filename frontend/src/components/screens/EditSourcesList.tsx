@@ -19,7 +19,7 @@ import {ReactSortable} from "react-sortablejs";
 import * as React from "react";
 import {useEffect, useState} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
-import arrayEq from "../../utils/arrayUtils";
+import {arrayEq} from "../../utils/arrayUtils";
 import {setSources} from "../../store/sources";
 import EditIcon from '@mui/icons-material/Edit';
 import {setScreen} from "../../store/appStatus";

@@ -330,13 +330,13 @@ public class CrudApiController {
         }
 
         if (hasAccess(request, source.get(), Rights.UPDATE)) {
-            Source sourceSrk = source.get();
-            sourceSrk.setName(name);
-            sourceSrk.setStartWeek(startWeek);
-            sourceSrk.setStartDate(new Date(startDate));
-            sourceSrk.setEndDate(endDate == null ? null : new Date(endDate));
+            source.get().setName(name);
+            source.get().setStartWeek(startWeek);
+            source.get().setStartDate(new Date(startDate));
+            source.get().setEndDate(endDate == null ? null : new Date(endDate));
 
-            databaseService.getSourceRepository().save(sourceSrk);
+            databaseService.getSourceRepository().save(source.get());
+
             return ResponseEntity.ok("success");
         }
         return ResponseEntity.unprocessableEntity().build();
@@ -367,6 +367,137 @@ public class CrudApiController {
 
         return ResponseEntity.unprocessableEntity().build();
     }
+
+    @GetMapping("/api/create/teacher")
+    ResponseEntity<Long> createTeacher(HttpServletRequest request,
+                                       @RequestParam(name="sourceId") Long id,
+                                       @RequestParam(name="note", required = false) String note,
+                                       @RequestParam(name="name") String name,
+                                       @RequestParam(name="position") String position) {
+
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, source.get(), Rights.UPDATE)) {
+            Teacher teacher = new Teacher(name, position, note, source.get());
+
+            return ResponseEntity.ok(databaseService.getTeacherRepository().save(teacher).getId());
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/update/teacher")
+    ResponseEntity<String> updateTeacher(HttpServletRequest request,
+                                        @RequestParam(name="id") Long id,
+                                        @RequestParam(name="note", required = false) String note,
+                                        @RequestParam(name="name") String name,
+                                        @RequestParam(name="position") String position) {
+
+        Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(id);
+
+        if (!teacher.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, teacher, Rights.UPDATE)) {
+            teacher.get().setName(name);
+            teacher.get().setPosition(position);
+            teacher.get().setNote(note);
+            databaseService.getTeacherRepository().save(teacher.get());
+
+            return ResponseEntity.ok("success");
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/delete/teacher")
+    ResponseEntity<String> updateTeacher(HttpServletRequest request,
+                                        @RequestParam(name="id") Long id) {
+
+        Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(id);
+
+        if (!teacher.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, teacher, Rights.DELETE)) {
+            databaseService.getTeacherRepository().delete(teacher.get());
+            return ResponseEntity.ok("success");
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+
+    @GetMapping("/api/create/place")
+    ResponseEntity<Long> createPlace(HttpServletRequest request,
+                                     @RequestParam(name="sourceId") Long id,
+                                     @RequestParam(name="note", required = false) String note,
+                                     @RequestParam(name="auditory") String auditory,
+                                     @RequestParam(name="building") String building) {
+
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, source.get(), Rights.UPDATE)) {
+            Place place = new Place(auditory, building, note, source.get());
+
+            return ResponseEntity.ok(databaseService.getPlaceRepository().save(place).getId());
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
+    @GetMapping("/api/update/place")
+    ResponseEntity<String> updatePlace(HttpServletRequest request,
+                                     @RequestParam(name="id") Long id,
+                                     @RequestParam(name="note", required = false) String note,
+                                     @RequestParam(name="auditory") String auditory,
+                                     @RequestParam(name="building") String building) {
+
+        Optional<Place> place = databaseService.getPlaceRepository().findById(id);
+
+        if (!place.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, place, Rights.UPDATE)) {
+            place.get().setAuditory(auditory);
+            place.get().setBuilding(building);
+            place.get().setNote(note);
+            databaseService.getPlaceRepository().save(place.get());
+
+            return ResponseEntity.ok("success");
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+    @GetMapping("/api/delete/place")
+    ResponseEntity<String> deletePlace(HttpServletRequest request,
+                                       @RequestParam(name="id") Long id) {
+
+        Optional<Place> place = databaseService.getPlaceRepository().findById(id);
+
+        if (!place.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (hasAccess(request, place, Rights.DELETE)) {
+            databaseService.getPlaceRepository().delete(place.get());
+            return ResponseEntity.ok("success");
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
 
     @GetMapping("/api/find/all_sources")
     ResponseEntity<List<SourceDto>> findAll(HttpServletRequest request) {

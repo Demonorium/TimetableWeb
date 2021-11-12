@@ -1,3 +1,5 @@
+import {Place} from "../database";
+
 /**
  * Проверяет 2 массава на равенство ссылок и содержимого
  * @param l1 массив 1
@@ -25,3 +27,22 @@ export function arrayEq(l1?: Array<any>, l2?: Array<any>) {
     return true;
 }
 
+export function updateElement<T>(array: Array<T>, element: T, comparator:(el1: T, el2: T) => boolean) {
+    for (let i = 0; i < array.length; ++i) {
+        if (comparator(array[i], element)) {
+            array[i] = element;
+            break;
+        }
+    }
+}
+
+export function removeElement<T>(array: Array<T>, element: T, comparator:(el1: T, el2: T) => boolean) {
+    const newArray = new Array<T>();
+    for (let i = 0; i < array.length; ++i) {
+        if (comparator(array[i], element)) {
+            continue;
+        }
+        newArray.push(array[i]);
+    }
+    return newArray;
+}

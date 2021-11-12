@@ -1,10 +1,10 @@
 import * as React from 'react';
 import {useState} from 'react';
 import ItemListEditor from "./ItemListEditor";
-import {SourcesRepresentation} from "../../../store/sourceMap";
+import {addPlace, changePlace, removePlace, SourcesRepresentation} from "../../../store/sourceMap";
 import {Place} from "../../../database";
 import axios from "axios";
-import {useAppSelector} from "../../../store/hooks";
+import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {Editor} from "../../modals/ModalEditor";
 import {Grid, ListItemText, TextField, Typography} from "@mui/material";
 
@@ -20,6 +20,8 @@ interface PlaceListEditorProps {
 
 export default function PlaceListEditor(props: PlaceListEditorProps) {
     const user = useAppSelector(state => state.user);
+    const dispatch = useAppDispatch();
+
     const defaultState = {
         id: -1,
         source: props.source.source.id,
@@ -44,12 +46,17 @@ export default function PlaceListEditor(props: PlaceListEditorProps) {
                     auditory: item.auditory,
                     building: item.building
                 }
+            }).then((response) => {
+                item.id = response.data;
+                dispatch(addPlace({item: item, source: props.source.source.id}))
             });
         },
         onPartUpdate: (item) => {
-            axios.get("api/create/place", {
+            axios.get("api/update/place", {
                 auth: user,
                 params: item
+            }).then((response) => {
+                dispatch(changePlace({item: item, source: props.source.source.id}))
             });
         },
 
@@ -77,7 +84,7 @@ export default function PlaceListEditor(props: PlaceListEditorProps) {
         UI: (
          <Grid container spacing={2}>
              <Grid item xs={4}>
-                 <Typography variant="body1">Место: </Typography>
+                 <Typography variant="h6">Место: </Typography>
              </Grid>
              <Grid item xs={4}>
                  <TextField fullWidth label="Аудитория" defaultValue={state.auditory} onChange={handleChange("auditory")}/>
@@ -104,6 +111,8 @@ export default function PlaceListEditor(props: PlaceListEditorProps) {
             axios.get("api/delete/place", {
                 auth: user,
                 params: {id: item.id}
+            }).then(() => {
+                dispatch(removePlace({item: item, source: props.source.source.id}))
             });
         }}
         editorTitle="Место проведения занятия"

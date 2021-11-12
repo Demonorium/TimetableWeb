@@ -10,6 +10,7 @@ import {CircularProgress, Paper} from "@mui/material";
 import PlaceListEditor from "./edit-source/PlaceListEditor";
 import {removeSource, SourcesRepresentation, updateSource} from "../../store/sourceMap";
 import axios from "axios";
+import TeacherListEditor from "./edit-source/TeacherListEditor";
 
 export interface EditSourceParams {
     sourceId: number;
@@ -79,6 +80,7 @@ export default function EditSource(props: ScreenInterface) {
                     <Paper color="main" sx={{paddingLeft: "16px", paddingRight: "16px", paddingBottom: "16px", marginTop: "16px"}}>
                         {params.subscreen == "TITLE" ? <SourceTitle source={source} /> :undefined}
                         {params.subscreen == "PLACES" ? <PlaceListEditor isSelect={false} source={source}/> :undefined}
+                        {params.subscreen == "TEACHERS" ? <TeacherListEditor isSelect={false} source={source}/> :undefined}
                     </Paper>
             }
         </TripleGrid>

@@ -20,6 +20,7 @@ export interface NamedEntity extends Entity, Named{
 
 export interface Teacher extends NamedEntity, Noted {
     source: ID;
+    position: string;
 }
 export interface Place extends Entity, Noted {
     source: ID;
