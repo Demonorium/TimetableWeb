@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -28,7 +29,7 @@ public class SourceContentDto {
     /**
      * Занятия
      */
-    private Set<LessonTemplate> templates;
+    private Set<LessonTemplateDto> templates;
 
     public SourceContentDto(Source source) {
         this.source = new SourceDto(source);
@@ -37,6 +38,7 @@ public class SourceContentDto {
 
         this.places = source.getPlaces();
         this.teachers = source.getTeachers();
-        this.templates = source.getTemplates();
+        this.templates = new HashSet<>();
+        source.getTemplates().forEach(template -> this.templates.add(new LessonTemplateDto(template)));
     }
 }

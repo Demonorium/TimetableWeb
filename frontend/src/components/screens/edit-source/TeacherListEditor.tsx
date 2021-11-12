@@ -18,6 +18,8 @@ import {Grid, ListItemText, TextField, Typography} from "@mui/material";
 
 interface TeacherListEditorProps {
     isSelect: boolean;
+    overrideTitle?: string;
+
     source: SourcesRepresentation;
     /**
      * Закрыть это окно
@@ -110,7 +112,7 @@ export default function TeacherListEditor(props: TeacherListEditorProps) {
 
     return <ItemListEditor<Teacher>
         requestClose={props.requestClose}
-        listTitle="Список преподавателей"
+        listTitle={props.overrideTitle? props.overrideTitle : "Список преподавателей"}
         list={props.source.teachers}
         isSelect={props.isSelect}
         constructor={(item, index) =>

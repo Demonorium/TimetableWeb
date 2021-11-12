@@ -1,4 +1,4 @@
-import {Place, Source, Teacher, Week} from "../database";
+import {compareEntity, LessonTemplate, LessonTemplateDto, Place, Source, Teacher, Week} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {removeElement, updateElement} from "../utils/arrayUtils";
 
@@ -8,7 +8,8 @@ export interface SourcesRepresentation {
 
     weeks: Array<Week>;
     places: Array<Place>;
-    teachers: Array<Teacher>
+    teachers: Array<Teacher>;
+    templates: Array<LessonTemplateDto>;
 }
 
 interface InternalRepresentationState {
@@ -35,18 +36,19 @@ export const sourcesMapSlice = createSlice({
         changePlace: (state, action: PayloadAction<ArrayChanges<Place>>) => {
             const source = state.sources[action.payload.source] as SourcesRepresentation;
             if (source == undefined) return;
-            updateElement(source.places, action.payload.item, (a, b) => a.id == b.id);
+            updateElement<Place>(source.places, action.payload.item, compareEntity);
         },
         removePlace: (state, action: PayloadAction<ArrayChanges<Place>>) => {
             const source = state.sources[action.payload.source] as SourcesRepresentation;
             if (source == undefined) return;
-            source.places = removeElement(source.places, action.payload.item, (a, b) => a.id == b.id);
+            source.places = removeElement<Place>(source.places, action.payload.item, compareEntity);
         },
         addPlace: (state, action: PayloadAction<ArrayChanges<Place>>) => {
             const source = state.sources[action.payload.source] as SourcesRepresentation;
             if (source == undefined) return;
             source.places.push(action.payload.item);
         },
+
         addWeek: (state, action: PayloadAction<ArrayChanges<Week>>) => {
             const source = state.sources[action.payload.source] as SourcesRepresentation;
             if (source == undefined) return;
@@ -55,23 +57,41 @@ export const sourcesMapSlice = createSlice({
         removeWeek: (state, action: PayloadAction<ArrayChanges<Week>>) => {
             const source = state.sources[action.payload.source] as SourcesRepresentation;
             if (source == undefined) return;
-            source.weeks = removeElement<Week>(source.weeks, action.payload.item,(a, b) => a.id == b.id)
+            source.weeks = removeElement<Week>(source.weeks, action.payload.item,compareEntity)
         },
+
         changeTeacher: (state, action: PayloadAction<ArrayChanges<Teacher>>) => {
             const source = state.sources[action.payload.source] as SourcesRepresentation;
             if (source == undefined) return;
-            updateElement(source.teachers, action.payload.item, (a, b) => a.id == b.id);
+            updateElement<Teacher>(source.teachers, action.payload.item, compareEntity);
         },
         removeTeacher: (state, action: PayloadAction<ArrayChanges<Teacher>>) => {
             const source = state.sources[action.payload.source] as SourcesRepresentation;
             if (source == undefined) return;
-            source.teachers = removeElement(source.teachers, action.payload.item, (a, b) => a.id == b.id);
+            source.teachers = removeElement<Teacher>(source.teachers, action.payload.item, compareEntity);
         },
         addTeacher: (state, action: PayloadAction<ArrayChanges<Teacher>>) => {
             const source = state.sources[action.payload.source] as SourcesRepresentation;
             if (source == undefined) return;
             source.teachers.push(action.payload.item);
         },
+
+        addTemplate: (state, action: PayloadAction<ArrayChanges<LessonTemplateDto>>) => {
+            const source = state.sources[action.payload.source] as SourcesRepresentation;
+            if (source == undefined) return;
+            source.templates.push(action.payload.item);
+        },
+        removeTemplate: (state, action: PayloadAction<ArrayChanges<LessonTemplateDto>>) => {
+            const source = state.sources[action.payload.source] as SourcesRepresentation;
+            if (source == undefined) return;
+            source.templates = removeElement<LessonTemplateDto>(source.templates, action.payload.item, compareEntity);
+        },
+        changeTemplate: (state, action: PayloadAction<ArrayChanges<LessonTemplateDto>>) => {
+            const source = state.sources[action.payload.source] as SourcesRepresentation;
+            if (source == undefined) return;
+            updateElement<LessonTemplateDto>(source.templates, action.payload.item, compareEntity);
+        },
+
         removeSource: (state, action: PayloadAction<number>) => {
             state.sources[action.payload] = undefined;
         }
@@ -79,8 +99,8 @@ export const sourcesMapSlice = createSlice({
 });
 
 export const { updateSource, removeSource,
-    addPlace, addTeacher, addWeek,
-    removePlace, removeTeacher, removeWeek,
-    changePlace, changeTeacher} = sourcesMapSlice.actions;
+    addPlace, addTeacher, addWeek, addTemplate,
+    removePlace, removeTeacher, removeWeek, removeTemplate,
+    changePlace, changeTeacher, changeTemplate} = sourcesMapSlice.actions;
 
 export default sourcesMapSlice.reducer;

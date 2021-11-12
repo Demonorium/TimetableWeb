@@ -76,7 +76,7 @@ public class UserAuthController {
             }
 
             //Создаём шаблон занятия
-            LessonTemplate template = new LessonTemplate("Тестовый урок", "Заметка об уроке", source);
+            LessonTemplate template = new LessonTemplate("Тестовый урок", "Заметка об уроке", 10, source);
             database.getLessonTemplateRepository().save(template);
 
             //Создаём место занятия

@@ -78,6 +78,11 @@ export interface Source extends NamedEntity {
     startWeek: number;
 }
 
+export interface LessonTemplateDto extends NamedEntity, Noted {
+    defaultTeachers: Array<number>;
+    hours: number;
+}
+
 export interface Reference {
     code: string;
     source: ID;
@@ -113,4 +118,8 @@ async function getRequest<T extends Entity>(name: string, id: ID): Promise<T> {
 
 async function getRequestPart<T extends Entity>(name: string, part: string, id: ID): Promise<T> {
     return axios.get("/api/part-find/"+name+"/"+part);
+}
+
+export function compareEntity(e1: Entity, e2: Entity): boolean {
+    return e1.id == e2.id
 }
