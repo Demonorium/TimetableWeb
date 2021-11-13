@@ -7,10 +7,14 @@ export function Filler(props: any) {
     const [update, setUpdate] = useState(false);
     useEffect(() => {
         setUpdate(update => !update);
-    }, [props.headerRef.current])
+    }, [props.headerRef.current]);
+
+    const height = (props.headerRef.current == null) ? '92%' : ((window.innerHeight - getDimensions(props.headerRef).height) + "px");
     return (
         <Container
-            sx={{maxHeight: (props.headerRef.current == null) ? '92%' : ((window.innerHeight - getDimensions(props.headerRef).height) + "px")}}
+            sx={{
+                maxHeight: height
+            }}
             maxWidth="xl" component="main">
             {props.children}
         </Container>

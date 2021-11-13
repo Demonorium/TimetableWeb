@@ -20,8 +20,10 @@ export default function Lesson({lesson, start, end}: LessonProps) {
     const place = lesson.place;
 
     const onClick = () => {
-        setOpen(true);
+        if ((lesson.template.note != undefined) && (lesson.template.note.length > 0))
+            setOpen(true);
     };
+
     const offClick = () => {
         setOpen(false);
     }

@@ -44,17 +44,12 @@ export function DaysList({menu}: ScreenInterface) {
     return (
         <TripleGrid
             rightMenu={<CalendarPicker date={date} onChange={handleCalendar}/>}
-            leftMenu={menu}>
-            <Box ref={containerRef} sx={{
-                width: '100%', height: '100%',
-                overflow: 'hidden scroll',
-                padding: '0', margin: '0'
-            }}>
-                <Paper color="main">
-                    <InfiniteDaysSlider containerRef={containerRef} listSize={20} downloadsForRender={10}
-                                        origin={date}/>
-                </Paper>
-            </Box>
+            leftMenu={menu}
+            containerRef={containerRef}>
+            <Paper color="main">
+                <InfiniteDaysSlider containerRef={containerRef} listSize={20} downloadsForRender={10}
+                                    origin={date}/>
+            </Paper>
         </TripleGrid>
     );
 }

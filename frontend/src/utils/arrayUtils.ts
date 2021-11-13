@@ -45,6 +45,18 @@ export function removeElement<T>(array: Array<T>, element: T, comparator:(el1: T
     return newArray;
 }
 
+export function addElement<T>(array: Array<T>, element?: T) {
+    if (element == undefined)
+        return array;
+
+    const newArray = new Array<T>();
+    for (let i = 0; i < array.length; ++i) {
+        newArray.push(array[i]);
+    }
+    newArray.push(element);
+    return newArray;
+}
+
 export function findElement<T>(array: Array<T>, search: (element: T) => boolean): T | undefined {
     for (let i = 0; i < array.length; ++i) {
         if (search(array[i]))

@@ -83,7 +83,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
         UI: (
          <Grid container spacing={2}>
              <Grid item xs={4}>
-                 <Typography variant="h6">Место: </Typography>
+                 <Typography variant="h5">Место</Typography>
              </Grid>
              <Grid item xs={4}>
                  <TextField fullWidth label="Аудитория" defaultValue={state.auditory} onChange={handleChange("auditory")}/>
@@ -99,6 +99,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
     }
 
     return <ItemListEditor<Place>
+        exclude={props.exclude}
         requestClose={props.requestClose}
         listTitle={props.overrideTitle? props.overrideTitle : "Список мест проведения занятий"}
         list={props.source.places}

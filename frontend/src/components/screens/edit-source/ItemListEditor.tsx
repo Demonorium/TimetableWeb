@@ -10,7 +10,7 @@ interface EditListEditorProps<T> {
     /**
      * Закрыть это окно
      */
-    requestClose?: (item: T) => {};
+    requestClose?: (item?: T) => void;
 
     //Редактирование списка
     /**
@@ -33,6 +33,8 @@ interface EditListEditorProps<T> {
     constructor: (item: T, index: number) => any;
 
     remove: (item: T) => void;
+    exclude?: (item: T) => boolean;
+
     //Редактирование отдельного элемента списка
     /**
      * Заголовок окна редактирования
@@ -80,22 +82,28 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
             <Divider/>
             <List>
                 {
-                    props.list.map((item, index) => (
-                        <>
-                            <ButtonWithFadeAction
-                                actions={
-                                    <Tooltip title="Удалить" arrow>
-                                        <IconButton onClick={() => props.remove(item)}>
-                                            <Close />
-                                        </IconButton>
-                                    </Tooltip>
-                                }
-                                onClick={() => {select(index); setOpen(true)}}>
-                                {props.constructor(item, index)}
-                            </ButtonWithFadeAction>
-                            {index == (props.list.length - 1)? undefined: <Divider/>}
-                        </>
-                    ))
+                    props.list.map((item, index) => {
+                        if (props.exclude && props.exclude(item))
+                            return undefined;
+
+                        return (
+                            <>
+                                <ButtonWithFadeAction
+                                    actions={
+                                        <Tooltip title="Удалить" arrow>
+                                            <IconButton onClick={() => props.remove(item)}>
+                                                <Close />
+                                            </IconButton>
+                                        </Tooltip>
+                                    }
+                                    onClick={() => {select(index); setOpen(true)}}>
+                                    {props.constructor(item, index)}
+                                </ButtonWithFadeAction>
+                                {index == (props.list.length - 1)? undefined: <Divider/>}
+                            </>
+                        );
+                    })
+
                 }
             </List>
         </>

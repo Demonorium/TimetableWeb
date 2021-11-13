@@ -3,7 +3,7 @@ import Header from './components/Header';
 import ScreenDisplay from './components/ScreenDisplay';
 import {createTheme, ThemeProvider} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
-import Loading from "./components/Loading";
+import Loading from "./components/utils/Loading";
 import {useAppDispatch, useAppSelector} from "./store/hooks";
 import LoginOrRegister from "./components/modals/LoginOrRegister";
 import dayjs from "dayjs";

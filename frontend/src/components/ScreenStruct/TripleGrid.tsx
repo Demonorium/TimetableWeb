@@ -1,4 +1,4 @@
-import {Grid, GridSize, Paper} from "@mui/material";
+import {Box, Grid, GridSize, Paper} from "@mui/material";
 import * as React from "react";
 
 interface TripleGridProps {
@@ -6,6 +6,7 @@ interface TripleGridProps {
     rightMenu?: any;
     children?: any;
     fill?: boolean;
+    containerRef?: any;
 }
 interface SideGridProps {
     xs: GridSize;
@@ -26,7 +27,7 @@ function SideGrid({xs, fill, content}: SideGridProps) {
     );
 }
 
-export function TripleGrid({leftMenu, rightMenu, children, fill = true}: TripleGridProps) {
+export function TripleGrid({leftMenu, rightMenu, children, containerRef, fill = true}: TripleGridProps) {
     const center = (6 + (fill ?
         ((leftMenu == undefined ? 3 : 0)
         + (rightMenu == undefined ? 3 : 0))
@@ -38,7 +39,13 @@ export function TripleGrid({leftMenu, rightMenu, children, fill = true}: TripleG
             <SideGrid xs={3} fill={fill} content={leftMenu}/>
 
             <Grid item xs={center} sx={{height: "100%", paddingTop: '0!important'}}>
-                {children}
+                <Box ref={containerRef} sx={{
+                    width: '100%', height: '100%',
+                    overflow: 'auto',
+                    padding: '0', margin: '0'
+                }}>
+                    {children}
+                </Box>
             </Grid>
 
             <SideGrid xs={3} fill={fill} content={rightMenu}/>

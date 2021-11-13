@@ -1,6 +1,17 @@
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import {TripleGrid} from "../ScreenStruct/TripleGrid";
-import {CircularProgress, Divider, Grid, IconButton, List, Paper, Typography} from "@mui/material";
+import {
+    Button,
+    CircularProgress,
+    Divider,
+    Grid,
+    IconButton,
+    List,
+    ListItem,
+    Paper,
+    Stack,
+    Typography
+} from "@mui/material";
 import SortableArray from "../../utils/sortableUtils";
 import {Source, SourcePriority} from "../../database";
 import {setPriorities} from "../../store/priorities";
@@ -16,6 +27,9 @@ import {setScreen} from "../../store/appStatus";
 import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
 import {addEditorTab} from "../../store/editorList";
 import {EditSourceParams} from "./EditSource";
+import dayjs from "dayjs";
+import YouSureDialog from "../modals/YouSureDialog";
+import {Delete} from "@material-ui/icons";
 
 async function combine(promise1: Promise<any>, promise2: Promise<any>) {
     await promise1;
@@ -24,6 +38,7 @@ async function combine(promise1: Promise<any>, promise2: Promise<any>) {
 
 interface SourceRepresentProps {
     source: SourcePriority;
+    openDeleteDialog: (id: number) => void
 }
 
 function SourceRepresent(props: SourceRepresentProps) {
@@ -32,34 +47,39 @@ function SourceRepresent(props: SourceRepresentProps) {
 
     return (
         <ButtonWithFadeAction toKey={props.source.sourceId} actions={
-            <IconButton onClick={() => {
-                const screen = {
-                    name: "EDIT_SOURCE",
-                    params: {
-                        subscreen: "TITLE",
-                        sourceId: props.source.sourceId
+            <Stack direction="row" spacing={2}>
+                <IconButton onClick={() => {
+                    const screen = {
+                        name: "EDIT_SOURCE",
+                        params: {
+                            subscreen: "TITLE",
+                            sourceId: props.source.sourceId
+                        }
                     }
-                }
-                dispatch(setScreen(screen));
+                    dispatch(setScreen(screen));
 
-                let addToMenu = true;
-                for (let i = 0; i < editorList.length; ++i) {
-                    const params = editorList[i].params as EditSourceParams | undefined;
-                    if (params == undefined) {
-                        continue;
-                    }
+                    let addToMenu = true;
+                    for (let i = 0; i < editorList.length; ++i) {
+                        const params = editorList[i].params as EditSourceParams | undefined;
+                        if (params == undefined) {
+                            continue;
+                        }
 
-                    if (params.sourceId == screen.params.sourceId) {
-                        addToMenu = false;
-                        break;
+                        if (params.sourceId == screen.params.sourceId) {
+                            addToMenu = false;
+                            break;
+                        }
                     }
-                }
-                if (addToMenu) {
-                    dispatch(addEditorTab(screen));
-                }
-            }}>
-                <EditIcon />
-            </IconButton>
+                    if (addToMenu) {
+                        dispatch(addEditorTab(screen));
+                    }
+                }}>
+                    <EditIcon />
+                </IconButton>
+                <IconButton onClick={()=>{props.openDeleteDialog(props.source.sourceId)}}>
+                    <Delete/>
+                </IconButton>
+            </Stack>
         }>
             {props.source.name}
         </ButtonWithFadeAction>
@@ -70,9 +90,11 @@ export function EditSourcesList(props: ScreenInterface) {
     const priorities = useAppSelector(state => state.priorities.list);
     const sources = useAppSelector(state => state.sources.list);
 
+
     const user = useAppSelector(state => state.user);
     const [update, setUpdate] = useState(true);
     const [loading, setLoading] = useState(true);
+    const [toDelete, setDelete] = useState(-1);
 
     const dispatch = useAppDispatch();
 
@@ -84,6 +106,17 @@ export function EditSourcesList(props: ScreenInterface) {
         );
     }
 
+    const deleteSource = () => {
+        axios.get("api/delete/source", {
+            auth: user,
+            params: {
+                id: toDelete
+            }
+        }).then(() => {
+            setUpdate(true);
+        });
+        setDelete(-1);
+    }
 
     useEffect(() => {
         if (update) {
@@ -149,7 +182,7 @@ export function EditSourcesList(props: ScreenInterface) {
 
     activeArray.onFieldUpdate = (old, id) => activeArray.array.length - id;
     activeArray.onRender = (item) => {
-        return <SourceRepresent source={item.object} />
+        return <SourceRepresent source={item.object} openDeleteDialog={setDelete}/>
     }
 
     const sourcesList = new Array<SourcePriority>();
@@ -190,8 +223,24 @@ export function EditSourcesList(props: ScreenInterface) {
 
     freeArray.onFieldUpdate = (old, id) => old;
     freeArray.onRender = (item) => {
-        return <SourceRepresent source={item.object} />
+        return <SourceRepresent source={item.object} openDeleteDialog={setDelete}/>
     }
+
+
+    const createSource = () => {
+        const date = dayjs();
+        axios.get("api/create/source", {
+            auth: user,
+            params: {
+                name: sources.length + " |Новый репозиторий",
+                startDate: dayjs(0).day(date.day()).year(date.year()).valueOf(),
+                startWeek: 0
+            }
+        }).then(() => {
+            setUpdate(true);
+        });
+    }
+
 
 
     return (
@@ -202,6 +251,21 @@ export function EditSourcesList(props: ScreenInterface) {
                         <Typography variant="h6">
                             Текущие источники
                         </Typography>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <ListItem
+                            secondaryAction={
+                                <Button variant="outlined" onClick={createSource}>
+                                    Создать
+                                </Button>
+                            }>
+                            <Typography variant="h6">
+                                Доступные источники
+                            </Typography>
+                        </ListItem>
+                    </Grid>
+
+                    <Grid item xs={6} sx={{paddingTop: "0!important"}}>
                         <Divider />
                         {
                             loading ? <CircularProgress /> :
@@ -213,10 +277,7 @@ export function EditSourcesList(props: ScreenInterface) {
                         }
 
                     </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="h6">
-                            Неиспользуемые источники
-                        </Typography>
+                    <Grid item xs={6} sx={{paddingTop: "0!important"}}>
                         <Divider />
                         {
                             loading ? <CircularProgress /> :
@@ -229,6 +290,7 @@ export function EditSourcesList(props: ScreenInterface) {
                     </Grid>
                 </Grid>
             </Paper>
+            <YouSureDialog open={toDelete >= 0} close={() => setDelete(-1)} accept={deleteSource}/>
         </TripleGrid>
     );
 

@@ -28,14 +28,27 @@ const MENU: Array<TargetScreen> = [
 ]
 
 export interface EditorProps<T> {
+    /**
+     * окно выбора
+     */
     isSelect: boolean;
+    /**
+     * Должен ли будет использоваться особенный титульник
+     */
     overrideTitle?: string;
 
+    /**
+     * Описание источника
+     */
     source: SourcesRepresentation;
     /**
-     * Закрыть это окно
+     * При закрытии окна
      */
-    requestClose?: (item: T) => {};
+    requestClose?: (item?: T) => void;
+    /**
+     * При выходе
+     */
+    exclude?: (item: T) => boolean;
 }
 
 export default function EditSource(props: ScreenInterface) {
