@@ -76,6 +76,15 @@ public class Lesson implements Comparable<Lesson>, PartOfSource {
      */
     private int number;
 
+    public void addTeacher(Teacher teacher) {
+        teachers.add(teacher);
+        teacher.getLessons().add(this);
+    }
+    public void removeTeacher(Teacher teacher) {
+        teachers.remove(teacher);
+        teacher.getLessons().remove(this);
+    }
+
     public Lesson(LessonTemplate template, Day day, Place place, int number) {
         this.template = template;
         this.day = day;

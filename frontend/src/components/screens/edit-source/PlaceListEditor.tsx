@@ -35,8 +35,8 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
     };
 
     const editor: Editor<Place> = {
-        onPartCreate: (item) => {
-            axios.get("api/create/place", {
+        onPartCreate: async (item) => {
+            await axios.get("api/create/place", {
                 auth: user,
                 params: {
                     sourceId: props.source.source.id,
@@ -49,14 +49,16 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
                 item.id = response.data;
                 dispatch(addPlace({item: item, source: props.source.source.id}))
             });
+            return item;
         },
-        onPartUpdate: (item) => {
-            axios.get("api/update/place", {
+        onPartUpdate: async (item) => {
+            await axios.get("api/update/place", {
                 auth: user,
                 params: item
             }).then((response) => {
                 dispatch(changePlace({item: item, source: props.source.source.id}))
             });
+            return item;
         },
 
         createPartFromUI: () => state,

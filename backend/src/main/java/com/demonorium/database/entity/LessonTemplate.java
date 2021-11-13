@@ -73,6 +73,15 @@ public class LessonTemplate implements PartOfSource {
     @OneToMany(mappedBy = "template", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Lesson> lessons = new HashSet<>();
 
+    public void addTeacher(Teacher teacher) {
+        defaultTeachers.add(teacher);
+        teacher.getTemplates().add(this);
+    }
+    public void removeTeacher(Teacher teacher) {
+        defaultTeachers.remove(teacher);
+        teacher.getTemplates().remove(this);
+    }
+
     public LessonTemplate(String name, String note, int hours, Source source) {
         this.name = name;
         this.note = note;

@@ -52,26 +52,29 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDt
     };
 
     const editor: Editor<LessonTemplateDto> = {
-        onPartCreate: (item) => {
-            axios.get("api/create/lessonTemplate", {
+        onPartCreate: async (item) => {
+            await axios.get("api/create/lessonTemplate", {
                 auth: user,
                 params: {
                     sourceId: props.source.source.id,
                     name: item.name,
                     note: item.note,
+                    defaultTeachers: item.defaultTeachers
                 }
             }).then((response) => {
                 item.id = response.data;
                 dispatch(addTemplate({item: item, source: props.source.source.id}))
             });
+            return item;
         },
-        onPartUpdate: (item) => {
-            axios.get("api/update/lessonTemplate", {
+        onPartUpdate: async (item) => {
+            await axios.get("api/update/lessonTemplate", {
                 auth: user,
                 params: item
             }).then((response) => {
                 dispatch(changeTemplate({item: item, source: props.source.source.id}))
             });
+            return item;
         },
 
         createPartFromUI: () => state,
@@ -139,7 +142,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDt
                                         </IconButton>
                                     </Tooltip>
                                 }>
-                                    <ListItemText primary={teacher.name + " (" + teacher.position + ")"}
+                                    <ListItemText primary={teacher.name + (teacher.position.length > 0 ? " (" + teacher.position + ")" : "")}
                                                   secondary={teacher.note}/>
                                 </ButtonWithFadeAction>
                             );
@@ -148,7 +151,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDt
                     <Divider/>
                 </Grid>
                 <Selector<Teacher> open={open} returnFunction={(teacher) => {
-                    setState({...state, defaultTeachers: addElement(state.defaultTeachers, teacher ? teacher.id : undefined)});
+                    setState({...state, defaultTeachers: addElement(state.defaultTeachers, teacher != undefined ? teacher.id : undefined)});
                     setOpen(false);
                 }} exclude={(element) => containsElement(state.defaultTeachers, (i)=>i == element.id)}>
                     {(props: EditorProps<Teacher>) => <TeacherListEditor {...props}/>}

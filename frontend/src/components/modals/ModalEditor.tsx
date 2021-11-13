@@ -1,11 +1,12 @@
 import * as React from "react";
-import {ReactNode, useEffect} from "react";
+import {ReactNode, useEffect, useState} from "react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@material-ui/icons";
+import {LoadingButton} from "@mui/lab";
 
 export interface Editor<T> {
-    onPartCreate: (item: T) => void;
-    onPartUpdate: (item: T) => void;
+    onPartCreate: (item: T) => Promise<T>;
+    onPartUpdate: (item: T) => Promise<T>;
 
     createPartFromUI: () => T | undefined;
     isPartChanged: (prev: T, next: T) => boolean;
@@ -48,6 +49,8 @@ export interface ModalEditorProps<T> {
 
 
 export default function ModalEditor<T>({title, isSelect, item, editor, requestClose, open}: ModalEditorProps<T>) {
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         if (open) {
             editor.changeItem(item);
@@ -80,19 +83,30 @@ export default function ModalEditor<T>({title, isSelect, item, editor, requestCl
                     <Button onClick={() => requestClose()}>
                         Отмена
                     </Button>
-                    <Button autoFocus onClick={() => {
+                    <LoadingButton loading={loading} autoFocus onClick={() => {
                         const part = editor.createPartFromUI();
                         if (part != undefined) {
                             if (item == undefined) {
-                                editor.onPartCreate(part);
+                                setLoading(true);
+                                editor.onPartCreate(part).then((part) => {
+                                    requestClose(part);
+                                }).catch(() => {
+                                    setLoading(false);
+                                });
                             } else if (editor.isPartChanged(item, part)) {
-                                editor.onPartUpdate(part);
-                            }
-                        }
-                        requestClose(part);
+                                setLoading(true);
+                                editor.onPartUpdate(part).then((part) => {
+                                    requestClose(part);
+                                }).catch(() => {
+                                    setLoading(false);
+                                });
+                            } else
+                                requestClose(part);
+                        } else
+                            requestClose(part);
                     }}>
                         {isSelect ? "Сохранить и выбрать" : "Сохранить"}
-                    </Button>
+                    </LoadingButton>
                 </DialogActions>
         </Dialog>
     )

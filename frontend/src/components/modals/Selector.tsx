@@ -82,7 +82,7 @@ export default function Selector<T>({returnFunction, children, open, exclude}: S
                                 children({
                                     isSelect: true,
                                     requestClose: returnFunction,
-                                    overrideTitle: source.source.name,
+                                    overrideTitle: "Источник: " + source.source.name,
                                     source: source,
                                     exclude: exclude
                                 })

@@ -33,8 +33,8 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
     };
 
     const editor: Editor<Teacher> = {
-        onPartCreate: (item) => {
-            axios.get("api/create/teacher", {
+        onPartCreate: async (item) => {
+            await axios.get("api/create/teacher", {
                 auth: user,
                 params: {
                     sourceId: props.source.source.id,
@@ -47,14 +47,16 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
                 item.id = response.data;
                 dispatch(addTeacher({item: item, source: props.source.source.id}))
             });
+            return item;
         },
-        onPartUpdate: (item) => {
-            axios.get("api/update/teacher", {
+        onPartUpdate: async (item) => {
+            await axios.get("api/update/teacher", {
                 auth: user,
                 params: item
             }).then((response) => {
                 dispatch(changeTeacher({item: item, source: props.source.source.id}))
             });
+            return item;
         },
 
         createPartFromUI: () => state,
@@ -100,7 +102,8 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
         list={props.source.teachers}
         isSelect={props.isSelect}
         constructor={(item, index) =>
-            <ListItemText primary={item.name + " (" + item.position + ")"} secondary={item.note} />
+            <ListItemText primary={item.name + (item.position.length > 0 ? " (" + item.position + ")" : "")}
+                          secondary={item.note}/>
         }
         remove={(item) => {
             axios.get("api/delete/teacher", {
