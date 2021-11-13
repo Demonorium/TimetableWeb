@@ -15,10 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
+import java.util.*;
 
 @RestController
 public class LessonTemplateController {
@@ -76,13 +73,19 @@ public class LessonTemplateController {
             template.get().setNote(note);
 
             TreeSet<Long> set = new TreeSet<>(teachers);
+
+            Set<Teacher> toRemove = new HashSet<>();
+
             for (Teacher teacher: template.get().getDefaultTeachers()) {
                 if (!set.contains(teacher.getId())) {
-                    template.get().removeTeacher(teacher);
+                    toRemove.add(teacher);
                 } else {
                     set.remove(teacher.getId());
                 }
             }
+
+            for (Teacher teacher: toRemove)
+                template.get().removeTeacher(teacher);
 
             for (Long teacherId: set) {
                 Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(teacherId);

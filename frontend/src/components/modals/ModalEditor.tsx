@@ -90,6 +90,7 @@ export default function ModalEditor<T>({title, isSelect, item, editor, requestCl
                                 setLoading(true);
                                 editor.onPartCreate(part).then((part) => {
                                     requestClose(part);
+                                    setLoading(false);
                                 }).catch(() => {
                                     setLoading(false);
                                 });
@@ -97,6 +98,7 @@ export default function ModalEditor<T>({title, isSelect, item, editor, requestCl
                                 setLoading(true);
                                 editor.onPartUpdate(part).then((part) => {
                                     requestClose(part);
+                                    setLoading(false);
                                 }).catch(() => {
                                     setLoading(false);
                                 });
