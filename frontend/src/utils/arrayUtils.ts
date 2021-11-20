@@ -59,6 +59,17 @@ export function removeElement<T>(array: Array<T>, element: T, comparator:(el1: T
     return newArray;
 }
 
+export function removeElementComp<T>(array: Array<T>,  search:(el: T) => boolean) {
+    const newArray = new Array<T>();
+    for (let i = 0; i < array.length; ++i) {
+        if (search(array[i])) {
+            continue;
+        }
+        newArray.push(array[i]);
+    }
+    return newArray;
+}
+
 export function addElement<T>(array: Array<T>, element?: T) {
     if (element == undefined)
         return array;

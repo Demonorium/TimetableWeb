@@ -13,6 +13,9 @@ import TeacherListEditor from "./edit-source/TeacherListEditor";
 import LessonTemplateEditor from "./edit-source/LessonTemplateEditor";
 import WeekListEditor from "./edit-source/WeekListEditor";
 import {Source} from "../../database";
+import {OverridableStringUnion} from "@mui/types";
+import {Variant} from "@mui/material/styles/createTypography";
+import {TypographyPropsVariantOverrides} from "@mui/material/Typography/Typography";
 
 export interface EditSourceParams {
     sourceId: number;
@@ -28,7 +31,7 @@ const MENU: Array<TargetScreen> = [
     {id: "TEACHERS", data: "Преподаватели"},
 ]
 
-export interface EditorProps<T> {
+export interface    EditorProps<T> {
     /**
      * Является ли редактор окном выбора
      */
@@ -38,6 +41,10 @@ export interface EditorProps<T> {
      */
     overrideTitle?: string;
 
+    /**
+     * размер титульника
+     */
+    titleFormat?: OverridableStringUnion<Variant | 'inherit', TypographyPropsVariantOverrides>;
     /**
      * Описание источника
      */

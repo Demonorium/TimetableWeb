@@ -13,14 +13,14 @@ import {
     Typography
 } from "@mui/material";
 import SortableArray from "../../utils/sortableUtils";
-import {Source, SourcePriority} from "../../database";
+import {Day, LessonTemplate, Place, Rights, SourcePriority, Teacher, Week} from "../../database";
 import {setPriorities} from "../../store/priorities";
 import axios from "axios";
 import {ReactSortable} from "react-sortablejs";
 import * as React from "react";
 import {useEffect, useState} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
-import {arrayEq} from "../../utils/arrayUtils";
+import {arrayEq, containsElement, removeElement, removeElementComp} from "../../utils/arrayUtils";
 import EditIcon from '@mui/icons-material/Edit';
 import {setScreen} from "../../store/appStatus";
 import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
@@ -29,6 +29,7 @@ import {EditSourceParams} from "./EditSource";
 import dayjs from "dayjs";
 import YouSureDialog from "../modals/YouSureDialog";
 import {Delete} from "@material-ui/icons";
+import {removeSource, updateSource} from "../../store/sourceMap";
 
 
 interface SourceRepresentProps {
@@ -108,6 +109,8 @@ export function EditSourcesList(props: ScreenInterface) {
                 id: toDelete
             }
         }).then(() => {
+            dispatch(removeSource(toDelete));
+            dispatch(setPriorities(removeElementComp(priorities, (el) => el.sourceId == toDelete)));
             setUpdate(true);
         });
         setDelete(-1);
@@ -218,14 +221,32 @@ export function EditSourcesList(props: ScreenInterface) {
 
     const createSource = () => {
         const date = dayjs();
+        const cdate = dayjs(0).day(date.day()).year(date.year()).valueOf();
+
         axios.get("api/create/source", {
             auth: user,
             params: {
                 name: counter + "\t| Новый источник",
-                startDate: dayjs(0).day(date.day()).year(date.year()).valueOf(),
+                startDate: cdate,
                 startWeek: 0
             }
-        }).then(() => {
+        }).then((resp) => {
+            dispatch(updateSource({
+                id: resp.data,
+                owner: user.username,
+                rights: Rights.OWNER,
+
+                name: counter + "\t| Новый источник",
+
+                startDate: cdate,
+                startWeek: 0,
+
+                teachers: new Array<Teacher>(),
+                places: new Array<Place>(),
+                templates: new Array<LessonTemplate>(),
+                weeks: new Array<Week>(),
+                days: new Array<Day>()
+            }));
             setUpdate(true);
         });
     }

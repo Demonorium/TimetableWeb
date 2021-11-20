@@ -4,6 +4,9 @@ import {Button, Divider, IconButton, List, ListItem, Tooltip, Typography} from "
 import {Close} from "@material-ui/icons";
 import ModalEditor, {Editor} from "../../modals/ModalEditor";
 import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
+import {OverridableStringUnion} from "@mui/types";
+import {Variant} from "@mui/material/styles/createTypography";
+import {TypographyPropsVariantOverrides} from "@mui/material/Typography/Typography";
 
 
 interface EditListEditorProps<T> {
@@ -41,6 +44,10 @@ interface EditListEditorProps<T> {
      */
     editorTitle: string;
     /**
+     * размер титульника
+     */
+    titleFormat?: OverridableStringUnion<Variant | 'inherit', TypographyPropsVariantOverrides>;
+    /**
      * Редактор
      */
     editor: Editor<T>;
@@ -67,7 +74,7 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
                     Создать
                 </Button>
             }>
-                <Typography variant="h5">{props.listTitle}</Typography>
+                <Typography variant={props.titleFormat? props.titleFormat : "h5"}>{props.listTitle}</Typography>
             </ListItem>
 
             <ModalEditor

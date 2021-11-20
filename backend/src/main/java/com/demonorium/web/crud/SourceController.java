@@ -153,7 +153,6 @@ public class SourceController {
     /**
      * Удалить источник
      * @param id ид источника
-     * @return
      */
     @GetMapping("api/delete/source")
     ResponseEntity<String> deleteSource(HttpServletRequest request, @RequestParam(name="id") Long id) {

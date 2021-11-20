@@ -96,10 +96,7 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
 
         if (!willOfButton) {
             setAwait(true);
-            console.log({
-                    username: formState.name,
-                    password: formState.password
-                })
+
             axios.get((isRegister? "/user/register" : "/user/login"),
             {
                 params: {

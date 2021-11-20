@@ -98,6 +98,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
     }
 
     return <ItemListEditor<Place>
+        titleFormat={props.titleFormat}
         exclude={props.exclude}
         requestClose={props.requestClose}
         listTitle={props.overrideTitle? props.overrideTitle : "Список мест проведения занятий"}

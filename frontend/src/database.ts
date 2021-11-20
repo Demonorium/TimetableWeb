@@ -78,7 +78,7 @@ export interface WeekDay extends Entity {
     number: number;
 }
 
-enum Rights {
+export enum Rights {
     DELETE, UPDATE, READ, READ_UPDATE, OWNER
 }
 

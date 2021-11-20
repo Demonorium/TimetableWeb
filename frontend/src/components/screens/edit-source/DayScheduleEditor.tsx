@@ -197,7 +197,7 @@ export default function DayScheduleEditor({day, onCancel, onReset, onSave}: DayS
 
     const [loading, setLoading] = useState(false);
 
-    const sortableArray = new SortableArray("lesson", "number", state.lessons);
+    const sortableArray = new SortableArray<Lesson>("lesson", "number", state.lessons);
     sortableArray.onArrayUpdate = (array) => {
         setState(
             {
@@ -235,6 +235,8 @@ export default function DayScheduleEditor({day, onCancel, onReset, onSave}: DayS
         );
     }
 
+    console.log(sortableArray);
+
     return (
         <>
             <LessonEditor open={editLesson} item={lessonToEdit} requestClose={(item) => {
@@ -261,8 +263,8 @@ export default function DayScheduleEditor({day, onCancel, onReset, onSave}: DayS
             <Divider/>
 
             <Paper elevation={4}>
-                <List>
-                    <ReactSortable>
+                <List sx={{maxHeight: "300px", minHeight: "300px", overflow: "hidden scroll"}}>
+                    <ReactSortable list={sortableArray.array} setList={sortableArray.getSetter()}>
                         {sortableArray.render()}
                     </ReactSortable>
                 </List>

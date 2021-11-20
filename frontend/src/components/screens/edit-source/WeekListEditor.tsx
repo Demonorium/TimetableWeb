@@ -138,12 +138,12 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
         <Grid container spacing={2}>
             {/*Первая строка*/}
             <Grid item xs={3}>
-                <Typography variant="h6">Неделя</Typography>
+                <Typography variant="h5">Неделя</Typography>
                 <Divider/>
                 <WeekList source={source} week={week} setWeek={setWeek}/>
             </Grid>
             <Grid item xs={3}>
-                <Typography variant="h6">День недели</Typography>
+                <Typography variant="h5">День недели</Typography>
                 <Divider/>
                 <DayList source={source} day={day} setDay={setDay} week={selectedWeek}/>
             </Grid>
@@ -152,7 +152,7 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
                 {
                     selectedWeek && (day > 0) ?
                         <>
-                            <Typography variant="h6">{DAY_NAMES[day]}</Typography>
+                            <Typography variant="h5">{DAY_NAMES[day]}</Typography>
 
                             <DayScheduleEditor day={item} onSave={saveDay} onReset={resetDay}/>
                         </>

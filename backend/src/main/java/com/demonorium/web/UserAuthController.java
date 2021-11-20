@@ -62,18 +62,18 @@ public class UserAuthController {
                 CallPair call = new CallPair(schedule, (byte) 10, (byte) 0);
                 database.getCallPairRepository().save(call);
             }
-            {
-                CallPair call = new CallPair(schedule, (byte) 10, (byte) 40);
-                database.getCallPairRepository().save(call);
-            }
-            {
-                CallPair call = new CallPair(schedule, (byte) 20, (byte) 10);
-                database.getCallPairRepository().save(call);
-            }
-            {
-                CallPair call = new CallPair(schedule, (byte) 20, (byte) 50);
-                database.getCallPairRepository().save(call);
-            }
+//            {
+//                CallPair call = new CallPair(schedule, (byte) 10, (byte) 40);
+//                database.getCallPairRepository().save(call);
+//            }
+//            {
+//                CallPair call = new CallPair(schedule, (byte) 20, (byte) 10);
+//                database.getCallPairRepository().save(call);
+//            }
+//            {
+//                CallPair call = new CallPair(schedule, (byte) 20, (byte) 50);
+//                database.getCallPairRepository().save(call);
+//            }
 
             //Создаём шаблон занятия
             LessonTemplate template = new LessonTemplate("Тестовый урок", "Заметка об уроке", 10, source);

@@ -83,7 +83,8 @@ function Day(props: DayProps) {
         lessons.push(<Lesson lesson={pair.lesson}
                              start={pair.dur.start}
                              end={pair.dur.end}
-                             first={(prev.dur.start.time == pair.dur.start.time) && (pair.dur.end == undefined)}
+                             first={((prev.dur.start.time != pair.dur.start.time) && (pair.dur.end == undefined))
+                             || (prev.lesson.id == pair.lesson.id)}
         />);
         prev = pair;
     }

@@ -93,6 +93,7 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
     }
 
     return <ItemListEditor<Teacher>
+        titleFormat={props.titleFormat}
         exclude={props.exclude}
         requestClose={props.requestClose}
         listTitle={props.overrideTitle? props.overrideTitle : "Список преподавателей"}

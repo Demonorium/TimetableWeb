@@ -162,6 +162,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
     }
 
     return <ItemListEditor<LessonTemplate>
+        titleFormat={props.titleFormat}
         exclude={props.exclude}
         requestClose={props.requestClose}
         listTitle={props.overrideTitle? props.overrideTitle : "Список предметов"}
