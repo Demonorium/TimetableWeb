@@ -3,7 +3,10 @@ package com.demonorium.web.crud;
 import com.demonorium.database.DatabaseService;
 import com.demonorium.database.Rights;
 import com.demonorium.database.dto.ChangesDTO;
-import com.demonorium.database.entity.*;
+import com.demonorium.database.entity.Source;
+import com.demonorium.database.entity.SourcesPriority;
+import com.demonorium.database.entity.TimetableChanges;
+import com.demonorium.database.entity.User;
 import com.demonorium.web.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Consumer;
 
 @RestController
 public class ChangesController {
@@ -25,58 +26,29 @@ public class ChangesController {
     @Autowired
     private WebUtils webUtils;
 
-
-
     @GetMapping("/api/find/changes")
-    ResponseEntity<ChangesDTO> findChanges(HttpServletRequest request,
-                                           @RequestParam(name="sourceId") Long sourceId,
-                                           @RequestParam(name="year")   Integer year,
-                                           @RequestParam(name="day")    Integer day) {
-        Optional<Source> source = databaseService.getSourceRepository().findById(sourceId);
-        if (!source.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
+    ResponseEntity<Map<Long, ArrayList<ChangesDTO>>> findChanges(HttpServletRequest request,
+                                           @RequestParam(name="startDate")   Long startDate,
+                                           @RequestParam(name="endDate")     Long endDate) {
+        User user = webUtils.getUser(request);
+        ArrayList<SourcesPriority> priorities = new ArrayList<>(user.getPriorities());
+        priorities.sort(Collections.reverseOrder());
 
-        if (webUtils.hasAccess(request, source.get(), Rights.READ)) {
-            Optional<TimetableChanges> changes = databaseService.getTimetableChangesRepository()
-                    .findBySourceAndDate_YearAndDate_DayIs(source.get(), year, day);
+        Map<Long, ArrayList<ChangesDTO>> map = new TreeMap<>();
 
-            if (!changes.isPresent()) {
-                return ResponseEntity.notFound().build();
+        for (SourcesPriority priority: priorities) {
+            if (webUtils.hasAccess(request, priority.getSource(), Rights.READ)) {
+                Collection<TimetableChanges> changes = databaseService.getTimetableChangesRepository()
+                        .getChanges(priority.getSource().getId(), new Date(startDate), new Date(endDate));
+
+                changes.forEach(timetableChanges -> {
+                    if (!map.containsKey(timetableChanges.getDate().getTime())) {
+                        map.put(timetableChanges.getDate().getTime(), new ArrayList<>());
+                    }
+                    map.get(timetableChanges.getDate().getTime()).add(new ChangesDTO(timetableChanges, priority.getPriority()));
+                });
             }
-
-            Day changesOnDay = changes.get().getDay();
-
-            List<CallPair> callPairs;
-            if (changesOnDay.getSchedule() != null) {
-                callPairs = new ArrayList<>(changesOnDay.getSchedule().getSchedule());
-                Collections.sort(callPairs);
-            } else {
-                callPairs = new ArrayList<>();
-            }
-            Collections.sort(callPairs);
-
-            List<Lesson> lessons = new ArrayList<>(changesOnDay.getLessons());
-            Collections.sort(lessons);
-
-            return ResponseEntity.ok(ChangesDTO.builder()
-                .withId(changes.get().getId())
-                .withDay(day).withYear(year)
-                .withSchedule(callPairs)
-                .withLessons(lessons)
-                    .build());
         }
-
-        return ResponseEntity.unprocessableEntity().build();
+        return ResponseEntity.ok(map);
     }
-
-
-
-
-
-
-
-
-
-
 }

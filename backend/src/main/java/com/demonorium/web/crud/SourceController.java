@@ -2,7 +2,6 @@ package com.demonorium.web.crud;
 
 import com.demonorium.database.DatabaseService;
 import com.demonorium.database.Rights;
-import com.demonorium.database.dto.SourceContentDTO;
 import com.demonorium.database.dto.SourceDTO;
 import com.demonorium.database.dto.SourcesPriorityDTO;
 import com.demonorium.database.entity.*;
@@ -152,25 +151,6 @@ public class SourceController {
     }
 
     /**
-     * Получить основную информацию об источнике
-     * @param id ид источника
-     */
-    @GetMapping("api/find/source")
-    ResponseEntity<SourceContentDTO> findSource(HttpServletRequest request, @RequestParam(name="id") Long id) {
-        Optional<Source> source = databaseService.getSourceRepository().findById(id);
-
-        if (!source.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (webUtils.hasAccess(request, source.get(), Rights.READ)) {
-            return ResponseEntity.ok(new SourceContentDTO(source.get()));
-        }
-
-        return ResponseEntity.unprocessableEntity().build();
-    }
-
-    /**
      * Удалить источник
      * @param id ид источника
      * @return
@@ -199,10 +179,10 @@ public class SourceController {
         List<Source> sources = user.getSources();
 
         List<SourceDTO> result = new ArrayList<>(sources.size());
-        sources.forEach(source -> result.add(new SourceDTO(source)));
+        sources.forEach(source -> result.add(new SourceDTO(source, user)));
 
         Set<AccessToken> tokens = user.getTokens();
-        tokens.forEach(accessToken -> result.add(new SourceDTO(accessToken.getReference().getSource())));
+        tokens.forEach(accessToken -> result.add(new SourceDTO(accessToken.getReference().getSource(), user)));
 
         return ResponseEntity.ok(result);
     }

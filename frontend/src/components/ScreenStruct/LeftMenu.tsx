@@ -21,7 +21,7 @@ export interface EditTargetMenuProps {
 export default function LeftMenu({ menu}: EditTargetMenuProps) {
     const screen = useAppSelector(state => state.app.screen);
     const editorList = useAppSelector(state => state.editorList.list);
-    const sources = useAppSelector(state => state.sources.list);
+    const sources = useAppSelector(state => state.sourceMap.sources);
 
     const dispatch = useAppDispatch();
 
@@ -36,7 +36,7 @@ export default function LeftMenu({ menu}: EditTargetMenuProps) {
                 continue;
             }
 
-            if (!containsElement(sources, (element) => element.id == params.sourceId)) {
+            if (!(params.sourceId in sources)) {
                 dispatch(removeEditorTab(item));
             }
         }
@@ -55,7 +55,7 @@ export default function LeftMenu({ menu}: EditTargetMenuProps) {
                         const params = item.params as EditSourceParams | undefined;
                         if (params == undefined) return undefined;
 
-                        const value = findElement(sources, (element) => element.id == params.sourceId);
+                        const value = sources[params.sourceId];
                         if (value == undefined) return undefined;
 
                         return (

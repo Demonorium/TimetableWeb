@@ -16,7 +16,7 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
 
     const defaultState: Teacher = {
         id: -1,
-        source: props.source.source.id,
+        source: props.source.id,
         name: "",
         position: ""
     }
@@ -37,15 +37,12 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
             await axios.get("api/create/teacher", {
                 auth: user,
                 params: {
-                    sourceId: props.source.source.id,
-
-                    note: item.note,
-                    name: item.name,
-                    position: item.position
+                    ...item,
+                    sourceId: item.source
                 }
             }).then((response) => {
                 item.id = response.data;
-                dispatch(addTeacher({item: item, source: props.source.source.id}))
+                dispatch(addTeacher({item: item, source: item.source}))
             });
             return item;
         },
@@ -54,7 +51,7 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
                 auth: user,
                 params: item
             }).then((response) => {
-                dispatch(changeTeacher({item: item, source: props.source.source.id}))
+                dispatch(changeTeacher({item: item, source: item.source}))
             });
             return item;
         },
@@ -110,7 +107,7 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
                 auth: user,
                 params: {id: item.id}
             }).then(() => {
-                dispatch(removeTeacher({item: item, source: props.source.source.id}))
+                dispatch(removeTeacher({item: item, source: item.source}))
             });
         }}
         editorTitle="Преподаватель"

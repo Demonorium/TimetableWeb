@@ -82,6 +82,7 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
             <Divider/>
             <List>
                 {
+                    props.list.length == 0 ? <ListItem sx={{textAlign:"center", display: "block"}}>Нет объектов</ListItem> :
                     props.list.map((item, index) => {
                         if (props.exclude && props.exclude(item))
                             return undefined;
@@ -103,7 +104,6 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
                             </>
                         );
                     })
-
                 }
             </List>
         </>

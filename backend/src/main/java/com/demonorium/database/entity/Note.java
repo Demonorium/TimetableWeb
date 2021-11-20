@@ -8,20 +8,24 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Set;
 
+/**
+ * Заметка или задание
+ */
 @Data
-@EqualsAndHashCode(exclude = {"source", "day"})
+@EqualsAndHashCode(exclude = {"source"})
 @NoArgsConstructor
 @Entity
-@Table(name = "timetable_changes")
-public class TimetableChanges implements PartOfSource {
+@Table(name = "notes")
+public class Note implements PartOfSource {
     /**
      * ИД объекта в базе
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="changes_id")
+    @Column(name="note_id")
     private Long id;
 
     /**
@@ -40,34 +44,24 @@ public class TimetableChanges implements PartOfSource {
     }
 
     /**
-     *  Дата, на которую произошли изменения
+     *  Дата, на к которой относится эта заметка
      */
     @Column(name="\"date\"", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date date;
 
+    @Column(name="text", length = 4096)
+    private String text;
+
     /**
-     *  Новое рассписание
+     * Список приложений
      */
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    @JoinColumn(name="day_id", nullable = false)
-    private Day day;
+    @OneToMany(mappedBy = "note", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Set<Attachment> attachments = new HashSet<>();
 
-    public TimetableChanges(Source source, Date date, Day day) {
+    public Note(Date date, String text, Source source) {
         this.source = source;
-        this.day = day;
-
-        setDate(date);
-    }
-
-    public void setDate(Date date) {
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(date);
-
-        GregorianCalendar target = new GregorianCalendar();
-        target.set(GregorianCalendar.YEAR, calendar.get(GregorianCalendar.YEAR));
-        target.set(GregorianCalendar.DAY_OF_YEAR, calendar.get(GregorianCalendar.DAY_OF_YEAR));
-
-        this.date = target.getTime();
+        this.date = date;
+        this.text = text;
     }
 }

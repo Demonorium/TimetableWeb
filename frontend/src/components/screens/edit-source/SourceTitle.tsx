@@ -3,11 +3,12 @@ import {Grid, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typogr
 import {DatePicker} from "@mui/lab";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {EditSourceParams} from "../EditSource";
-import {SourcesRepresentation, updateSource} from "../../../store/sourceMap";
+import {updateSource} from "../../../store/sourceMap";
 import dayjs from "dayjs";
+import {Source, Week} from "../../../database";
 
 interface SourceTitleProps {
-    source: SourcesRepresentation;
+    source: Source;
 }
 
 export default function SourceTitle({source}: SourceTitleProps) {
@@ -17,9 +18,7 @@ export default function SourceTitle({source}: SourceTitleProps) {
     const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         dispatch(updateSource({
             ...source,
-            "source": {...source.source,
-                "name": event.target.value
-            }
+            name: event.target.value
         }));
     };
 
@@ -30,20 +29,18 @@ export default function SourceTitle({source}: SourceTitleProps) {
             </Grid>
 
             <Grid item xs={12}>
-                <TextField fullWidth label="Название источника" defaultValue={source.source.name} onChange={handleInput}/>
+                <TextField fullWidth label="Название источника" defaultValue={source.name} onChange={handleInput}/>
             </Grid>
             <Grid item xs={6}>
                 <DatePicker
                     label="Дата начала занятий"
                     views={['year', 'month', 'day']}
-                    value={dayjs(source.source.startDate)}
+                    value={dayjs(source.startDate)}
                     onChange={(newValue: dayjs.Dayjs) => {
                         if (newValue != null) {
                             dispatch(updateSource({
                                 ...source,
-                                "source": {...source.source,
-                                    "startDate": newValue.valueOf()
-                                }
+                                startDate: newValue.valueOf()
                             }));
                         }
                     }}
@@ -54,21 +51,17 @@ export default function SourceTitle({source}: SourceTitleProps) {
                 <DatePicker
                     label="Дата окончания занятий"
                     views={['year', 'month', 'day']}
-                    value={source.source.endDate == null ? null : dayjs(source.source.endDate)}
+                    value={source.endDate == null ? null : dayjs(source.endDate)}
                     onChange={(newValue: dayjs.Dayjs) => {
                         if (newValue != null) {
                             dispatch(updateSource({
                                 ...source,
-                                "source": {...source.source,
-                                    "endDate": newValue.valueOf()
-                                }
+                                "endDate": newValue.valueOf()
                             }));
                         } else {
                             dispatch(updateSource({
                                 ...source,
-                                "source": {...source.source,
-                                    "endDate": undefined
-                                }
+                                "endDate": undefined
                             }));
                         }
                     }}
@@ -81,21 +74,18 @@ export default function SourceTitle({source}: SourceTitleProps) {
                 <Select
                     id="select-week"
                     labelId="select-week-label"
-                    value={source.source.startWeek}
+                    value={source.startWeek}
                     onChange={(event: SelectChangeEvent<number>) => {
                         dispatch(updateSource({
                             ...source,
-                            "source": {...source.source,
-                                "startWeek": typeof(event.target.value) == "number"? event.target.value as number : 0
-                            }
+                            "startWeek": typeof(event.target.value) == "number"? event.target.value as number : 0
                         }));
                     }}
                     fullWidth
                     disabled={source.weeks.length < 2}
                 >
-                    {source.weeks.length < 2 ? <MenuItem value={source.source.startWeek}>1</MenuItem>: source.weeks.map((value, index) =>  <MenuItem value={value.number}>{index+1}</MenuItem>)}
+                    {source.weeks.length < 2 ? <MenuItem value={source.startWeek}>1</MenuItem>: source.weeks.map((value: Week, index: number) =>  <MenuItem value={value.number}>{index+1}</MenuItem>)}
                 </Select>
-
             </Grid>
         </Grid>
     );

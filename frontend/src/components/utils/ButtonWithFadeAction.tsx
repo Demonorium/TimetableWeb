@@ -9,7 +9,7 @@ interface ButtonWithFadeActionProps {
     selected?: boolean;
     toKey?: any;
 }
-const NO_PADDING = {padding: "0"};
+const NO_PADDING = {padding: "0", "& .MuiListItemSecondaryAction-root": {"right": "0!important"}};
 
 export default function ButtonWithFadeAction(props: ButtonWithFadeActionProps) {
     const [fade, setFade] = useState(false);

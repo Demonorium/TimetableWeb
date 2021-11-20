@@ -135,6 +135,13 @@ public class Source {
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Week> weeks = new HashSet<>();
 
+
+    /**
+     * Список заметок
+     */
+    @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Set<Note> notes = new HashSet<>();
+
     /**
      * Список токенов доступа к этому источнику
      */

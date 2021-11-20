@@ -1,23 +1,21 @@
 import * as React from 'react';
 import {CircularProgress, Divider, List, ListItem, ListItemText} from "@mui/material";
 import Lesson from "./Lesson";
-import {Changes, Lesson as LessonRepresentation, ScheduleElement} from "../../database";
+import {Lesson as LessonRepresentation, ScheduleElement} from "../../database";
 
 
-export interface InternalDayRepresentation {
-    lessons: Array<LessonRepresentation>;
-    schedule: Array<ScheduleElement>;
-
-    priority: number;
+export interface LessonPair {
+    dur: LessonDur;
+    lesson: LessonRepresentation;
 }
 
-export function makeInternalDayRepresentation(changes: Changes, priority: number): InternalDayRepresentation {
+export interface LessonDur {
+    start: ScheduleElement;
+    end?: ScheduleElement;
+}
 
-    return {
-        lessons: changes.lessons,
-        schedule: changes.schedule,
-        priority: priority
-    }
+export interface InternalDayRepresentation {
+    lessons: Array<LessonPair>;
 }
 
 interface DayProps {
@@ -77,18 +75,21 @@ function Day(props: DayProps) {
         return <DayContainer dayHeader = {dayHeader} list={[<ListItemText primary={'Нет занятий'}/>]} currentRef={props.currentRef} list_key={props.index}/>;
     }
 
+
+    let prev: LessonPair = props.day.lessons[0];
     for (let i = 0; i < props.day.lessons.length; ++i) {
-        const lesson = props.day.lessons[i];
-        const callNumber = lesson.number * 2;
+        const pair = props.day.lessons[i];
 
-        if ((callNumber+1) >= props.day.schedule.length) break;
-
-        lessons.push(<Lesson lesson={lesson}
-                             start={props.day.schedule[callNumber]}
-                             end={props.day.schedule[callNumber + 1]}/>)
+        lessons.push(<Lesson lesson={pair.lesson}
+                             start={pair.dur.start}
+                             end={pair.dur.end}
+                             first={(prev.dur.start.time == pair.dur.start.time) && (pair.dur.end == undefined)}
+        />);
+        prev = pair;
     }
 
     return <DayContainer dayHeader = {dayHeader} list={lessons} currentRef={props.currentRef} key={props.index}/>;
 }
 
 export default Day;
+

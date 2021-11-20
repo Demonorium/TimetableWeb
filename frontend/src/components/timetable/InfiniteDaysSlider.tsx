@@ -2,52 +2,18 @@ import React from 'react';
 import {List} from "@mui/material";
 import {DAY_NAMES, nameOffset} from "../../utils/time";
 import {connect} from "react-redux";
-import Day, {InternalDayRepresentation, makeInternalDayRepresentation} from "./Day";
+import Day, {InternalDayRepresentation, LessonDur, LessonPair} from "./Day";
 import {RootState} from "../../store/store";
 import RangeObject from "../../utils/range";
-import {Changes, Lesson, ScheduleElement, SourcePriority, User} from "../../database";
+import {Changes, Day as dbDay, Lesson, ScheduleElement, SourcePriority, User, Week, WeekDay} from "../../database";
 import axios from "axios";
 import {ScheduleState} from "../../store/schedule";
 import {PrioritiesState} from "../../store/priorities";
 import getComponentInfo, {Scrolls} from "../../utils/componentInfo";
-import dayjs from "dayjs";
-import {arrayEq} from "../../utils/arrayUtils";
+import dayjs, {Dayjs} from "dayjs";
+import {arrayEq, containsElement, findElement} from "../../utils/arrayUtils";
+import {InternalRepresentationState} from "../../store/sourceMap";
 
-async function downloadChangesFromSource(user: User, priority: SourcePriority, date: dayjs.Dayjs): Promise<Changes> {
-    return axios.get("/api/find/changes",{
-            auth: user,
-
-            params: {
-                sourceId: priority.sourceId,
-                year: date.year(),
-                day: date.dayOfYear()
-            }
-        }
-    )
-}
-
-async function downloadDay(user: User, date: dayjs.Dayjs, priorities: Array<SourcePriority>) {
-    const array = new Array<Promise<any>>();
-
-    for (let i=0; i < priorities.length; ++i) {
-        try {
-            array.push(downloadChangesFromSource(user, priorities[i], date));
-        } catch (ignore:any) {}
-    }
-
-    const result = new Array<InternalDayRepresentation>();
-
-    for (let i = 0; i < array.length; ++i) {
-        try {
-            const response = await array[i].catch((e: any) => {});
-            if (response != undefined) {
-                result.push(makeInternalDayRepresentation(response.data, priorities[i].priority))
-            }
-        } catch (ignore:any) {}
-    }
-
-    return result;
-}
 
 /**
  * Данные хранит описание дня, может загружать его с сервера
@@ -60,7 +26,7 @@ class DayState {
     dateOffset: string;
     ref?: any;
 
-    downloadedState?: Array<InternalDayRepresentation>;
+    downloadedState?: InternalDayRepresentation;
 
     constructor(index: number, date: dayjs.Dayjs, ref?: any) {
         this.index = index;
@@ -71,60 +37,173 @@ class DayState {
         this.dateOffset = nameOffset(Math.ceil(date.diff(dayjs(), 'day', true)));
     }
 
-    getState(defaultSchedule?: Array<ScheduleElement>): InternalDayRepresentation | undefined {
-        //Если нет загруженного состояния - значит загрузка ещё идёт
-        if (this.downloadedState == undefined)
-            return undefined;
-
-        //Если загруженное состояние пустое, значит нет занятий
-        if (this.downloadedState.length == 0)
-            return {
-                lessons: new Array<Lesson>(),
-                schedule: new Array<ScheduleElement>(),
-                priority: 0
-            };
-
-        //Пытаемся найти не пустое расписание звонков
-        let selectedSchedule = defaultSchedule;
-        for (let i = 0; i < this.downloadedState.length; ++i) {
-            if ((this.downloadedState[i].schedule != undefined) && (this.downloadedState[i].schedule.length > 0)) {
-                selectedSchedule = this.downloadedState[i].schedule;
-                break;
-            }
-        }
-
-        //Если нет расписания или расписание пустое: нельзя составить уроки, возврат
-        if ((selectedSchedule == undefined) || (selectedSchedule.length == 0)) {
-            return {
-                lessons: new Array<Lesson>(),
-                schedule: new Array<ScheduleElement>(),
-                priority: 0
-            }
-        }
-
-        //Если всё необходимое есть, возвращаем наиболее приоритетный день
-        return {
-            lessons: this.downloadedState[0].lessons,
-            schedule: selectedSchedule,
-            priority: 0
-        }
+    getState(): InternalDayRepresentation | undefined {
+       return this.downloadedState;
     }
-    startDownload(user: User, date: dayjs.Dayjs, successCounter: any, downloadCounter: any, priorities?: Array<SourcePriority>) {
-        if (priorities == undefined) {
-            this.downloadedState = new Array<InternalDayRepresentation>();
-        } else {
-            downloadCounter();
+}
 
-            downloadDay(user, date, priorities).then((data) => {
-                this.downloadedState = data;
-            }).catch((reason) => {
-            }).finally(() => {
-                successCounter();
-            });
+
+interface DayRep {
+    day: dbDay;
+    schedule: Array<ScheduleElement>;
+}
+
+function inside(time: number, d: LessonDur): boolean {
+    if (d.end) {
+        return (time >= d.start.time) && (time <= d.end.time);
+    }
+    return false;
+}
+
+function intercept(d1: LessonDur, d2: LessonDur): boolean {
+    if (d1.start == d2.start) {
+        if ((d1.end != undefined) && (d2.end != undefined) || (d1.end != d2.end))
+            return true;
+    }
+
+    if (d1.end) {
+        if (d2.end) {
+            if (d1.start.time > d2.start.time) {
+                return (d1.start.time < d2.end.time);
+            } else {
+                return (d2.start.time < d1.end.time);
+            }
+        } else {
+            return inside(d2.start.time, d1);
+        }
+    } else {
+        if (d2.end) {
+            return inside(d1.start.time, d2);
+        } else {
+            return false;
         }
     }
 }
 
+async function downloadScope(maps: InternalRepresentationState, user: User,
+                             startDate: Dayjs, days: Array<DayState>,
+                             downloadCounter: () => void, priorities?: Array<SourcePriority>) {
+
+    if (priorities == undefined) {
+        for (let i = 0; i < days.length; ++i) {
+            days[i].downloadedState = {lessons:  new Array<LessonPair>()};
+        }
+        downloadCounter();
+        return;
+    }
+
+
+    const changesMap: {[keys: number]: Array<Changes>} = (await axios.get("/api/find/changes",{
+        auth: user,
+        params: {
+            startDate: startDate.valueOf(),
+            endDate: startDate.add(days.length-1, 'day').valueOf()
+        }
+    })).data;
+
+    for (let i = 0; i < days.length; ++i) {
+        const date = i > 0 ? startDate.add(i, 'day') : startDate;
+
+        const changes = changesMap[date.valueOf()];
+
+        const dayOfWeek = date.day();
+
+        const dayVariants = new Array<DayRep>();
+        for (let prId = 0; prId < priorities.length; ++prId) {
+            const priority = priorities[prId];
+            const change = changes ? findElement<Changes>(changes, (ch) => ch.priority == priority.priority) : undefined;
+            const source = maps.sources[priority.sourceId];
+            const defSchedule = (source && source.defaultSchedule && (source.defaultSchedule.length > 0))
+                ? source.defaultSchedule
+                : undefined;
+
+            if (change) {
+                const day_db = maps.days[change.day]
+
+                const schedule = (day_db.schedule && (day_db.schedule.length > 0))
+                    ? day_db.schedule
+                    : defSchedule;
+
+                if (schedule) {
+                    dayVariants.push({
+                        day: day_db,
+                        schedule: schedule
+                    });
+                }
+            } else {
+                if ((source != undefined) && (source.weeks.length > 0)) {
+                    const weekNumber = Math.abs(Math.floor(date.diff(dayjs(source.startDate), "weeks", true))) % source.weeks.length;
+                    const week = findElement<Week>(source.weeks, (week) => week.number == weekNumber);
+
+                    // @ts-ignore
+                    const day = findElement<WeekDay>(week.days, (day) => day.number == dayOfWeek);
+
+                    if (day) {
+                        const day_db = maps.days[day.day]
+                        const schedule = (day_db.schedule && (day_db.schedule.length > 0))
+                            ? day_db.schedule
+                            : defSchedule;
+
+                        if (schedule) {
+                            dayVariants.push({
+                                day: day_db,
+                                schedule: schedule
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        const lessonDurs = new Array<LessonDur>();
+        const lessons = new Array<LessonPair>();
+
+
+        for (let i = 0; i < dayVariants.length; ++i) {
+            const variant = dayVariants[i];
+            const clessons = variant.day.lessons;
+            let call = 0;
+
+            let currentCallStart: ScheduleElement = {hour:0, minute: 0, time: 0, id:-1};
+            let currentCallEnd: ScheduleElement | undefined;
+            let callChanged = false;
+
+            for (let lId = 0; lId < clessons.length; ++lId) {
+                callChanged = call < variant.schedule.length;
+                if (callChanged) {
+                    currentCallStart = variant.schedule[call];
+                    ++call;
+                }
+                if (call < variant.schedule.length) {
+                    currentCallEnd = variant.schedule[call];
+                    ++call;
+                } else {
+                    currentCallEnd = undefined;
+                }
+
+                if (callChanged) {
+                    if (containsElement(lessonDurs, (dur) => intercept(dur, {
+                        start: currentCallStart,
+                        end: currentCallEnd
+                    }))) {
+                        break;
+                    }
+                }
+
+                lessons.push({
+                    dur: {
+                        start: currentCallStart,
+                        end: currentCallEnd
+                    },
+                    lesson: clessons[lId]
+                });
+            }
+        }
+        days[i].downloadedState = {lessons: lessons};
+    }
+
+    downloadCounter();
+}
 
 
 /**
@@ -178,6 +257,10 @@ interface InfiniteDaysSliderProps {
      *  Описывает день, который должен находится первый при загрузке
      */
     origin: dayjs.Dayjs;
+    /**
+     * Все источники и их содержимое
+     */
+    maps: InternalRepresentationState;
 }
 
 interface InfiniteDaysSliderState {
@@ -452,8 +535,8 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
     appendDay(list: Array<DayState>, i: number) {
         const calendar = this.props.origin.add(i, "day");
         const data = new DayState(i, calendar, this.currentRef);
-        data.startDownload(this.props.user, calendar, this.incSuccessDownloadCounter, this.incDownloadCounter,  this.props.priorities.list);
         list.push(data);
+        return data;
     }
 
     constructList() {
@@ -464,18 +547,29 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
 
             //Если сейчас нет объектов для отображения - рендерим весь промежуток, а потом перематываемся к последнему
             if (this.list.length == 0) {
-                const list = new Array<DayState>(this.list.length);
+                const list = new Array<DayState>();
                 for (let i = range.first; i < range.last; ++i) {
                     this.appendDay(list, i);
                 }
+
+
+                downloadScope(
+                    this.props.maps, this.props.user,
+                    this.props.origin.add(range.first, "day"), list,
+                    this.incDownloadCounter, this.props.priorities.list
+                ).then(() => {
+                   this.incSuccessDownloadCounter();
+                }).catch(() => {
+                    this.incSuccessDownloadCounter();
+                });
                 this.list = list;
                 this.scrollToStart = true;
             } else {
                 const list = new Array<DayState>();
-
+                const downloads = new Array<DayState>();
                 //Дополняем начало списка
                 for (let i = range.first; i < this.prevRange.first; ++i) {
-                    this.appendDay(list, i);
+                    downloads.push(this.appendDay(list, i));
                 }
 
                 //Возвращаем старые элементы списка
@@ -484,8 +578,18 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
 
                 //Дополняем конец списка
                 for (let i = this.prevRange.last; i < range.last; ++i) {
-                    this.appendDay(list, i);
+                    downloads.push(this.appendDay(list, i));
                 }
+
+                downloadScope(
+                    this.props.maps, this.props.user,
+                    this.props.origin.add(range.first, "day"), downloads,
+                    this.incDownloadCounter, this.props.priorities.list
+                ).then(() => {
+                    this.incSuccessDownloadCounter();
+                }).catch(() => {
+                    this.incSuccessDownloadCounter();
+                });
 
                 this.list = list;
             }
@@ -518,7 +622,8 @@ function mapStateToProps(state: RootState) {
     return {
         priorities: state.priorities,
         schedule: state.schedule,
-        user: state.user
+        user: state.user,
+        maps: state.sourceMap
     }
 }
 

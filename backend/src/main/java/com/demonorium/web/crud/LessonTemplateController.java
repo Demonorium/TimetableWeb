@@ -4,7 +4,6 @@ package com.demonorium.web.crud;
 import com.demonorium.database.DatabaseService;
 import com.demonorium.database.Rights;
 import com.demonorium.database.entity.LessonTemplate;
-import com.demonorium.database.entity.Place;
 import com.demonorium.database.entity.Source;
 import com.demonorium.database.entity.Teacher;
 import com.demonorium.web.WebUtils;

@@ -21,7 +21,6 @@ import * as React from "react";
 import {useEffect, useState} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
 import {arrayEq} from "../../utils/arrayUtils";
-import {setSources} from "../../store/sources";
 import EditIcon from '@mui/icons-material/Edit';
 import {setScreen} from "../../store/appStatus";
 import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
@@ -31,10 +30,6 @@ import dayjs from "dayjs";
 import YouSureDialog from "../modals/YouSureDialog";
 import {Delete} from "@material-ui/icons";
 
-async function combine(promise1: Promise<any>, promise2: Promise<any>) {
-    await promise1;
-    await promise2;
-}
 
 interface SourceRepresentProps {
     source: SourcePriority;
@@ -88,7 +83,7 @@ function SourceRepresent(props: SourceRepresentProps) {
 
 export function EditSourcesList(props: ScreenInterface) {
     const priorities = useAppSelector(state => state.priorities.list);
-    const sources = useAppSelector(state => state.sources.list);
+    const sources = useAppSelector(state => state.sourceMap.sources);
 
 
     const user = useAppSelector(state => state.user);
@@ -126,24 +121,13 @@ export function EditSourcesList(props: ScreenInterface) {
             }).then((response) => {
                 if (!arrayEq(response.data, priorities))
                     dispatch(setPriorities(response.data));
+                setLoading(false);
             }).catch((response) => {
                 if (!arrayEq(response.data, priorities))
                     dispatch(setPriorities(new Array<SourcePriority>()));
-            })
-
-            const r2 = axios.get("/api/find/all_sources", {
-                auth: user
-            }).then((response) => {
-                if (!arrayEq(response.data, sources))
-                    dispatch(setSources(response.data));
-            }).catch((response) => {
-                if (!arrayEq(response.data, sources))
-                    dispatch(setSources(new Array<Source>()));
-            })
-
-            combine(r1, r2).then(() => {
                 setLoading(false);
             })
+
             setUpdate(false);
         }
     }, [update]);
@@ -185,22 +169,27 @@ export function EditSourcesList(props: ScreenInterface) {
         return <SourceRepresent source={item.object} openDeleteDialog={setDelete}/>
     }
 
+    let counter = 0;
     const sourcesList = new Array<SourcePriority>();
-    for (let i = 0; i < sources.length; ++i) {
+    for (let key in sources) {
+        const source = sources[key];
+
         let needInsert = true;
         for (let j = 0; j < activeArray.array.length; ++j) {
-            if (activeArray.array[j].object.sourceId == sources[i].id) {
+            if (activeArray.array[j].object.sourceId == source.id) {
                 needInsert = false;
                 break;
             }
         }
-        if (needInsert)
+        if (needInsert) {
             sourcesList.push({
                 priority: -1,
-                sourceId: sources[i].id,
+                sourceId: source.id,
                 id: -1,
-                name: sources[i].name,
+                name: source.name,
             });
+        }
+        ++counter;
     }
 
     const freeArray = new SortableArray<SourcePriority>("free", "priority", sourcesList);
@@ -232,7 +221,7 @@ export function EditSourcesList(props: ScreenInterface) {
         axios.get("api/create/source", {
             auth: user,
             params: {
-                name: sources.length + " |Новый репозиторий",
+                name: counter + "\t| Новый источник",
                 startDate: dayjs(0).day(date.day()).year(date.year()).valueOf(),
                 startWeek: 0
             }
@@ -275,7 +264,6 @@ export function EditSourcesList(props: ScreenInterface) {
                                     </ReactSortable>
                                 </List>
                         }
-
                     </Grid>
                     <Grid item xs={6} sx={{paddingTop: "0!important"}}>
                         <Divider />

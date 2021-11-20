@@ -39,5 +39,7 @@ public interface DatabaseService {
 
     WeekDayRepository getWeekDayRepository();
 
-    YearDayPairRepository getYearDayPairRepository();
+    NoteRepository getNoteRepository();
+
+    AttachmentRepository getAttachmentRepository();
 }

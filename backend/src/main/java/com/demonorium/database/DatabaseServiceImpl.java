@@ -46,8 +46,11 @@ public class DatabaseServiceImpl implements DatabaseService {
     private TimetableChangesRepository timetableChangesRepository;
     @Autowired
     private WeekDayRepository weekDayRepository;
+
     @Autowired
-    private YearDayPairRepository yearDayPairRepository;
+    private NoteRepository noteRepository;
+    @Autowired
+    private AttachmentRepository attachmentRepository;
 
     @Override
     public boolean hasAccess(User user, PartOfSource partOfSource, Rights rights) {

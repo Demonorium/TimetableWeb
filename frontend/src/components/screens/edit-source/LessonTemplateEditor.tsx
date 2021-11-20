@@ -2,46 +2,47 @@ import * as React from 'react';
 import {useState} from 'react';
 import ItemListEditor from "./ItemListEditor";
 import {addTemplate, changeTemplate, removeTemplate} from "../../../store/sourceMap";
-import {compareEntity, LessonTemplateDto, Teacher} from "../../../database";
+import {LessonTemplate, Teacher} from "../../../database";
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {Editor} from "../../modals/ModalEditor";
 import {
     Button,
-    DialogTitle,
     Divider,
     Grid,
     IconButton,
     List,
     ListItemText,
+    Paper,
     TextField,
     Tooltip,
     Typography
 } from "@mui/material";
 import {EditorProps} from "../EditSource";
-import {addElement, arrayEq, containsElement, findElement, removeElement} from "../../../utils/arrayUtils";
+import {addElement, arrayEq, containsElement, removeElement} from "../../../utils/arrayUtils";
 import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
 import {Close} from "@material-ui/icons";
-import sources from "../../../store/sources";
 import Selector from "../../modals/Selector";
 import TeacherListEditor from "./TeacherListEditor";
 
 
-export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDto>) {
+export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>) {
     const user = useAppSelector(state => state.user);
     const maps = useAppSelector(state => state.sourceMap);
     const dispatch = useAppDispatch();
 
-    const defaultState = {
+    const defaultState: LessonTemplate = {
         id: -1,
+        source: props.source.id,
         name: "",
         hours: 0,
         defaultTeachers: new Array<number>()
     }
-    const [state, setState] = useState<LessonTemplateDto>(defaultState);
+
+    const [state, setState] = useState<LessonTemplate>(defaultState);
     const [open, setOpen] = useState<boolean>(false);
 
-    const handleChange = (prop: keyof LessonTemplateDto) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (prop: keyof LessonTemplate) => (event: React.ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value;
         if (value.length > 50)
             value = value.substr(0, 50);
@@ -51,19 +52,17 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDt
         });
     };
 
-    const editor: Editor<LessonTemplateDto> = {
+    const editor: Editor<LessonTemplate> = {
         onPartCreate: async (item) => {
             await axios.get("api/create/lessonTemplate", {
                 auth: user,
                 params: {
-                    sourceId: props.source.source.id,
-                    name: item.name,
-                    note: item.note,
-                    defaultTeachers: item.defaultTeachers
+                    ...item,
+                    sourceId: item.source,
                 }
             }).then((response) => {
                 item.id = response.data;
-                dispatch(addTemplate({item: item, source: props.source.source.id}))
+                dispatch(addTemplate({item: item, source: item.source}))
             });
             return item;
         },
@@ -72,7 +71,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDt
                 auth: user,
                 params: item
             }).then((response) => {
-                dispatch(changeTemplate({item: item, source: props.source.source.id}))
+                dispatch(changeTemplate({item: item, source: item.source}))
             });
             return item;
         },
@@ -128,26 +127,28 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDt
 
                     <Divider/>
 
-                    <List sx={{maxHeight: "300px", minHeight: "300px", overflow: "hidden scroll"}}>
-                        {state.defaultTeachers.map((itemId: number, index) => {
-                            const teacher = maps.teachers[itemId];
+                    <Paper elevation={2}>
+                        <List sx={{maxHeight: "300px", minHeight: "300px", overflow: "hidden scroll"}}>
+                            {state.defaultTeachers.map((itemId: number, index) => {
+                                const teacher = maps.teachers[itemId];
 
-                            return (<ButtonWithFadeAction actions={
-                                    <Tooltip title="Удалить" arrow>
-                                        <IconButton
-                                            onClick={() => setState(state => {
-                                                return {...state, defaultTeachers: removeElement(state.defaultTeachers, itemId, (o1, o2)=>o1==o2)}
-                                            })}>
-                                            <Close/>
-                                        </IconButton>
-                                    </Tooltip>
-                                }>
-                                    <ListItemText primary={teacher.name + (teacher.position.length > 0 ? " (" + teacher.position + ")" : "")}
-                                                  secondary={teacher.note}/>
-                                </ButtonWithFadeAction>
-                            );
-                        })}
-                    </List>
+                                return (<ButtonWithFadeAction actions={
+                                        <Tooltip title="Удалить" arrow>
+                                            <IconButton
+                                                onClick={() => setState(state => {
+                                                    return {...state, defaultTeachers: removeElement(state.defaultTeachers, itemId, (o1, o2)=>o1==o2)}
+                                                })}>
+                                                <Close/>
+                                            </IconButton>
+                                        </Tooltip>
+                                    }>
+                                        <ListItemText primary={teacher.name + (teacher.position.length > 0 ? " (" + teacher.position + ")" : "")}
+                                                      secondary={teacher.note}/>
+                                    </ButtonWithFadeAction>
+                                );
+                            })}
+                        </List>
+                    </Paper>
                     <Divider/>
                 </Grid>
                 <Selector<Teacher> open={open} returnFunction={(teacher) => {
@@ -160,7 +161,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDt
         )
     }
 
-    return <ItemListEditor<LessonTemplateDto>
+    return <ItemListEditor<LessonTemplate>
         exclude={props.exclude}
         requestClose={props.requestClose}
         listTitle={props.overrideTitle? props.overrideTitle : "Список предметов"}
@@ -174,7 +175,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplateDt
                 auth: user,
                 params: {id: item.id}
             }).then(() => {
-                dispatch(removeTemplate({item: item, source: props.source.source.id}))
+                dispatch(removeTemplate({item: item, source: props.source.id}))
             });
         }}
         editorTitle="Предмет"

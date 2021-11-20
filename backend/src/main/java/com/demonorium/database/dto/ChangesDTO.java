@@ -1,14 +1,9 @@
 package com.demonorium.database.dto;
 
-import com.demonorium.database.entity.CallPair;
-import com.demonorium.database.entity.Lesson;
-import lombok.Builder;
+import com.demonorium.database.entity.TimetableChanges;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-@Builder(setterPrefix="with")
 public class ChangesDTO {
     /**
      * ИД объекта изменений в базе данных
@@ -16,22 +11,30 @@ public class ChangesDTO {
     private Long id;
 
     /**
-     * Список изменений дня
+     * Код дня на который произшли изменения
      */
-    private List<Lesson> lessons;
-    /**
-     * Расписание звонков по умолчанию
-     */
-    private List<CallPair> schedule;
+    private Long day;
 
     /**
-     * Год на который запрошены изменений
+     * Дата на которую произошли изменения
      */
-    private int year;
+    private Long date;
 
     /**
-     * День года на который запрошены изменения
+     * Приоритет
      */
-    private int day;
+    private int priority;
 
+    /**
+     * Источник
+     */
+    private Long source;
+
+    public ChangesDTO(TimetableChanges changes, int priority) {
+        this.id = changes.getId();
+        this.day = changes.getDay().getId();
+        this.date = changes.getDate().getTime();
+        this.priority = priority;
+        this.source = changes.getSourceId();
+    }
 }

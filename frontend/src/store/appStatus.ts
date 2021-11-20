@@ -5,7 +5,8 @@ import {removeElement} from "../utils/arrayUtils";
 export enum GlobalState {
     LOADING,
     PROCESS,
-    CRUSH
+    CRUSH,
+    LOGOUT
 }
 
 export interface Screen {

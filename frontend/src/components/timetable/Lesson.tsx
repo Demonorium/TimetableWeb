@@ -1,11 +1,13 @@
 import * as React from 'react';
 import {Collapse, Divider, List, ListItem, ListItemText} from "@mui/material";
-import {Lesson, ScheduleElement} from "../../database";
+import {Lesson, LessonTemplate, Place, ScheduleElement} from "../../database";
+import {useAppSelector} from "../../store/hooks";
 
 interface LessonProps {
     lesson: Lesson,
     start: ScheduleElement,
-    end: ScheduleElement
+    first: boolean,
+    end?: ScheduleElement
 }
 function minuteToStr(m: number) {
     if (m < 10) {
@@ -14,13 +16,34 @@ function minuteToStr(m: number) {
     return ':' + m;
 }
 
-export default function Lesson({lesson, start, end}: LessonProps) {
+function getFrom(first: boolean, start: ScheduleElement, end?: ScheduleElement) {
+    if (end) {
+        return (
+            start.hour + minuteToStr(start.minute)
+            + ' - ' +
+            end.hour + minuteToStr(end.minute)
+        )
+    } else if (first) {
+        return "c " + start.hour + minuteToStr(start.minute)
+    } else {
+        return "После предыдущего"
+    }
+}
+
+export default function Lesson({lesson, first, start, end}: LessonProps) {
+    const map = useAppSelector(state => state.sourceMap);
+    const template: LessonTemplate = map.templates[lesson.template];
+    const place: Place = map.places[lesson.place];
+
     const [open, setOpen] = React.useState(false);
-    const template = lesson.template;
-    const place = lesson.place;
+
+    if (!template)
+        throw new Error("No template for lesson: " + lesson);
+    if (!place)
+        throw new Error("No place for lesson: " + lesson);
 
     const onClick = () => {
-        if ((lesson.template.note != undefined) && (lesson.template.note.length > 0))
+        if (template && (template.note != undefined) && (template.note.length > 0))
             setOpen(true);
     };
 
@@ -28,17 +51,17 @@ export default function Lesson({lesson, start, end}: LessonProps) {
         setOpen(false);
     }
 
+
     return (
         <React.Fragment>
             <Divider />
             <ListItem onMouseLeave={offClick} onMouseEnter={onClick}
                             secondaryAction={
-                                <ListItemText  primary={place['auditory']} secondary={place['building']}  />
+                                place ?
+                                    <ListItemText  primary={place['auditory']} secondary={place['building']}  /> :
+                                    undefined
                             }>
-                <ListItemText primary={template['name']} secondary={
-                    start.hour + minuteToStr(start.minute)
-                    + ' - ' +
-                    end.hour + minuteToStr(end.minute)}
+                <ListItemText primary={template['name']} secondary={getFrom(first, start, end)}
                 />
 
             </ListItem>

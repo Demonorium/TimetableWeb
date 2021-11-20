@@ -14,9 +14,9 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
     const user = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
 
-    const defaultState = {
+    const defaultState: Place = {
         id: -1,
-        source: props.source.source.id,
+        source: props.source.id,
         building: "",
         auditory: ""
     }
@@ -39,15 +39,12 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
             await axios.get("api/create/place", {
                 auth: user,
                 params: {
-                    sourceId: props.source.source.id,
-
-                    note: item.note,
-                    auditory: item.auditory,
-                    building: item.building
+                    ...item,
+                    sourceId: item.source
                 }
             }).then((response) => {
                 item.id = response.data;
-                dispatch(addPlace({item: item, source: props.source.source.id}))
+                dispatch(addPlace({item: item, source: item.source}))
             });
             return item;
         },
@@ -56,7 +53,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
                 auth: user,
                 params: item
             }).then((response) => {
-                dispatch(changePlace({item: item, source: props.source.source.id}))
+                dispatch(changePlace({item: item, source: item.source}))
             });
             return item;
         },
@@ -114,7 +111,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
                 auth: user,
                 params: {id: item.id}
             }).then(() => {
-                dispatch(removePlace({item: item, source: props.source.source.id}))
+                dispatch(removePlace({item: item, source: props.source.id}))
             });
         }}
         editorTitle="Место проведения занятия"

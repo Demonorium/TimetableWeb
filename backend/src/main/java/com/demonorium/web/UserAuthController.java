@@ -96,12 +96,8 @@ public class UserAuthController {
                 database.getLessonRepository().save(lesson);
             }
 
-            //Создаём дату (текущий день)
-            YearDayPair yearDayPair = new YearDayPair(new Date());
-            database.getYearDayPairRepository().save(yearDayPair);
-
             //Создаём изменений в расписании на сегодня
-            TimetableChanges changes = new TimetableChanges(source, yearDayPair, day);
+            TimetableChanges changes = new TimetableChanges(source, new Date(), day);
             database.getTimetableChangesRepository().save(changes);
 
             //Добавляем текущее расписание в отображаемые, как 0

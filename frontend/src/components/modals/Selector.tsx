@@ -1,17 +1,7 @@
 import * as React from "react";
 import {useAppSelector} from "../../store/hooks";
-import {SourcesRepresentation} from "../../store/sourceMap";
 import {EditorProps} from "../screens/EditSource";
-import {
-    Button,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Divider,
-    IconButton
-} from "@mui/material";
+import {CircularProgress, Dialog, DialogContent, DialogTitle, Divider, IconButton} from "@mui/material";
 import {Close} from "@material-ui/icons";
 
 
@@ -19,7 +9,7 @@ interface SelectorProps<T> {
     open: boolean;
     returnFunction: (item?: T) => void;
     children: (props: EditorProps<T>) => any;
-    exclude: (el: T) => boolean;
+    exclude?: (el: T) => boolean;
 }
 
 
@@ -82,7 +72,7 @@ export default function Selector<T>({returnFunction, children, open, exclude}: S
                                 children({
                                     isSelect: true,
                                     requestClose: returnFunction,
-                                    overrideTitle: "Источник: " + source.source.name,
+                                    overrideTitle: "Источник: " + source.name,
                                     source: source,
                                     exclude: exclude
                                 })

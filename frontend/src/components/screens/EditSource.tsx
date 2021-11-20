@@ -2,16 +2,17 @@ import * as React from "react";
 import {useEffect} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
 import {TripleGrid} from "../ScreenStruct/TripleGrid";
-import {useAppDispatch, useAppSelector} from "../../store/hooks";
+import {useAppSelector} from "../../store/hooks";
 import RightMenu from "./edit-source/RightMenu";
 import {TargetScreen} from "../ScreenStruct/LeftMenu";
 import SourceTitle from "./edit-source/SourceTitle";
 import {CircularProgress, Paper} from "@mui/material";
 import PlaceListEditor from "./edit-source/PlaceListEditor";
-import {removeSource, SourcesRepresentation, updateSource} from "../../store/sourceMap";
 import axios from "axios";
 import TeacherListEditor from "./edit-source/TeacherListEditor";
 import LessonTemplateEditor from "./edit-source/LessonTemplateEditor";
+import WeekListEditor from "./edit-source/WeekListEditor";
+import {Source} from "../../database";
 
 export interface EditSourceParams {
     sourceId: number;
@@ -21,7 +22,7 @@ export interface EditSourceParams {
 const MENU: Array<TargetScreen> = [
     {id: "TITLE", data: "Основная информация"},
     {id: "TASKS", data: "Задания"},
-    {id: "WEEKS", data: "Расписания"},
+    {id: "WEEKS", data: "Недели"},
     {id: "LESSONS", data: "Предметы"},
     {id: "PLACES", data: "Места проведения занятий"},
     {id: "TEACHERS", data: "Преподаватели"},
@@ -29,24 +30,24 @@ const MENU: Array<TargetScreen> = [
 
 export interface EditorProps<T> {
     /**
-     * окно выбора
+     * Является ли редактор окном выбора
      */
     isSelect: boolean;
     /**
-     * Должен ли будет использоваться особенный титульник
+     * Должен ли будет использоваться особенный заголовок
      */
     overrideTitle?: string;
 
     /**
      * Описание источника
      */
-    source: SourcesRepresentation;
+    source: Source;
     /**
-     * При закрытии окна
+     * При закрытии окна редактирования/Выбора будет вызван данный метод
      */
     requestClose?: (item?: T) => void;
     /**
-     * При выходе
+     * Данные объекты не будут показаны в списке
      */
     exclude?: (item: T) => boolean;
 }
@@ -54,35 +55,20 @@ export interface EditorProps<T> {
 export default function EditSource(props: ScreenInterface) {
     const user = useAppSelector(state => state.user)
     const params = useAppSelector(state => state.app.screen.params) as EditSourceParams;
-    const source = useAppSelector(state => state.sourceMap.sources[params.sourceId]) as SourcesRepresentation | undefined;
+    const source = useAppSelector(state => state.sourceMap.sources[params.sourceId]) as Source | undefined;
 
-    const dispatch = useAppDispatch();
     useEffect(() => {
-        if (source == undefined) {
-            axios.get("api/find/source",
-                {
-                    auth: user,
-                    params: {
-                        id: params.sourceId
-                    }
-                }
-            ).then((response) => {
-                dispatch(updateSource(response.data));
-            }).catch(() => {
-                dispatch(removeSource(params.sourceId));
-            });
-        }
         return () => {
             if (source != undefined) {
 
                 const toSend: {[keys: string] : any} = {
                     id: params.sourceId,
-                    name: source.source.name,
-                    startDate: source.source.startDate,
-                    startWeek: source.source.startWeek
+                    name: source.name,
+                    startDate: source.startDate,
+                    startWeek: source.startWeek
                 }
-                if (source.source.endDate != undefined) {
-                    toSend['endDate'] = source.source.endDate
+                if (source.endDate != undefined) {
+                    toSend['endDate'] = source.endDate
                 }
 
                 axios.get("api/part-update/source/basic-info",
@@ -104,6 +90,7 @@ export default function EditSource(props: ScreenInterface) {
                     </Paper> :
                     <Paper color="main" sx={{paddingLeft: "16px", paddingRight: "16px", paddingBottom: "16px", marginTop: "16px"}}>
                         {params.subscreen == "TITLE"    ? <SourceTitle source={source} /> :undefined}
+                        {params.subscreen == "WEEKS"    ? <WeekListEditor source={source}/> :undefined}
                         {params.subscreen == "LESSONS"  ? <LessonTemplateEditor isSelect={false} source={source}/> :undefined}
                         {params.subscreen == "PLACES"   ? <PlaceListEditor isSelect={false} source={source}/> :undefined}
                         {params.subscreen == "TEACHERS" ? <TeacherListEditor isSelect={false} source={source}/> :undefined}
