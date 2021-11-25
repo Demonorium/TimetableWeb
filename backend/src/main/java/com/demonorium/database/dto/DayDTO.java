@@ -6,6 +6,7 @@ import com.demonorium.database.entity.Day;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 @Data
@@ -42,5 +43,6 @@ public class DayDTO {
         }
         this.lessons = new ArrayList<>();
         day.getLessons().forEach(lesson -> lessons.add(new LessonDTO(lesson)));
+        Collections.sort(this.lessons);
     }
 }

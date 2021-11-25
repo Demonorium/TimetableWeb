@@ -83,7 +83,7 @@ export default function ModalEditor<T>({title, isSelect, item, editor, requestCl
                     <Button onClick={() => requestClose()}>
                         Отмена
                     </Button>
-                    <LoadingButton loading={loading} autoFocus onClick={() => {
+                    <LoadingButton disabled={editor.createPartFromUI() == undefined} loading={loading} autoFocus onClick={() => {
                         const part = editor.createPartFromUI();
                         if (part != undefined) {
                             if (item == undefined) {

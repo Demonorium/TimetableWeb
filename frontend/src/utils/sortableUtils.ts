@@ -40,24 +40,24 @@ export default class SortableArray<T> {
     onArrayUpdate?: (array: Array<T>) => void;
     onRender?: (item: SortableItem<T>) => any;
 
-    constructor(prefix: string, field: string, array: Array<T>) {
+    constructor(prefix: string, field: string, array: Array<T>, idBuilder?: (item: T, i: number) => string) {
         this.field = field;
         this.prefix = prefix;
         this.array = new Array<SortableItem<T>>();
         for (let i = 0; i < array.length; ++i) {
             // @ts-ignore
-            this.array.push(new SortableItem<T>(this, array[i][field], array[i]));
+            this.array.push(new SortableItem<T>(this, idBuilder ? idBuilder(array[i], i) : array[i][field], array[i]));
         }
     }
 
     updateItem(item: SortableItem<T>, newIndex: number) {
-        item.object = clone(item.object)
+        item.object = clone<T>(item.object)
         if (this.onFieldUpdate != undefined) {
             // @ts-ignore
             item.object[this.field] = this.onFieldUpdate(item.object[this.field], newIndex);
         } else {
             // @ts-ignore
-            item.object[this.field] = i
+            item.object[this.field] = newIndex
         }
         if (this.onItemUpdate != undefined) {
             this.onItemUpdate(item.object, newIndex);

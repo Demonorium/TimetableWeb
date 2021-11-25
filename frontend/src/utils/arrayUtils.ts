@@ -70,16 +70,32 @@ export function removeElementComp<T>(array: Array<T>,  search:(el: T) => boolean
     return newArray;
 }
 
-export function addElement<T>(array: Array<T>, element?: T) {
-    if (element == undefined)
-        return array;
-
+export function _addElement<T>(array: Array<T>, element: T) {
     const newArray = new Array<T>();
     for (let i = 0; i < array.length; ++i) {
         newArray.push(array[i]);
     }
     newArray.push(element);
     return newArray;
+}
+
+export function addElement<T>(array: Array<T>, element?: T, index?: number) {
+    if (element == undefined)
+        return array;
+
+    if (!index || (index >= array.length)) {
+        return _addElement(array, element);
+    } else {
+        const newArray = new Array<T>();
+        for (let i = 0; i < array.length; ++i) {
+            if (i == index) {
+                newArray.push(element);
+                newArray.push(array[i]);
+            }
+        }
+
+        return newArray;
+    }
 }
 
 export function findElement<T>(array: Array<T>, search: (element: T) => boolean): T | undefined {

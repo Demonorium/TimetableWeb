@@ -57,9 +57,9 @@ export default function Lesson({lesson, first, start, end}: LessonProps) {
             <Divider />
             <ListItem onMouseLeave={offClick} onMouseEnter={onClick}
                             secondaryAction={
-                                place ?
-                                    <ListItemText  primary={place['auditory']} secondary={place['building']}  /> :
-                                    undefined
+                                place
+                                    ? <ListItemText  primary={place['auditory']} secondary={place['building']}  />
+                                    : undefined
                             }>
                 <ListItemText primary={template['name']} secondary={getFrom(first, start, end)}
                 />

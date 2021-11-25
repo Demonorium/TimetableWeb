@@ -30,6 +30,15 @@ interface DayProps {
     currentRef?: any;
 }
 
+function Space() {
+    return (
+        <>
+            <ListItemText primary=" " sx={{minHeight: "78px"}}/>
+            <Divider />
+        </>
+    );
+}
+
 
 function DayContainer(props: any) {
     return (
@@ -76,9 +85,12 @@ function Day(props: DayProps) {
     }
 
 
-    let prev: LessonPair = props.day.lessons[0];
+    let prev: LessonPair | undefined = undefined;
     for (let i = 0; i < props.day.lessons.length; ++i) {
         const pair = props.day.lessons[i];
+
+        if (prev == undefined)
+            prev = pair;
 
         lessons.push(<Lesson lesson={pair.lesson}
                              start={pair.dur.start}
@@ -87,6 +99,7 @@ function Day(props: DayProps) {
                              || (prev.lesson.id == pair.lesson.id)}
         />);
         prev = pair;
+
     }
 
     return <DayContainer dayHeader = {dayHeader} list={lessons} currentRef={props.currentRef} key={props.index}/>;

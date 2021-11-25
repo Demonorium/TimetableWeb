@@ -30,7 +30,7 @@ public class LessonTemplateController {
                                               @RequestParam(name="note", required = false) String note,
                                               @RequestParam(name="name") String name,
                                               @RequestParam(name="hours") Integer hours,
-                                              @RequestParam(name="defaultTeachers[]") List<Long> teachers) {
+                                              @RequestParam(name="defaultTeachers[]", required = false) List<Long> teachers) {
         Optional<Source> source = databaseService.getSourceRepository().findById(id);
 
         if (!source.isPresent()) {
@@ -40,12 +40,15 @@ public class LessonTemplateController {
         if (webUtils.hasAccess(request, source.get(), Rights.UPDATE)) {
             LessonTemplate template = new LessonTemplate(name, note, hours, source.get());
 
-            for (Long teacherId: teachers) {
-                Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(teacherId);
-                if (teacher.isPresent() && webUtils.hasAccess(request, teacher, Rights.READ)) {
-                    template.addTeacher(teacher.get());
+            if (teachers != null) {
+                for (Long teacherId : teachers) {
+                    Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(teacherId);
+                    if (teacher.isPresent() && webUtils.hasAccess(request, teacher, Rights.READ)) {
+                        template.addTeacher(teacher.get());
+                    }
                 }
             }
+
             return ResponseEntity.ok(databaseService.getLessonTemplateRepository().save(template).getId());
         }
 
@@ -58,7 +61,7 @@ public class LessonTemplateController {
                                                 @RequestParam(name="note", required = false) String note,
                                                 @RequestParam(name="name") String name,
                                                 @RequestParam(name="hours") Integer hours,
-                                                @RequestParam(name="defaultTeachers[]") List<Long> teachers) {
+                                                @RequestParam(name="defaultTeachers[]", required = false) List<Long> teachers) {
 
         Optional<LessonTemplate> template = databaseService.getLessonTemplateRepository().findById(id);
 
@@ -71,26 +74,34 @@ public class LessonTemplateController {
             template.get().setHours(hours);
             template.get().setNote(note);
 
-            TreeSet<Long> set = new TreeSet<>(teachers);
 
             Set<Teacher> toRemove = new HashSet<>();
 
-            for (Teacher teacher: template.get().getDefaultTeachers()) {
-                if (!set.contains(teacher.getId())) {
-                    toRemove.add(teacher);
-                } else {
-                    set.remove(teacher.getId());
-                }
-            }
+            if (teachers != null) {
+                TreeSet<Long> set = new TreeSet<>(teachers);
 
-            for (Teacher teacher: toRemove)
-                template.get().removeTeacher(teacher);
 
-            for (Long teacherId: set) {
-                Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(teacherId);
-                if (teacher.isPresent() && webUtils.hasAccess(request, teacher, Rights.READ)) {
-                    template.get().addTeacher(teacher.get());
+                for (Teacher teacher : template.get().getDefaultTeachers()) {
+                    if (!set.contains(teacher.getId())) {
+                        toRemove.add(teacher);
+                    } else {
+                        set.remove(teacher.getId());
+                    }
                 }
+
+                for (Teacher teacher : toRemove)
+                    template.get().removeTeacher(teacher);
+
+                for (Long teacherId : set) {
+                    Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(teacherId);
+                    if (teacher.isPresent() && webUtils.hasAccess(request, teacher, Rights.READ)) {
+                        template.get().addTeacher(teacher.get());
+                    }
+                }
+            } else {
+                toRemove.addAll(template.get().getDefaultTeachers());
+                for (Teacher teacher : toRemove)
+                    template.get().removeTeacher(teacher);
             }
 
             databaseService.getLessonTemplateRepository().save(template.get());

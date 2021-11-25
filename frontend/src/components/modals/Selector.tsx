@@ -44,7 +44,7 @@ export default function Selector<T>({returnFunction, children, open, exclude}: S
                     <Close />
                 </IconButton>
             </DialogTitle>
-            <DialogContent dividers sx={{width: "100%"}}>
+            <DialogContent dividers sx={{width: "100%", paddingLeft: "0", paddingRight: "0"}}>
                 {enumMap((source) => {
                     return (
                         <>

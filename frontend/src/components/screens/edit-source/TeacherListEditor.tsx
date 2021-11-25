@@ -56,7 +56,12 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
             return item;
         },
 
-        createPartFromUI: () => state,
+        createPartFromUI: () => {
+            if (state.name.length == 0)
+                return undefined;
+
+            return state;
+        },
         isPartChanged: (prev, next) => {
             const set = ['id', 'note', 'name', 'position'];
             for (let i in set) {

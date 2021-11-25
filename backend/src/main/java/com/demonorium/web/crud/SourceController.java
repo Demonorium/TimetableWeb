@@ -47,55 +47,6 @@ public class SourceController {
         return ResponseEntity.ok(priorities);
     }
 
-    /**
-     * Запрос стандартного расписания звонков для источника
-     * @param sourceId ид источника
-     */
-    @GetMapping("/api/part-find/source/defaultSchedule")
-    ResponseEntity<CallSchedule> partFindSourceDefaultSchedule(HttpServletRequest request, @RequestParam(name= "sourceId") Long sourceId) {
-        Optional<Source> source = databaseService.getSourceRepository().findById(sourceId);
-
-        if (!source.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (webUtils.hasAccess(request, source.get(), Rights.READ)) {
-            return ResponseEntity.ok(source.get().getDefaultSchedule());
-        }
-
-        return ResponseEntity.unprocessableEntity().build();
-    }
-
-    /**
-     * Запрос обвноления стандартного расписания звонков для источника
-     * @param sourceId ид источника
-     * @param scheduleId ид расписания, которое нужно установить
-     */
-    @GetMapping("/api/part-update/source/defaultSchedule")
-    ResponseEntity<String> partUpdateSourceDefaultSchedule(HttpServletRequest request,
-                                                           @RequestParam(name="sourceId") Long sourceId,
-                                                           @RequestParam(name="scheduleId") Long scheduleId) {
-        Optional<Source> source = databaseService.getSourceRepository().findById(sourceId);
-
-        if (!source.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Optional<CallSchedule> schedule = databaseService.getCallScheduleRepository().findById(scheduleId);
-
-        if (!schedule.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (webUtils.hasAccess(request, source.get(), Rights.UPDATE) && webUtils.hasAccess(request, schedule, Rights.READ)) {
-            source.get().setDefaultSchedule(schedule.get());
-            databaseService.getSourceRepository().save(source.get());
-
-            return ResponseEntity.ok("success");
-        }
-
-        return ResponseEntity.unprocessableEntity().build();
-    }
 
     /**
      * Обновление информации об источнике
@@ -111,12 +62,14 @@ public class SourceController {
                                                      @RequestParam(name="name") String name,
                                                      @RequestParam(name="startDate") Long startDate,
                                                      @RequestParam(name="startWeek") Integer startWeek,
-                                                     @RequestParam(name="endDate", required = false) Long endDate){
+                                                     @RequestParam(name="endDate", required = false) Long endDate,
+                                                     @RequestParam(name="defaultSchedule", required = false) List<Integer> schedule){
         Optional<Source> source = databaseService.getSourceRepository().findById(id);
 
         if (!source.isPresent()) {
             return ResponseEntity.notFound().build();
         }
+
 
         if (webUtils.hasAccess(request, source.get(), Rights.UPDATE)) {
             source.get().setName(name);
@@ -125,6 +78,31 @@ public class SourceController {
             source.get().setEndDate(endDate == null ? null : new Date(endDate));
 
             databaseService.getSourceRepository().save(source.get());
+
+            CallSchedule sc = source.get().getDefaultSchedule();
+
+            if ((sc == null) && (schedule != null) && !schedule.isEmpty()) {
+                sc = new CallSchedule();
+                sc.setSource(source.get());
+                sc = databaseService.getCallScheduleRepository().save(sc);
+
+                source.get().setDefaultSchedule(sc);
+                databaseService.getSourceRepository().save(source.get());
+                sc = databaseService.getCallScheduleRepository().findById(sc.getId()).get();
+            }
+
+            if (sc != null) {
+                for (CallPair pair: sc.getSchedule())
+                    databaseService.getCallPairRepository().delete(pair);
+                if (schedule != null) {
+                    for (Integer time : schedule) {
+                        CallPair pair = new CallPair();
+                        pair.setSchedule(sc);
+                        pair.setTime((short) (int) time);
+                        databaseService.getCallPairRepository().save(pair);
+                    }
+                }
+            }
 
             return ResponseEntity.ok("success");
         }

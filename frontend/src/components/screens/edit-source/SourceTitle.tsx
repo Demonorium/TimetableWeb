@@ -1,19 +1,34 @@
 import * as React from 'react';
-import {Grid, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography} from "@mui/material";
+import {
+    Button,
+    Container,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Select,
+    SelectChangeEvent,
+    TextField,
+    Typography
+} from "@mui/material";
 import {DatePicker} from "@mui/lab";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {EditSourceParams} from "../EditSource";
 import {updateSource} from "../../../store/sourceMap";
 import dayjs from "dayjs";
-import {Source, Week} from "../../../database";
+import {ScheduleElement, Source, Week} from "../../../database";
+import {useEffect, useState} from "react";
+import axios from "axios";
+import ScheduleEditor from "../../modals/ScheduleEditor";
 
 interface SourceTitleProps {
     source: Source;
 }
 
 export default function SourceTitle({source}: SourceTitleProps) {
-    const params = useAppSelector(state => state.app.screen.params) as EditSourceParams;
+    const user = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
+
+    const [scheduleEditor, setScheduleEditor] = useState(false);
 
     const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         dispatch(updateSource({
@@ -22,6 +37,28 @@ export default function SourceTitle({source}: SourceTitleProps) {
         }));
     };
 
+    useEffect(() => {
+        return () => {
+            const toSend: {[keys: string] : any} = {
+                id: source.id,
+                name: source.name,
+                startDate: source.startDate,
+                startWeek: source.startWeek,
+                defaultSchedule: source.defaultSchedule ? source.defaultSchedule.map(el => el.time) : undefined
+            }
+            if (source.endDate != undefined) {
+                toSend['endDate'] = source.endDate
+            }
+
+            axios.get("api/part-update/source/basic-info",
+                {
+                    auth: user,
+                    params: toSend
+                }
+            );
+        }
+    }, [source]);
+
     return (
         <Grid container spacing={2} sx={{marginTop: "0"}}>
             <Grid item xs={12}>
@@ -29,7 +66,7 @@ export default function SourceTitle({source}: SourceTitleProps) {
             </Grid>
 
             <Grid item xs={12}>
-                <TextField fullWidth label="Название источника" defaultValue={source.name} onChange={handleInput}/>
+                <TextField fullWidth label="Название источника" value={source.name} onChange={handleInput}/>
             </Grid>
             <Grid item xs={6}>
                 <DatePicker
@@ -69,23 +106,43 @@ export default function SourceTitle({source}: SourceTitleProps) {
                 />
             </Grid>
 
-            <Grid item xs={4}>
-                <InputLabel id="select-week-label">Номер первой недели</InputLabel>
-                <Select
-                    id="select-week"
-                    labelId="select-week-label"
-                    value={source.startWeek}
-                    onChange={(event: SelectChangeEvent<number>) => {
-                        dispatch(updateSource({
-                            ...source,
-                            "startWeek": typeof(event.target.value) == "number"? event.target.value as number : 0
-                        }));
-                    }}
-                    fullWidth
-                    disabled={source.weeks.length < 2}
-                >
-                    {source.weeks.length < 2 ? <MenuItem value={source.startWeek}>1</MenuItem>: source.weeks.map((value: Week, index: number) =>  <MenuItem value={value.number}>{index+1}</MenuItem>)}
-                </Select>
+            <Grid item xs={12}>
+                <Container maxWidth="xs" sx={{textAlign:"center"}}>
+                    <InputLabel id="select-week-label">Номер первой недели</InputLabel>
+                    <Select
+                        id="select-week"
+                        labelId="select-week-label"
+                        value={source.startWeek}
+                        onChange={(event: SelectChangeEvent<number>) => {
+                            dispatch(updateSource({
+                                ...source,
+                                "startWeek": typeof(event.target.value) == "number"? event.target.value as number : 0
+                            }));
+                        }}
+                        fullWidth
+                        disabled={source.weeks.length < 2}
+                    >
+                        {source.weeks.length < 2 ? <MenuItem value={source.startWeek}>1</MenuItem>: source.weeks.map((value: Week, index: number) =>  <MenuItem value={value.number}>{index+1}</MenuItem>)}
+                    </Select>
+                </Container>
+            </Grid>
+            <Grid item xs={12}>
+                <Container maxWidth="xs" sx={{textAlign:"center"}}>
+                    <Button variant="outlined" onClick={() => setScheduleEditor(true)}>
+                        Редактировать расписание звонков
+                    </Button>
+                </Container>
+                <ScheduleEditor onAccept={(schedule) => {
+                    dispatch(updateSource({
+                        ...source,
+                        defaultSchedule: schedule.length > 0 ? schedule : undefined
+                    }));
+                    setScheduleEditor(false);
+                }}
+                                onCancel={() => setScheduleEditor(false)}
+                                schedule={source.defaultSchedule ? source.defaultSchedule : new Array<ScheduleElement>()}
+                                open={scheduleEditor}/>
+
             </Grid>
         </Grid>
     );

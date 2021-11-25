@@ -64,30 +64,6 @@ export default function EditSource(props: ScreenInterface) {
     const params = useAppSelector(state => state.app.screen.params) as EditSourceParams;
     const source = useAppSelector(state => state.sourceMap.sources[params.sourceId]) as Source | undefined;
 
-    useEffect(() => {
-        return () => {
-            if (source != undefined) {
-
-                const toSend: {[keys: string] : any} = {
-                    id: params.sourceId,
-                    name: source.name,
-                    startDate: source.startDate,
-                    startWeek: source.startWeek
-                }
-                if (source.endDate != undefined) {
-                    toSend['endDate'] = source.endDate
-                }
-
-                axios.get("api/part-update/source/basic-info",
-                    {
-                        auth: user,
-                        params: toSend
-                    }
-                );
-            }
-        }
-    }, [source]);
-
     return (
         <TripleGrid leftMenu={props.menu} rightMenu={<RightMenu menu = {MENU}/>}>
             {
@@ -96,11 +72,11 @@ export default function EditSource(props: ScreenInterface) {
                         <CircularProgress />
                     </Paper> :
                     <Paper color="main" sx={{paddingLeft: "16px", paddingRight: "16px", paddingBottom: "16px", marginTop: "16px"}}>
-                        {params.subscreen == "TITLE"    ? <SourceTitle source={source} /> :undefined}
-                        {params.subscreen == "WEEKS"    ? <WeekListEditor source={source}/> :undefined}
+                        {params.subscreen == "TITLE"    ? <SourceTitle          source={source}/> :undefined}
+                        {params.subscreen == "WEEKS"    ? <WeekListEditor       source={source}/> :undefined}
                         {params.subscreen == "LESSONS"  ? <LessonTemplateEditor isSelect={false} source={source}/> :undefined}
-                        {params.subscreen == "PLACES"   ? <PlaceListEditor isSelect={false} source={source}/> :undefined}
-                        {params.subscreen == "TEACHERS" ? <TeacherListEditor isSelect={false} source={source}/> :undefined}
+                        {params.subscreen == "PLACES"   ? <PlaceListEditor      isSelect={false} source={source}/> :undefined}
+                        {params.subscreen == "TEACHERS" ? <TeacherListEditor    isSelect={false} source={source}/> :undefined}
                     </Paper>
             }
         </TripleGrid>

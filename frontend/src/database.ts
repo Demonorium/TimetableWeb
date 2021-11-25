@@ -90,6 +90,8 @@ export interface SourceInfo extends Entity, Named {
     startDate: number;
     endDate?: number;
     startWeek: number;
+
+    local?: boolean;
 }
 
 
@@ -123,4 +125,14 @@ export interface Changes extends Entity, PartOfSource {
 
 export function compareEntity(e1: Entity, e2: Entity): boolean {
     return e1.id == e2.id
+}
+
+function timeToStr(m: number) {
+    if (m < 10) {
+        return '0' + m
+    }
+    return m.toString();
+}
+export function printScheduleElement(e: ScheduleElement) {
+    return timeToStr(e.hour) + ":" + timeToStr(e.minute)
 }

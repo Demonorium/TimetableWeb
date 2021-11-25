@@ -57,4 +57,10 @@ public class WeekDay implements PartOfSource {
     public Source getSource() {
         return week.getSource();
     }
+
+    public WeekDay(int number, Day day, Week week) {
+        this.number = number;
+        this.week = week;
+        this.day = day;
+    }
 }

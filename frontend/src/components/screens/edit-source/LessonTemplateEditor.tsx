@@ -76,7 +76,12 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
             return item;
         },
 
-        createPartFromUI: () => state,
+        createPartFromUI: () => {
+            if (state.name.length == 0)
+                return undefined;
+
+            return state;
+        },
         isPartChanged: (prev, next) => {
             const set = ['id', 'note', 'name', 'hours'];
             for (let i in set) {

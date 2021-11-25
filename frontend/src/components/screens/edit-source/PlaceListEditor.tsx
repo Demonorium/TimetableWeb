@@ -58,7 +58,12 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
             return item;
         },
 
-        createPartFromUI: () => state,
+        createPartFromUI: () => {
+            if ((state.auditory.length == 0) && (state.building.length == 0))
+                return undefined;
+
+            return state;
+        },
         isPartChanged: (prev, next) => {
             const set = ['id', 'note', 'auditory', 'building'];
             for (let i in set) {

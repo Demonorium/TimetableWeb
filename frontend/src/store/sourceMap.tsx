@@ -120,8 +120,18 @@ export const sourcesMapSlice = createSlice({
         removeDay: removeElementMaps<Day>("days"),
         addDay: createElementFromMaps<Day>("days"),
 
+        changeWeek: changeElementFromMaps<Week>("weeks"),
         addWeek: createElementFromMaps<Week>("weeks"),
-        removeWeek: removeElementMaps<Week>("weeks"),
+        removeWeek: (state, action: PayloadAction<ArrayChanges<Week>>) => {
+            removeElementMaps<Week>("weeks")(state, action);
+            const source = state.sources[action.payload.source];
+            if (source != undefined) {
+                for (let i = 0; i < source.weeks.length; ++i) {
+                    if (source.weeks[i].number >= action.payload.item.number)
+                        --source.weeks[i].number;
+                }
+            }
+        },
 
         changeTeacher: changeElementFromMaps<Teacher>("teachers"),
         removeTeacher: removeElementMaps<Teacher>("teachers"),
@@ -136,7 +146,7 @@ export const sourcesMapSlice = createSlice({
 export const { updateSource, removeSource, setSources,
     addPlace, addTeacher, addWeek, addTemplate,
     removePlace, removeTeacher, removeWeek, removeTemplate,
-    changePlace, changeTeacher, changeTemplate,
+    changePlace, changeTeacher, changeWeek, changeTemplate,
     addDay, changeDay, removeDay} = sourcesMapSlice.actions;
 
 export default sourcesMapSlice.reducer;

@@ -13,6 +13,7 @@ import {setPriorities} from "./store/priorities";
 import {Source, SourcePriority} from "./database";
 import ErrorDialog from "./components/modals/ErrorDialog";
 import {setSources} from "./store/sourceMap";
+import {Orientation, setOrientation} from "./store/orientation";
 
 const theme = createTheme({components:{
     MuiCssBaseline: {
@@ -89,6 +90,7 @@ function NormalScreen(props: any) {
 export default function App() {
     const user = useAppSelector((state) => state.user);
     const state = useAppSelector((state) => state.app);
+    const orientation = useAppSelector((state) => state.orientation.state);
 
     const dispatch = useAppDispatch();
 
@@ -141,6 +143,30 @@ export default function App() {
             }
         }
     }, [updateCounter, user.logout, state.app == GlobalState.CRUSH]);
+
+    const orientationChecker = (event: UIEvent) => {
+        const width = window.innerWidth
+        const height = window.innerHeight;
+        const ratio = width / height;
+        if (ratio > 1.2) {
+            if (orientation != Orientation.LAPTOP) {
+                dispatch(setOrientation(Orientation.LAPTOP));
+            }
+
+        } else {
+            if (orientation != Orientation.PHONE) {
+                dispatch(setOrientation(Orientation.PHONE));
+            }
+        }
+    }
+
+    useState(() => {
+        window.addEventListener("resize", orientationChecker);
+
+        return () => {
+            window.removeEventListener("resize", orientationChecker)
+        }
+    })
 
     switch (state.app) {
         case GlobalState.LOADING:

@@ -1,5 +1,6 @@
 package com.demonorium.database.repository;
 
+import com.demonorium.database.entity.Source;
 import com.demonorium.database.entity.TimetableChanges;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TimetableChangesRepository extends CrudRepository<TimetableChanges, Long> {
@@ -17,4 +19,7 @@ public interface TimetableChangesRepository extends CrudRepository<TimetableChan
             @Param("sourceId") Long sourceId,
             @Param("startDt") Date from,
             @Param("endDt")   Date to);
+
+    boolean existsBySourceAndDate(Source source, Date date);
+    Optional<TimetableChanges> findBySourceAndDate(Source source, Date date);
 }

@@ -5,6 +5,7 @@ import {Visibility, VisibilityOff} from "@material-ui/icons";
 import axios from "axios";
 import {setUser} from "../../store/user";
 import {LoadingButton} from "@mui/lab";
+import {ERROR} from "../../store/appStatus";
 
 interface State {
     name: string,
@@ -113,6 +114,8 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
                     setErrors({...errors, userExists: true});
                 } else if (err.response.data == "password incorrect") {
                     setErrors({...errors, wrongPassword: true});
+                } else {
+                    dispatch(ERROR());
                 }
                 setOffButton(true);
                 setAwait(false);

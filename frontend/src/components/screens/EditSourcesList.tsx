@@ -13,14 +13,14 @@ import {
     Typography
 } from "@mui/material";
 import SortableArray from "../../utils/sortableUtils";
-import {Day, LessonTemplate, Place, Rights, SourcePriority, Teacher, Week} from "../../database";
+import {compareEntity, Day, LessonTemplate, Place, Rights, SourcePriority, Teacher, Week} from "../../database";
 import {setPriorities} from "../../store/priorities";
 import axios from "axios";
 import {ReactSortable} from "react-sortablejs";
 import * as React from "react";
 import {useEffect, useState} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
-import {arrayEq, containsElement, removeElement, removeElementComp} from "../../utils/arrayUtils";
+import {arrayEq, containsElement, removeElement, removeElementComp, replaceElement} from "../../utils/arrayUtils";
 import EditIcon from '@mui/icons-material/Edit';
 import {setScreen} from "../../store/appStatus";
 import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
@@ -151,6 +151,10 @@ export function EditSourcesList(props: ScreenInterface) {
                 }
             }).then((response) => {
                 setLoading(false);
+                dispatch(setPriorities(replaceElement<SourcePriority>(priorities, {
+                    ...priority,
+                    id: response.data
+                }, (e1, e2) => e1 == e2)));
             }).catch(() =>{
                 setUpdate(true);
             });

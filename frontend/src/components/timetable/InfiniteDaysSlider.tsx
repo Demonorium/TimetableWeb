@@ -11,7 +11,7 @@ import {ScheduleState} from "../../store/schedule";
 import {PrioritiesState} from "../../store/priorities";
 import getComponentInfo, {Scrolls} from "../../utils/componentInfo";
 import dayjs, {Dayjs} from "dayjs";
-import {arrayEq, containsElement, findElement} from "../../utils/arrayUtils";
+import {addElement, arrayEq, containsElement, findElement} from "../../utils/arrayUtils";
 import {InternalRepresentationState} from "../../store/sourceMap";
 
 
@@ -156,24 +156,34 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
         }
 
         const lessonDurs = new Array<LessonDur>();
-        const lessons = new Array<LessonPair>();
+        let lessons = new Array<LessonPair>();
 
 
-        for (let i = 0; i < dayVariants.length; ++i) {
-            const variant = dayVariants[i];
+        for (let j = 0; j < dayVariants.length; ++j) {
+            const variant = dayVariants[j];
             const clessons = variant.day.lessons;
             let call = 0;
+
 
             let currentCallStart: ScheduleElement = {hour:0, minute: 0, time: 0, id:-1};
             let currentCallEnd: ScheduleElement | undefined;
             let callChanged = false;
 
-            for (let lId = 0; lId < clessons.length; ++lId) {
+            let lessonIndex = 0;
+            let insertIndex = 0;
+
+            for (let lId = 0; lId < clessons.length; ++lId, ++lessonIndex) {
                 callChanged = call < variant.schedule.length;
                 if (callChanged) {
                     currentCallStart = variant.schedule[call];
                     ++call;
+                } else if (call == variant.schedule.length)  {
+                    if (currentCallEnd) {
+                        currentCallStart = currentCallEnd;
+                    }
+                    ++call;
                 }
+
                 if (call < variant.schedule.length) {
                     currentCallEnd = variant.schedule[call];
                     ++call;
@@ -181,24 +191,51 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
                     currentCallEnd = undefined;
                 }
 
+                const dur = {
+                    start: currentCallStart,
+                    end: currentCallEnd
+                };
+
                 if (callChanged) {
-                    if (containsElement(lessonDurs, (dur) => intercept(dur, {
-                        start: currentCallStart,
-                        end: currentCallEnd
-                    }))) {
+                    console.log("compare")
+                    console.log(dur)
+                    if (containsElement(lessonDurs, (exDur) => {
+                        console.log("with")
+                        console.log(exDur);
+                        const result = intercept(exDur, dur);
+                        console.log("res:")
+                        console.log(result);
+                        return result;
+                    })) {
                         break;
                     }
                 }
 
-                lessons.push({
-                    dur: {
-                        start: currentCallStart,
-                        end: currentCallEnd
-                    },
-                    lesson: clessons[lId]
-                });
+                if (lessonIndex > clessons[lId].number)
+                    lessonIndex = clessons[lId].number;
+
+
+
+                if (lessonIndex == clessons[lId].number) {
+                    if (callChanged) {
+                        lessonDurs.push(dur);
+                    }
+
+                    while ((insertIndex < lessons.length) && (dur.start.time <= lessons[insertIndex].dur.start.time)) {
+                        ++insertIndex;
+                    }
+
+                    lessons = addElement<LessonPair>(lessons, {
+                        dur: dur,
+                        lesson: clessons[lId]
+                    }, insertIndex);
+                    ++insertIndex;
+                } else {
+                    --lId;
+                }
             }
         }
+
         days[i].downloadedState = {lessons: lessons};
     }
 
@@ -600,6 +637,7 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
 
     render() {
         this.constructList();
+        console.log(this.props.maps);
 
         return (
             <>

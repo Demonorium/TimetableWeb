@@ -23,6 +23,17 @@ export const DAY_NAMES = [
     'Суббота'
 ];
 
+
+export const DAY_NAMES_SHRT = [
+    'Вс',
+    'Пн',
+    'Вт',
+    'Ср',
+    'Чт',
+    'Пт',
+    'Сб'
+];
+
 export const OFFSET_NAMES: {[key: string]: string} = {
     '-7': "неделю назад",
     '-2': "позавчера",

@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.ArrayList;
 
 @Data
-public class LessonDTO {
+public class LessonDTO implements Comparable<LessonDTO> {
     /**
      * ИД объекта в базе
      */
@@ -23,6 +23,11 @@ public class LessonDTO {
     private Long place;
 
     /**
+     * Номер занятия в дне
+     */
+    private int number;
+
+    /**
      * Список всех учителей проводящих занятие, перекрывает список из template
      */
     private ArrayList<Long> teachers;
@@ -31,7 +36,13 @@ public class LessonDTO {
         this.id = lesson.getId();
         this.template = lesson.getTemplate().getId();
         this.place = lesson.getPlace().getId();
+        this.number = lesson.getNumber();
         this.teachers = new ArrayList<>();
         lesson.getTeachers().forEach(teacher -> teachers.add(teacher.getId()));
+    }
+
+    @Override
+    public int compareTo(LessonDTO o) {
+        return number - o.number;
     }
 }
