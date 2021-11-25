@@ -349,7 +349,7 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
         await Promise.all(list);
 
         const lessons = new Array<number>();
-        console.log(lessons);
+
         if (editDay.lessons.length > 0) {
             for (let i = 0, c = 0; i < editDay.lessons.length; ++i, ++c) {
                 if (editDay.lessons[i].number > c) {

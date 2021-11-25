@@ -11,9 +11,11 @@ import dayjs from "dayjs";
 
 import dayOfYear from 'dayjs/plugin/dayOfYear';
 import duration from 'dayjs/plugin/duration';
+import ruLocale from 'dayjs/locale/ru';
 
 dayjs.extend(dayOfYear)
 dayjs.extend(duration)
+dayjs.locale('ru')
 
 ReactDOM.render(
     <Provider store={store}>

@@ -1,10 +1,10 @@
 package com.demonorium.database.dto;
 
+import com.demonorium.database.entity.SourcesPriority;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder(setterPrefix="with")
 public class SourcesPriorityDTO implements Comparable<SourcesPriorityDTO> {
     /**
      * id этого приоритета
@@ -23,8 +23,18 @@ public class SourcesPriorityDTO implements Comparable<SourcesPriorityDTO> {
      */
     private int priority;
 
+
+    public SourcesPriorityDTO(SourcesPriority priority) {
+        this.id = priority.getId();
+        this.name = priority.getSource().getName();
+        this.sourceId = priority.getSourceId();
+        this.priority = priority.getPriority();
+    }
+
     @Override
     public int compareTo(SourcesPriorityDTO o) {
         return this.priority - o.priority;
     }
+
+
 }

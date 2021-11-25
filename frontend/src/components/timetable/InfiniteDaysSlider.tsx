@@ -164,7 +164,6 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
             const clessons = variant.day.lessons;
             let call = 0;
 
-
             let currentCallStart: ScheduleElement = {hour:0, minute: 0, time: 0, id:-1};
             let currentCallEnd: ScheduleElement | undefined;
             let callChanged = false;
@@ -191,48 +190,35 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
                     currentCallEnd = undefined;
                 }
 
+                if (lessonIndex > clessons[lId].number)
+                    lessonIndex = clessons[lId].number;
+
+                if (lessonIndex != clessons[lId].number) {
+                    --lId;
+                    continue;
+                }
+
                 const dur = {
                     start: currentCallStart,
                     end: currentCallEnd
                 };
 
                 if (callChanged) {
-                    console.log("compare")
-                    console.log(dur)
-                    if (containsElement(lessonDurs, (exDur) => {
-                        console.log("with")
-                        console.log(exDur);
-                        const result = intercept(exDur, dur);
-                        console.log("res:")
-                        console.log(result);
-                        return result;
-                    })) {
-                        break;
+                    if (containsElement(lessonDurs, (exDur) => intercept(exDur, dur))) {
+                        continue;
                     }
+
+                    lessonDurs.push(dur);
                 }
 
-                if (lessonIndex > clessons[lId].number)
-                    lessonIndex = clessons[lId].number;
-
-
-
-                if (lessonIndex == clessons[lId].number) {
-                    if (callChanged) {
-                        lessonDurs.push(dur);
-                    }
-
-                    while ((insertIndex < lessons.length) && (dur.start.time <= lessons[insertIndex].dur.start.time)) {
-                        ++insertIndex;
-                    }
-
-                    lessons = addElement<LessonPair>(lessons, {
-                        dur: dur,
-                        lesson: clessons[lId]
-                    }, insertIndex);
+                while ((insertIndex < lessons.length) && (lessons[insertIndex].dur.start.time <= dur.start.time)) {
                     ++insertIndex;
-                } else {
-                    --lId;
                 }
+
+                lessons = addElement<LessonPair>(lessons, {
+                    dur: dur,
+                    lesson: clessons[lId]
+                }, insertIndex++);
             }
         }
 
@@ -637,7 +623,6 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
 
     render() {
         this.constructList();
-        console.log(this.props.maps);
 
         return (
             <>

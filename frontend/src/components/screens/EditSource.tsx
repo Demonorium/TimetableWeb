@@ -72,7 +72,7 @@ export default function EditSource(props: ScreenInterface) {
                         <CircularProgress />
                     </Paper> :
                     <Paper color="main" sx={{paddingLeft: "16px", paddingRight: "16px", paddingBottom: "16px", marginTop: "16px"}}>
-                        {params.subscreen == "TITLE"    ? <SourceTitle          source={source}/> :undefined}
+                        {params.subscreen == "TITLE"    ? <SourceTitle          sourceOrigin={source}/> :undefined}
                         {params.subscreen == "WEEKS"    ? <WeekListEditor       source={source}/> :undefined}
                         {params.subscreen == "LESSONS"  ? <LessonTemplateEditor isSelect={false} source={source}/> :undefined}
                         {params.subscreen == "PLACES"   ? <PlaceListEditor      isSelect={false} source={source}/> :undefined}

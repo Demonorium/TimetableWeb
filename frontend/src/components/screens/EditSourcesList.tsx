@@ -138,37 +138,18 @@ export function EditSourcesList(props: ScreenInterface) {
 
     const activeArray = new SortableArray<SourcePriority>("active", "priority", priorities);
     activeArray.onArrayUpdate = array => {
-        dispatch(setPriorities(array));
-    }
-    activeArray.onItemUpdate = (priority) => {
-        if (priority.id == -1) {
-            setLoading(true);
-            axios.get("/api/create/priority", {
-                auth: user,
-                params: {
-                    sourceId: priority.sourceId,
-                    priority: priority.priority
-                }
-            }).then((response) => {
-                setLoading(false);
-                dispatch(setPriorities(replaceElement<SourcePriority>(priorities, {
-                    ...priority,
-                    id: response.data
-                }, (e1, e2) => e1 == e2)));
-            }).catch(() =>{
-                setUpdate(true);
-            });
-        } else {
-            axios.get("/api/update/priority", {
-                auth: user,
-                params: {
-                    sourceId: priority.sourceId,
-                    priority: priority.priority
-                }
-            }).catch(() =>{
-                setUpdate(true);
-            });
-        }
+        setLoading(true);
+        axios.get("api/update/priorities", {
+            auth: user,
+            params: {
+                sources: array.map((el) => el.sourceId)
+            }
+        }).then((response) => {
+            dispatch(setPriorities(response.data));
+            setLoading(false);
+        }).catch(() => {
+            setLoading(false);
+        });
     }
 
     activeArray.onFieldUpdate = (old, id) => activeArray.array.length - id;
@@ -200,22 +181,6 @@ export function EditSourcesList(props: ScreenInterface) {
     }
 
     const freeArray = new SortableArray<SourcePriority>("free", "priority", sourcesList);
-    freeArray.onItemUpdate = priority => {
-            if (priority.id != -1) {
-                setLoading(true)
-                axios.get("/api/delete/priority", {
-                    auth: user,
-                    params: {
-                        sourceId: priority.sourceId
-                    }
-                }).then((response) => {
-                    setLoading(false);
-                }).catch(() =>{
-                    setUpdate(true);
-                });
-            }
-            priority.id = -1;
-        };
 
     freeArray.onFieldUpdate = (old, id) => old;
     freeArray.onRender = (item) => {

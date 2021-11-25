@@ -67,11 +67,19 @@ export default function ScheduleEditor({onAccept, onCancel, schedule, open}: Sch
     }, [open])
 
     const handleChange = (prop: keyof ScheduleElement) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue: ScheduleElement = { ...edited,
-            [prop]: event.target.value
-        };
+        if (typeof (event.target.value) == 'string') {
+            const newValue: ScheduleElement = { ...edited,
+                [prop]: parseInt(event.target.value)
+            };
 
-        setEdited(newValue);
+            setEdited(newValue);
+        } else {
+            const newValue: ScheduleElement = { ...edited,
+                [prop]: event.target.value
+            };
+
+            setEdited(newValue);
+        }
     };
 
     const editor: Editor<ScheduleElement> = {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Button,
-    Container,
+    Container, DialogActions, Divider,
     Grid,
     InputLabel,
     MenuItem,
@@ -10,7 +10,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {DatePicker} from "@mui/lab";
+import {DatePicker, LoadingButton} from "@mui/lab";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {EditSourceParams} from "../EditSource";
 import {updateSource} from "../../../store/sourceMap";
@@ -21,43 +21,54 @@ import axios from "axios";
 import ScheduleEditor from "../../modals/ScheduleEditor";
 
 interface SourceTitleProps {
-    source: Source;
+    sourceOrigin: Source;
 }
 
-export default function SourceTitle({source}: SourceTitleProps) {
+export default function SourceTitle({sourceOrigin}: SourceTitleProps) {
     const user = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
 
+    const [source, setSource] = useState(sourceOrigin);
+
     const [scheduleEditor, setScheduleEditor] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(updateSource({
+        setSource({
             ...source,
             name: event.target.value
-        }));
+        });
     };
 
-    useEffect(() => {
-        return () => {
-            const toSend: {[keys: string] : any} = {
-                id: source.id,
-                name: source.name,
-                startDate: source.startDate,
-                startWeek: source.startWeek,
-                defaultSchedule: source.defaultSchedule ? source.defaultSchedule.map(el => el.time) : undefined
-            }
-            if (source.endDate != undefined) {
-                toSend['endDate'] = source.endDate
-            }
-
-            axios.get("api/part-update/source/basic-info",
-                {
-                    auth: user,
-                    params: toSend
-                }
-            );
+    const saveSource = () => {
+        const toSend: {[keys: string] : any} = {
+            id: source.id,
+            name: source.name,
+            startDate: source.startDate,
+            startWeek: source.startWeek,
+            defaultSchedule: source.defaultSchedule ? source.defaultSchedule.map(el => el.time) : undefined
         }
-    }, [source]);
+        if (source.endDate != undefined) {
+            toSend['endDate'] = source.endDate
+        }
+
+        setLoading(true);
+        axios.get("api/part-update/source/basic-info",
+            {
+                auth: user,
+                params: toSend
+            }
+        ).then(() => {
+            dispatch(updateSource(source));
+            setLoading(false);
+        }).catch(() => {
+            setLoading(false);
+        });
+    }
+
+    useEffect(() => {
+        setSource(sourceOrigin);
+    }, [sourceOrigin]);
 
     return (
         <Grid container spacing={2} sx={{marginTop: "0"}}>
@@ -133,16 +144,24 @@ export default function SourceTitle({source}: SourceTitleProps) {
                     </Button>
                 </Container>
                 <ScheduleEditor onAccept={(schedule) => {
-                    dispatch(updateSource({
+                    setSource({
                         ...source,
                         defaultSchedule: schedule.length > 0 ? schedule : undefined
-                    }));
+                    });
                     setScheduleEditor(false);
                 }}
                                 onCancel={() => setScheduleEditor(false)}
                                 schedule={source.defaultSchedule ? source.defaultSchedule : new Array<ScheduleElement>()}
                                 open={scheduleEditor}/>
 
+            </Grid>
+            <Grid item xs={12}>
+                <Divider/>
+                <DialogActions>
+                    <LoadingButton loading={loading} onClick={saveSource}>
+                        Сохранить
+                    </LoadingButton>
+                </DialogActions>
             </Grid>
         </Grid>
     );

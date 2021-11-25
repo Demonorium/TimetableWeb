@@ -32,16 +32,7 @@ public class SourceController {
         Set<SourcesPriority> rawPriorities = user.getPriorities();
 
         ArrayList<SourcesPriorityDTO> priorities = new ArrayList<>(rawPriorities.size());
-        for (SourcesPriority priority: rawPriorities) {
-            priorities.add(SourcesPriorityDTO.builder()
-                    .withId(priority.getId())
-                    .withName(priority.getSource().getName())
-                    .withSourceId(priority.getSourceId())
-                    .withPriority(priority.getPriority())
-                    .build()
-            );
-        }
-
+        rawPriorities.forEach(priority -> priorities.add(new SourcesPriorityDTO(priority)));
         priorities.sort(Collections.reverseOrder());
 
         return ResponseEntity.ok(priorities);
@@ -63,7 +54,7 @@ public class SourceController {
                                                      @RequestParam(name="startDate") Long startDate,
                                                      @RequestParam(name="startWeek") Integer startWeek,
                                                      @RequestParam(name="endDate", required = false) Long endDate,
-                                                     @RequestParam(name="defaultSchedule", required = false) List<Integer> schedule){
+                                                     @RequestParam(name="defaultSchedule[]", required = false) List<Integer> schedule){
         Optional<Source> source = databaseService.getSourceRepository().findById(id);
 
         if (!source.isPresent()) {
@@ -94,6 +85,7 @@ public class SourceController {
             if (sc != null) {
                 for (CallPair pair: sc.getSchedule())
                     databaseService.getCallPairRepository().delete(pair);
+
                 if (schedule != null) {
                     for (Integer time : schedule) {
                         CallPair pair = new CallPair();

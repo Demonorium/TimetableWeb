@@ -87,10 +87,13 @@ export function addElement<T>(array: Array<T>, element?: T, index?: number) {
         return _addElement(array, element);
     } else {
         const newArray = new Array<T>();
+
         for (let i = 0; i < array.length; ++i) {
             if (i == index) {
                 newArray.push(element);
                 newArray.push(array[i]);
+            } else {
+                newArray.push(array[i])
             }
         }
 

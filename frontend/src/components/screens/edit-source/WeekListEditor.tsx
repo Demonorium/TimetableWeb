@@ -147,7 +147,7 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
                                     number: source.weeks.length
                                 }
                             }).then((response) => {
-                                const first = source.weeks.length == 1;
+                                const first = source.weeks.length == 0;
 
                                 dispatch(addWeek({
                                     item: {
@@ -177,6 +177,7 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
                                     id: week
                                 }
                             }).then(() => {
+                                setWeek(source.weeks.length > 0 ? source.weeks[0].id : 0);
                                 dispatch(removeWeek({item: selectedWeek, source: source.id}));
                                 setBTLoading(false);
                             }).catch(() => {
@@ -187,7 +188,7 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
                         </LoadingButton>
                     </Stack>
 
-                }>
+                } sx={{padding: "0"}}>
                     <Typography variant="h5">Неделя</Typography>
                 </ListItem>
                 <WeekList source={source} week={week} setWeek={setWeek}/>
