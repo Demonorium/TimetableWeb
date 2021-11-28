@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface AccessTokenRepository extends CrudRepository<AccessToken, Long> {
     Optional<AccessToken> findByUserAndReference_Source(User user, Source source);
+    boolean existsByUserAndReference_Source(User user, Source source);
 }

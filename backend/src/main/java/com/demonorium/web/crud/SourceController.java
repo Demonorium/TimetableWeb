@@ -141,6 +141,22 @@ public class SourceController {
         return ResponseEntity.unprocessableEntity().build();
     }
 
+    @GetMapping("/api/find/source")
+    ResponseEntity<SourceDTO> findSource(HttpServletRequest request,
+                                                   @RequestParam(name="id") Long id) {
+        Optional<Source> source = databaseService.getSourceRepository().findById(id);
+
+        if (!source.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (webUtils.hasAccess(request, source.get(), Rights.READ)) {
+            return ResponseEntity.ok(new SourceDTO(source.get(), webUtils.getUser(request)));
+        }
+
+        return ResponseEntity.unprocessableEntity().build();
+    }
+
     @GetMapping("/api/find/all_sources")
     ResponseEntity<List<SourceDTO>> findAllSources(HttpServletRequest request) {
         User user = webUtils.getUser(request);
