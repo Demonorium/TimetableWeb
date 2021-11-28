@@ -13,7 +13,7 @@ import {
     TextField
 } from "@mui/material";
 import {Close} from "@material-ui/icons";
-import {compareEntity, LessonTemplate, ScheduleElement} from "../../database";
+import {compareEntity, LessonTemplate, Rights, ScheduleElement} from "../../database";
 import {useEffect, useState} from "react";
 import ItemListEditor from "../screens/edit-source/ItemListEditor";
 import {addElement, containsElement, removeElement, replaceElement} from "../../utils/arrayUtils";
@@ -27,6 +27,7 @@ interface ScheduleEditorProps {
 
     schedule: Array<ScheduleElement>;
     open: boolean;
+    rights: Rights;
 }
 function clamp(v: number, a: number, b: number) {
     if (v < a)
@@ -42,7 +43,7 @@ function minuteToStr(m: number) {
     return ':' + m;
 }
 
-export default function ScheduleEditor({onAccept, onCancel, schedule, open}: ScheduleEditorProps) {
+export default function ScheduleEditor({rights, onAccept, onCancel, schedule, open}: ScheduleEditorProps) {
     const [state, setState] = useState<Array<ScheduleElement>>(schedule);
     const [idCounter, setIdCounter] = useState<number>(0);
     const defaultScheduleElement: ScheduleElement = {
@@ -166,6 +167,7 @@ export default function ScheduleEditor({onAccept, onCancel, schedule, open}: Sch
 
             <DialogContent sx={{width: "100%", paddingLeft: "0", paddingRight: "0"}}>
                 <ItemListEditor<ScheduleElement>
+                                rights={rights}
                                 listTitle="Расписание звонков"
                                 list={state}
                                 isSelect={false}

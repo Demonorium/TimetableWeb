@@ -1,6 +1,6 @@
-import {compareEntity, Day, Entity, LessonTemplate, Place, Source, Teacher, Week} from "../database";
+import {compareEntity, Day, Entity, LessonTemplate, Note, Place, Source, Teacher, Week} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {removeElement, updateElement} from "../utils/arrayUtils";
+import {findElement, removeElement, removeElementComp, updateElement} from "../utils/arrayUtils";
 
 
 export interface InternalRepresentationState {
@@ -11,6 +11,7 @@ export interface InternalRepresentationState {
     templates: {[key: number]: LessonTemplate};
     weeks: {[key: number]: Week};
     days: {[key: number]: Day};
+    notes: {[key: number]: Note};
 }
 
 
@@ -20,12 +21,18 @@ const initialState: InternalRepresentationState = {
     places: {},
     templates: {},
     weeks: {},
-    days: {}
+    days: {},
+    notes: {}
 }
 
 export interface ArrayChanges<T> {
     item: T;
     source: number;
+}
+
+export interface ChangesCreator {
+    day: Day;
+    date: number;
 }
 
 function addToMap<T extends Entity>(map: {[key: number]: T}, array: Array<T>) {
@@ -85,6 +92,7 @@ function update(state: InternalRepresentationState, source: Source) {
     addToMap(state.templates,   source.templates);
     addToMap(state.weeks,       source.weeks);
     addToMap(state.days,        source.days);
+    addToMap(state.notes,       source.notes);
 }
 
 export const sourcesMapSlice = createSlice({
@@ -107,6 +115,7 @@ export const sourcesMapSlice = createSlice({
                 remFromMap(state.templates, source.templates);
                 remFromMap(state.weeks, source.weeks);
                 remFromMap(state.days, source.days);
+                remFromMap(state.notes, source.notes);
 
                 delete state.sources[action.payload];
             }
@@ -137,16 +146,61 @@ export const sourcesMapSlice = createSlice({
         removeTeacher: removeElementMaps<Teacher>("teachers"),
         addTeacher: createElementFromMaps<Teacher>("teachers"),
 
+        changeNote: changeElementFromMaps<Note>("notes"),
+        removeNote: removeElementMaps<Note>("notes"),
+        addNote: createElementFromMaps<Note>("notes"),
+
         changeTemplate: changeElementFromMaps<LessonTemplate>("templates"),
         removeTemplate: removeElementMaps<LessonTemplate>("templates"),
         addTemplate: createElementFromMaps<LessonTemplate>("templates"),
+
+        addChanges: (state, action: PayloadAction<ChangesCreator>) => {
+            const source = state.sources[action.payload.day.source];
+            if (source == undefined) {
+                return;
+            }
+            createElementFromMaps<Day>("days")(state, {
+                type: "",
+                payload: {
+                    source: action.payload.day.source,
+                    item:action.payload.day
+                }
+            });
+
+            source.changes.push({
+                day: action.payload.day.id,
+                date: action.payload.date
+            });
+        },
+        removeChanges: (state, action: PayloadAction<ArrayChanges<number>>) => {
+            const source = state.sources[action.payload.source];
+            if (source == undefined) {
+                return;
+            }
+            const changes = findElement(source.changes, (e) => e.date == action.payload.item);
+            if (changes != undefined) {
+                source.changes = removeElementComp(source.changes, (e) => e.date == action.payload.item);
+                const day = state.days[changes.day];
+                if (day != undefined) {
+                    removeElementMaps<Day>("days")(state,{
+                            type: "",
+                            payload: {
+                                source: action.payload.source,
+                                item: day
+                            }
+                        }
+                    )
+                }
+            }
+
+        }
     },
 });
 
 export const { updateSource, removeSource, setSources,
-    addPlace, addTeacher, addWeek, addTemplate,
-    removePlace, removeTeacher, removeWeek, removeTemplate,
-    changePlace, changeTeacher, changeWeek, changeTemplate,
-    addDay, changeDay, removeDay} = sourcesMapSlice.actions;
+    addPlace, addTeacher, addWeek, addTemplate, addNote, addChanges,
+    removePlace, removeTeacher, removeWeek, removeTemplate, removeNote,
+    changePlace, changeTeacher, changeWeek, changeTemplate, changeNote,
+    addDay, changeDay, removeDay, removeChanges} = sourcesMapSlice.actions;
 
 export default sourcesMapSlice.reducer;

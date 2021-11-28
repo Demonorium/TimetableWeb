@@ -61,13 +61,12 @@ function WeekList({source, week, setWeek}: WeekListProps) {
 }
 
 interface DayListProps {
-    source: Source;
     day: number;
     setDay: (week: number) => void;
     week?: Week;
 }
 
-function DayList({source, day, setDay, week}: DayListProps) {
+function DayList({day, setDay, week}: DayListProps) {
     return (
         <Tabs sx={{
             width:"100%", display:"block!important", textAlign: "center",
@@ -132,58 +131,67 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
 
     const index = week * 100 + day;
 
+    const createWeek = () => {
+        setBTLoading(true);
+        axios.get("api/create/week", {
+            auth: user,
+            params: {
+                sourceId: source.id,
+                number: source.weeks.length
+            }
+        }).then((response) => {
+            const first = source.weeks.length == 0;
+
+            dispatch(addWeek({
+                item: {
+                    id: response.data,
+                    number: source.weeks.length,
+                    source: source.id,
+                    days: new Array<WeekDay>()
+                },
+                source: source.id
+            }));
+
+            if (first)
+                setWeek(response.data);
+
+            setBTLoading(false);
+        }).catch(() => {
+            setBTLoading(false);
+        });
+    }
+
+    const delWeek = () => {
+        setBTLoading(true);
+        axios.get("api/delete/week", {
+            auth: user,
+            params: {
+                id: week
+            }
+        }).then(() => {
+            setWeek(source.weeks.length > 0 ? source.weeks[0].id : 0);
+            dispatch(removeWeek({item: selectedWeek, source: source.id}));
+            setBTLoading(false);
+        }).catch(() => {
+            setBTLoading(false);
+        });
+
+    }
+
+
+
     return (
         <Grid container spacing={2} sx={{marginTop:"0"}}>
             {/*Первая строка*/}
             <Grid item xs={12}>
                 <ListItem secondaryAction={
                     <Stack direction="row" spacing={1}>
-                        <LoadingButton variant="outlined" onClick={() => {
-                            setBTLoading(true);
-                            axios.get("api/create/week", {
-                                auth: user,
-                                params: {
-                                    sourceId: source.id,
-                                    number: source.weeks.length
-                                }
-                            }).then((response) => {
-                                const first = source.weeks.length == 0;
-
-                                dispatch(addWeek({
-                                    item: {
-                                        id: response.data,
-                                        number: source.weeks.length,
-                                        source: source.id,
-                                        days: new Array<WeekDay>()
-                                    },
-                                    source: source.id
-                                }));
-
-                                if (first)
-                                    setWeek(response.data);
-
-                                setBTLoading(false);
-                            }).catch(() => {
-                                setBTLoading(false);
-                            });
-                        }}>
+                        <LoadingButton loading={btLoading} variant="outlined" onClick={createWeek}>
                             Создать
                         </LoadingButton>
-                        <LoadingButton color="error" variant="outlined" disabled={selectedWeek == undefined} onClick={() => {
-                            setBTLoading(true);
-                            axios.get("api/delete/week", {
-                                auth: user,
-                                params: {
-                                    id: week
-                                }
-                            }).then(() => {
-                                setWeek(source.weeks.length > 0 ? source.weeks[0].id : 0);
-                                dispatch(removeWeek({item: selectedWeek, source: source.id}));
-                                setBTLoading(false);
-                            }).catch(() => {
-                                setBTLoading(false);
-                            });
-                        }}>
+                        <LoadingButton loading={btLoading}
+                                       color="error" variant="outlined"
+                                       disabled={selectedWeek == undefined} onClick={delWeek}>
                             Удалить
                         </LoadingButton>
                     </Stack>
@@ -196,7 +204,7 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
             <Grid item xs={12}>
                 <Typography variant="h5">День недели</Typography>
                 <Divider/>
-                <DayList source={source} day={day} setDay={setDay} week={selectedWeek}/>
+                <DayList day={day} setDay={setDay} week={selectedWeek}/>
                 <Divider/>
             </Grid>
 

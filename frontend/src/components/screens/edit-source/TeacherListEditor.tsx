@@ -25,7 +25,7 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
     const handleChange = (prop: keyof Teacher) => (event: React.ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value;
         if (value.length > 50)
-            value = value.substr(0, 50);
+            return;
 
         setState({ ...state,
             [prop]: value
@@ -85,19 +85,20 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
         UI: (
             <Grid container spacing={2}>
                 <Grid item xs={8}>
-                    <TextField fullWidth label="ФИО" defaultValue={state.name} onChange={handleChange("name")}/>
+                    <TextField fullWidth label="ФИО" value={state.name} onChange={handleChange("name")}/>
                 </Grid>
                 <Grid item xs={4}>
-                    <TextField fullWidth label="Должность" defaultValue={state.position} onChange={handleChange("position")}/>
+                    <TextField fullWidth label="Должность" value={state.position} onChange={handleChange("position")}/>
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField fullWidth label="Заметка" defaultValue={state.note} onChange={handleChange("note")}/>
+                    <TextField fullWidth label="Заметка" value={state.note} onChange={handleChange("note")}/>
                 </Grid>
             </Grid>
         )
     }
 
     return <ItemListEditor<Teacher>
+        rights={props.source.rights}
         titleFormat={props.titleFormat}
         exclude={props.exclude}
         requestClose={props.requestClose}

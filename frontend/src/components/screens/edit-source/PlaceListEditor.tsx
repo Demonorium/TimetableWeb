@@ -25,9 +25,9 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
         let value = event.target.value;
         if (value.length > 8) {
             if (prop == "building" || prop == "auditory")
-                value = value.substr(0, 8);
+                return;
             else if (value.length > 50)
-                value = value.substr(0, 50);
+                return;
         }
         setState({ ...state,
             [prop]: value
@@ -90,19 +90,20 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
                  <Typography variant="h5">Место</Typography>
              </Grid>
              <Grid item xs={4}>
-                 <TextField fullWidth label="Аудитория" defaultValue={state.auditory} onChange={handleChange("auditory")}/>
+                 <TextField fullWidth label="Аудитория" value={state.auditory} onChange={handleChange("auditory")}/>
              </Grid>
              <Grid item xs={4}>
-                 <TextField fullWidth label="Здание / Корпус" defaultValue={state.building} onChange={handleChange("building")}/>
+                 <TextField fullWidth label="Здание / Корпус" value={state.building} onChange={handleChange("building")}/>
              </Grid>
              <Grid item xs={12}>
-                 <TextField fullWidth label="Заметка" defaultValue={state.note} onChange={handleChange("note")}/>
+                 <TextField fullWidth label="Заметка" value={state.note} onChange={handleChange("note")}/>
              </Grid>
          </Grid>
         )
     }
 
     return <ItemListEditor<Place>
+        rights={props.source.rights}
         titleFormat={props.titleFormat}
         exclude={props.exclude}
         requestClose={props.requestClose}

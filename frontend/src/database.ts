@@ -79,7 +79,12 @@ export interface WeekDay extends Entity {
 }
 
 export enum Rights {
-    DELETE, UPDATE, READ, READ_UPDATE, OWNER
+    DELETE="DELETE", UPDATE="UPDATE", READ="READ", READ_UPDATE="READ_UPDATE", OWNER="OWNER"
+}
+
+export interface ChangesInfo {
+    day: number;
+    date: number;
 }
 
 export interface SourceInfo extends Entity, Named {
@@ -95,13 +100,14 @@ export interface SourceInfo extends Entity, Named {
 }
 
 
-
 export interface Source extends SourceInfo {
     weeks: Array<Week>;
     places: Array<Place>;
     teachers: Array<Teacher>;
     templates: Array<LessonTemplate>;
     days: Array<Day>;
+    notes: Array<Note>;
+    changes: Array<ChangesInfo>;
 }
 
 
@@ -115,6 +121,11 @@ export interface SourcePriority extends Entity {
     sourceId: ID;
     priority: number;
     name: string;
+}
+
+export interface Note extends Entity, PartOfSource {
+    text: string;
+    date: number;
 }
 
 export interface Changes extends Entity, PartOfSource {

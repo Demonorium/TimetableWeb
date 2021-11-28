@@ -4,10 +4,7 @@ import com.demonorium.database.Rights;
 import com.demonorium.database.entity.*;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 public class SourceDTO {
@@ -67,9 +64,34 @@ public class SourceDTO {
     private Set<DayDTO> days;
 
     /**
+     * Задания
+     */
+    private ArrayList<Note> notes;
+
+    @Data
+    private static class ChangesInfo {
+        private Long date;
+        private Long day;
+
+        public ChangesInfo(Long time, Long id) {
+            this.date = time;
+            this.day = id;
+        }
+    }
+
+    /**
+     * Изменения
+     */
+    private ArrayList<ChangesInfo> changes;
+
+
+
+    /**
      * Права доступа
      */
     private Rights rights;
+
+
 
     public SourceDTO(Source source, User user) {
         this.id = source.getId();
@@ -99,5 +121,13 @@ public class SourceDTO {
         } else if (source.getReference() != null) {
             rights = source.getReference().getRights();
         }
+
+        this.notes = new ArrayList<>(source.getNotes());
+        Collections.sort(this.notes);
+
+        this.changes = new ArrayList<>();
+        source.getChanges().forEach(changes ->
+                this.changes.add(new ChangesInfo(changes.getDate().getTime(), changes.getDay().getId())));
+        changes.sort(Comparator.comparing(ChangesInfo::getDate));
     }
 }

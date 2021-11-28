@@ -13,7 +13,18 @@ import {
     Typography
 } from "@mui/material";
 import SortableArray from "../../utils/sortableUtils";
-import {compareEntity, Day, LessonTemplate, Place, Rights, SourcePriority, Teacher, Week} from "../../database";
+import {
+    ChangesInfo,
+    compareEntity,
+    Day,
+    LessonTemplate,
+    Note,
+    Place,
+    Rights,
+    SourcePriority,
+    Teacher,
+    Week
+} from "../../database";
 import {setPriorities} from "../../store/priorities";
 import axios from "axios";
 import {ReactSortable} from "react-sortablejs";
@@ -214,7 +225,9 @@ export function EditSourcesList(props: ScreenInterface) {
                 places: new Array<Place>(),
                 templates: new Array<LessonTemplate>(),
                 weeks: new Array<Week>(),
-                days: new Array<Day>()
+                days: new Array<Day>(),
+                notes: new Array<Note>(),
+                changes: new Array<ChangesInfo>()
             }));
             setUpdate(true);
         });

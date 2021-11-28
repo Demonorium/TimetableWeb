@@ -47,7 +47,19 @@ export function replaceElement<T>(array: Array<T>, element: T, comparator:(el1: 
     return newArray;
 }
 
+export function replaceElementIndex<T>(array: Array<T>, element: T, index: number): Array<T> {
+    const newArray = new Array<T>();
 
+    for (let i = 0; i < array.length; ++i) {
+        if (i == index) {
+            newArray.push(element);
+        } else {
+            newArray.push(array[i]);
+        }
+    }
+
+    return newArray;
+}
 export function removeElement<T>(array: Array<T>, element: T, comparator:(el1: T, el2: T) => boolean) {
     const newArray = new Array<T>();
     for (let i = 0; i < array.length; ++i) {

@@ -7,6 +7,7 @@ import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
 import {OverridableStringUnion} from "@mui/types";
 import {Variant} from "@mui/material/styles/createTypography";
 import {TypographyPropsVariantOverrides} from "@mui/material/Typography/Typography";
+import {Rights} from "../../../database";
 
 
 interface EditListEditorProps<T> {
@@ -51,6 +52,10 @@ interface EditListEditorProps<T> {
      * Редактор
      */
     editor: Editor<T>;
+    /**
+     * Права доступа
+     */
+    rights: Rights
 }
 
 
@@ -70,14 +75,18 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
     return (
         <>
             <ListItem secondaryAction={
-                <Button variant="outlined" onClick={() => {setOpen(true)}}>
-                    Создать
-                </Button>
+                ((props.rights == Rights.OWNER) || (props.rights == Rights.READ_UPDATE) || (props.rights == Rights.UPDATE))
+                    ?
+                    <Button variant="outlined" onClick={() => {setOpen(true)}}>
+                        Создать
+                    </Button>
+                    : undefined
             }>
                 <Typography variant={props.titleFormat? props.titleFormat : "h5"}>{props.listTitle}</Typography>
             </ListItem>
 
             <ModalEditor
+                rights={props.rights}
                 title={props.editorTitle}
                 editor={props.editor}
                 isSelect={props.isSelect}
@@ -98,11 +107,17 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
                             <>
                                 <ButtonWithFadeAction
                                     actions={
+                                        (props.rights == Rights.OWNER)
+                                            ?
                                         <Tooltip title="Удалить" arrow>
                                             <IconButton onClick={() => props.remove(item)}>
                                                 <Close />
                                             </IconButton>
                                         </Tooltip>
+                                            :
+                                        <Typography>
+
+                                        </Typography>
                                     }
                                     onClick={() => {select(index); setOpen(true)}}>
                                     {props.constructor(item, index)}

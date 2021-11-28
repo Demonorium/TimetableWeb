@@ -16,6 +16,7 @@ import {Source} from "../../database";
 import {OverridableStringUnion} from "@mui/types";
 import {Variant} from "@mui/material/styles/createTypography";
 import {TypographyPropsVariantOverrides} from "@mui/material/Typography/Typography";
+import EditNotes from "./edit-source/EditNotes";
 
 export interface EditSourceParams {
     sourceId: number;
@@ -64,6 +65,7 @@ export default function EditSource(props: ScreenInterface) {
     const params = useAppSelector(state => state.app.screen.params) as EditSourceParams;
     const source = useAppSelector(state => state.sourceMap.sources[params.sourceId]) as Source | undefined;
 
+
     return (
         <TripleGrid leftMenu={props.menu} rightMenu={<RightMenu menu = {MENU}/>}>
             {
@@ -73,6 +75,7 @@ export default function EditSource(props: ScreenInterface) {
                     </Paper> :
                     <Paper color="main" sx={{paddingLeft: "16px", paddingRight: "16px", paddingBottom: "16px", marginTop: "16px"}}>
                         {params.subscreen == "TITLE"    ? <SourceTitle          sourceOrigin={source}/> :undefined}
+                        {params.subscreen == "TASKS"    ? <EditNotes            isSelect={false} source={source}/> :undefined}
                         {params.subscreen == "WEEKS"    ? <WeekListEditor       source={source}/> :undefined}
                         {params.subscreen == "LESSONS"  ? <LessonTemplateEditor isSelect={false} source={source}/> :undefined}
                         {params.subscreen == "PLACES"   ? <PlaceListEditor      isSelect={false} source={source}/> :undefined}

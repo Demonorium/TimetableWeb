@@ -15,7 +15,7 @@ import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {EditSourceParams} from "../EditSource";
 import {updateSource} from "../../../store/sourceMap";
 import dayjs from "dayjs";
-import {ScheduleElement, Source, Week} from "../../../database";
+import {Rights, ScheduleElement, Source, Week} from "../../../database";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import ScheduleEditor from "../../modals/ScheduleEditor";
@@ -143,11 +143,12 @@ export default function SourceTitle({sourceOrigin}: SourceTitleProps) {
                         Редактировать расписание звонков
                     </Button>
                 </Container>
-                <ScheduleEditor onAccept={(schedule) => {
+                <ScheduleEditor rights={source.rights != Rights.READ ? Rights.OWNER : Rights.READ} onAccept={(schedule) => {
                     setSource({
                         ...source,
                         defaultSchedule: schedule.length > 0 ? schedule : undefined
                     });
+
                     setScheduleEditor(false);
                 }}
                                 onCancel={() => setScheduleEditor(false)}

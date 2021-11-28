@@ -6,7 +6,7 @@ import {
     ID,
     Lesson,
     LessonTemplate,
-    Place, printScheduleElement,
+    Place, printScheduleElement, Rights,
     ScheduleElement,
     Source,
     Teacher
@@ -33,7 +33,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import {Close, Delete} from "@material-ui/icons";
 import SelectField from "../../utils/SelectField";
 import LessonTemplateEditor from "./LessonTemplateEditor";
-import {addElement, arrayEq, containsElement, removeElement, replaceElement} from "../../../utils/arrayUtils";
+import {
+    addElement,
+    arrayEq,
+    containsElement,
+    findElement,
+    removeElement,
+    replaceElement
+} from "../../../utils/arrayUtils";
 import PlaceListEditor from "./PlaceListEditor";
 import Selector from "../../modals/Selector";
 import TeacherListEditor from "./TeacherListEditor";
@@ -48,9 +55,10 @@ interface LessonEditorProps {
     open: boolean;
     item?: Lesson;
     requestClose: (item?: Lesson) => void;
+    rights: Rights;
 }
 
-function LessonEditor({open, item, requestClose}: LessonEditorProps) {
+function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
     const maps = useAppSelector(state => state.sourceMap);
 
     const defaultState: Lesson = item ? item : {
@@ -191,6 +199,7 @@ function LessonEditor({open, item, requestClose}: LessonEditorProps) {
                         item={state}
                         open={open}
                         requestClose={requestClose}
+                        rights={rights}
             />
 }
 
@@ -199,10 +208,13 @@ interface TempDayRep {
     schedule: Array<ScheduleElement>;
     lessons: Array<Array<Lesson>>;
     scheduleExists: boolean;
+    maxLessonId: number;
+    updateCount: number;
 }
 
 function buildDayRep(source: Source, day?: Day): TempDayRep {
     const lessons = new Array<Array<Lesson>>();
+    let maxLessonId = 0;
 
     if (day) {
         const schedule = (day.schedule && (day.schedule.length > 0))
@@ -221,7 +233,9 @@ function buildDayRep(source: Source, day?: Day): TempDayRep {
 
         for (let i = 0; i < day.lessons.length; ++i) {
             const number = day.lessons[i].number;
-            if (number < schedule.length) {
+            maxLessonId = Math.max(maxLessonId, day.lessons[i].id);
+
+            if (number < lessons.length) {
                 lessons[number].push(day.lessons[i]);
             } else {
                 lessons[lessons.length - 1].push(day.lessons[i]);
@@ -231,11 +245,13 @@ function buildDayRep(source: Source, day?: Day): TempDayRep {
         return {
             lessons: lessons,
             schedule: schedule,
-            scheduleExists: (day.schedule != undefined) && (schedule.length > 0)
+            maxLessonId: maxLessonId,
+            scheduleExists: (day.schedule != undefined) && (schedule.length > 0),
+            updateCount: 0
         }
     }
 
-    const schedule =    source.defaultSchedule ? source.defaultSchedule : new Array<ScheduleElement>();
+    const schedule = source.defaultSchedule ? source.defaultSchedule : new Array<ScheduleElement>();
 
     if (schedule.length > 0) {
         for (let i = 0; i < schedule.length; i += 2) {
@@ -251,7 +267,9 @@ function buildDayRep(source: Source, day?: Day): TempDayRep {
     return {
         lessons: lessons,
         schedule: schedule,
-        scheduleExists: false
+        scheduleExists: false,
+        maxLessonId: maxLessonId,
+        updateCount: 0
     }
 }
 
@@ -316,7 +334,6 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
 
     const [loading, setLoading] = useState(false);
 
-
     const saveDay = async (editDay: Day) => {
         const result = await axios.get("api/part-delete/day/lessons", {
             auth: user,
@@ -348,9 +365,8 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
 
         await Promise.all(list);
 
-        const lessons = new Array<number>();
-
         if (editDay.lessons.length > 0) {
+            const lessons = new Array<number>();
             for (let i = 0, c = 0; i < editDay.lessons.length; ++i, ++c) {
                 if (editDay.lessons[i].number > c) {
                     lessons.push(-1);
@@ -359,15 +375,16 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                     lessons.push(editDay.lessons[i].id);
                 }
             }
-        }
 
-        await axios.get("api/part-update/day/lessonsOrder", {
-            auth: user,
-            params: {
-                day: editDay.id,
-                lessons: lessons
-            }
-        })
+
+            await axios.get("api/part-update/day/lessonsOrder", {
+                auth: user,
+                params: {
+                    day: editDay.id,
+                    lessons: lessons
+                }
+            });
+        }
 
         dispatch(changeDay({source: source.id, item: {
                 ...editDay,
@@ -384,10 +401,19 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
             return state.lessons[state.lessons.length - 1];
     }
 
-    const setList = (list: number) => (array: Array<Lesson>) => {
+    const setList = (list: number, stateToUpdate?: TempDayRep) => (array: Array<Lesson>) => {
+        stateToUpdate = stateToUpdate ? stateToUpdate : state;
         const oldArray = getList(list);
+
+        if ((array.length == 2) && (list < (state.lessons.length - 1))) {
+            if (array[0].id == oldArray[0].id) {
+                array = array.reverse();
+            }
+        }
+
         setState({
-            ...state,
+            ...stateToUpdate,
+            updateCount: stateToUpdate.updateCount + 1,
             lessons: replaceElement(state.lessons, array, (e1, e2)=>e1 == oldArray)
         });
     }
@@ -408,7 +434,7 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                     <IconButton onClick={
                         ()=> setList(lesson.number)(
                             removeElement<Lesson>(getList(lesson.number), lesson,
-                                        (l1, l2) => l1.number == l2.number)
+                                compareEntity)
                         )
                     }
                     >
@@ -421,18 +447,24 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
         );
     }
 
+    const twoElements = containsElement(state.lessons, (e) => (e.length > 1) && (e != getList(state.lessons.length)));
     return (
         <>
-            <LessonEditor open={editLesson} item={lessonToEdit} requestClose={(lesson) => {
+            <LessonEditor rights={source.rights} open={editLesson} item={lessonToEdit} requestClose={(lesson) => {
                 setEditLesson(false);
                 if (lesson) {
                     if (lessonToEdit) {
                         setList(lesson.number)(
                             replaceElement<Lesson>(getList(lesson.number), lesson,
-                                (l1, l2) => l1.number == l2.number)
+                                compareEntity)
                         );
                     } else {
-                        setList(state.lessons.length - 1)(
+                        lesson.id = state.maxLessonId + 1;
+                        setList(state.lessons.length - 1, {
+                            ...state,
+                            maxLessonId: lesson.id,
+                            updateCount: state.updateCount - 1
+                        })(
                             addElement<Lesson>(getList(state.lessons.length - 1), lesson)
                         );
                     }
@@ -469,32 +501,11 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                                     <List
                                         sx={{minHeight: "60px", height: "100%", width:"100%"}}>
                                         <ReactSortable
-                                            swap
+                                            style={{height: "100%"}}
                                             id={"lesson-cell-"+index}
                                             group="lessons"
                                             list={getList(index)}
-                                            setList={setList(index)}
-                                            onAdd={(evt) => {
-                                                if (index != (state.lessons.length - 1)) {
-                                                    const list = getList(index);
-
-
-                                                    if (list.length > 1) {
-                                                        const setter = setList(index);
-                                                        if (evt.newIndex && evt.oldIndex && evt.from) {
-                                                            const element = list[evt.newIndex];
-                                                            const fromListId = evt.from.id;
-                                                            const fromListIndex: number = parseInt(fromListId.substr("lesson-cell-".length));
-                                                            setter(removeElement<Lesson>(list,
-                                                                element,
-                                                                (e1, e2) => e1.number == e2.number));
-                                                            setter(
-                                                              addElement(getList(fromListIndex), element, evt.oldIndex)
-                                                            );
-                                                        }
-                                                    }
-                                                }
-                                            }}>
+                                            setList={setList(index)}>
                                             {list.map(renderLesson)}
                                         </ReactSortable>
                                     </List>
@@ -513,12 +524,20 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                 }
 
             </Paper>
+            {
+                twoElements ?
+                    <Typography sx={{paddingTop: "10px"}} color="error">
+                        Два урока проходят в одно время
+                    </Typography>
+                    :undefined
+            }
+
             <Container sx={{textAlign: "center", paddingTop: "10px", paddingBottom: "10px"}}>
                 <Button variant="outlined" onClick={() => setScheduleEditor(true)}>
                     Редактировать расписание звонков
                 </Button>
             </Container>
-            <ScheduleEditor onAccept={(schedule) => {
+            <ScheduleEditor rights={source.rights != Rights.READ ? Rights.OWNER : Rights.READ} onAccept={(schedule) => {
                 const day = buildDay(source, -1, {
                     ...state,
                     schedule: schedule,
@@ -549,28 +568,30 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                         </Button> : undefined
                 }
 
-                <LoadingButton loading={loading} onClick={() => {
-                    setLoading(true);
-                    if (!day) {
-                        createDay().then( (id) => {
-                            saveDay(buildDay(source, id, state)).then( (s) => {
-                                setLoading(false);
-                            }).catch( (s) => {
-                                setLoading(false);
-                            });
+                <LoadingButton loading={loading}
+                               disabled={twoElements}
+                               onClick={() => {
+                                   setLoading(true);
+                                   if (!day) {
+                                       createDay().then( (id) => {
+                                           saveDay(buildDay(source, id, state)).then( (s) => {
+                                               setLoading(false);
+                                           }).catch( (s) => {
+                                               setLoading(false);
+                                           });
 
-                            setLoading(false);
-                        }).catch( () => {
-                            setLoading(false);
-                        });
-                    } else {
-                        saveDay(buildDay(source, day.id, state)).then( (s) => {
-                            setLoading(false);
-                        }).catch( () => {
-                            setLoading(false);
-                        });
-                    }
-                }}>
+                                           setLoading(false);
+                                       }).catch( () => {
+                                           setLoading(false);
+                                       });
+                                   } else {
+                                       saveDay(buildDay(source, day.id, state)).then( (s) => {
+                                           setLoading(false);
+                                       }).catch( () => {
+                                           setLoading(false);
+                                       });
+                                   }
+                               }}>
                     Сохранить
                 </LoadingButton>
 

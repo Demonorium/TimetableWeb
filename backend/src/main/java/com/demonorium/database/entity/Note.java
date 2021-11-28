@@ -19,7 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "notes")
-public class Note implements PartOfSource {
+public class Note implements PartOfSource, Comparable<Note> {
     /**
      * ИД объекта в базе
      */
@@ -63,5 +63,10 @@ public class Note implements PartOfSource {
         this.source = source;
         this.date = date;
         this.text = text;
+    }
+
+    @Override
+    public int compareTo(Note o) {
+        return this.date.compareTo(o.date);
     }
 }

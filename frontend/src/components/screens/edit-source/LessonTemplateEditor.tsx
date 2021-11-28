@@ -45,7 +45,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
     const handleChange = (prop: keyof LessonTemplate) => (event: React.ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value;
         if (value.length > 50)
-            value = value.substr(0, 50);
+            return;
 
         setState({ ...state,
             [prop]: value
@@ -105,16 +105,16 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
         UI: (
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <TextField fullWidth label="Название" defaultValue={state.name} onChange={handleChange("name")}/>
+                    <TextField fullWidth label="Название" value={state.name} onChange={handleChange("name")}/>
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField fullWidth label="Заметка" defaultValue={state.note} onChange={handleChange("note")}/>
+                    <TextField fullWidth label="Заметка" value={state.note} onChange={handleChange("note")}/>
                 </Grid>
                 <Grid item xs={6}>
                     <Typography variant="h5">Количество часов</Typography>
                 </Grid>
                 <Grid item xs={4}>
-                    <TextField fullWidth defaultValue={state.hours} onChange = {handleChange("hours")}
+                    <TextField fullWidth value={state.hours} onChange = {handleChange("hours")}
                                type="number"/>
                 </Grid>
 
@@ -167,6 +167,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
     }
 
     return <ItemListEditor<LessonTemplate>
+        rights={props.source.rights}
         titleFormat={props.titleFormat}
         exclude={props.exclude}
         requestClose={props.requestClose}
