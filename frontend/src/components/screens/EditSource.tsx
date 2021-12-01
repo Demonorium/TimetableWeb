@@ -17,6 +17,7 @@ import {OverridableStringUnion} from "@mui/types";
 import {Variant} from "@mui/material/styles/createTypography";
 import {TypographyPropsVariantOverrides} from "@mui/material/Typography/Typography";
 import EditNotes from "./edit-source/EditNotes";
+import EditChanges from "./edit-source/EditChanges";
 
 export interface EditSourceParams {
     sourceId: number;
@@ -24,15 +25,15 @@ export interface EditSourceParams {
 }
 
 const MENU: Array<TargetScreen> = [
-    {id: "TITLE", data: "Основная информация"},
-    {id: "TASKS", data: "Задания"},
-    {id: "WEEKS", data: "Недели"},
+    {id: "TITLE",   data: "Основная информация"},
+    {id: "TASKS",   data: "Задания"},
+    {id: "WEEKS",   data: "Недели"},
     {id: "LESSONS", data: "Предметы"},
-    {id: "PLACES", data: "Места проведения занятий"},
+    {id: "PLACES",  data: "Места проведения занятий"},
     {id: "TEACHERS", data: "Преподаватели"},
 ]
 
-export interface    EditorProps<T> {
+export interface EditorProps<T> {
     /**
      * Является ли редактор окном выбора
      */
@@ -76,6 +77,7 @@ export default function EditSource(props: ScreenInterface) {
                     <Paper color="main" sx={{paddingLeft: "16px", paddingRight: "16px", paddingBottom: "16px", marginTop: "16px"}}>
                         {params.subscreen == "TITLE"    ? <SourceTitle          sourceOrigin={source}/> :undefined}
                         {params.subscreen == "TASKS"    ? <EditNotes            isSelect={false} source={source}/> :undefined}
+                        {params.subscreen == "CHANGES"  ? <EditChanges          isSelect={false} source={source}/> :undefined}
                         {params.subscreen == "WEEKS"    ? <WeekListEditor       source={source}/> :undefined}
                         {params.subscreen == "LESSONS"  ? <LessonTemplateEditor isSelect={false} source={source}/> :undefined}
                         {params.subscreen == "PLACES"   ? <PlaceListEditor      isSelect={false} source={source}/> :undefined}

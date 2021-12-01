@@ -92,8 +92,14 @@ export function _addElement<T>(array: Array<T>, element: T) {
 }
 
 export function addElement<T>(array: Array<T>, element?: T, index?: number) {
-    if (element == undefined)
-        return array;
+    if (element == undefined) {
+        const newArray = new Array<T>();
+        for (let i = 0; i < array.length; ++i) {
+            newArray.push(array[i]);
+        }
+        return newArray;
+    }
+
 
     if (!index || (index >= array.length)) {
         return _addElement(array, element);

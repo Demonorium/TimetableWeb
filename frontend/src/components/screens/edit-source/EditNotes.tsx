@@ -128,7 +128,9 @@ export default function EditNotes(props: EditorProps<Note>) {
         )
     }
 
-    const notes = props.source.notes.sort((e1, e2) => e1.date - e2.date);
+    const notes = addElement(props.source.notes);
+    console.log(notes);
+    notes.sort((e1, e2) => e1.date - e2.date);
 
     return <ItemListEditor<Note>
         rights={props.source.rights}

@@ -12,7 +12,7 @@ import {
     Stack,
     Typography
 } from "@mui/material";
-import SortableArray from "../../utils/sortableUtils";
+import SortableArray, {SortableItem} from "../../utils/sortableUtils";
 import {
     ChangesInfo,
     compareEntity,
@@ -39,56 +39,74 @@ import {addEditorTab} from "../../store/editorList";
 import {EditSourceParams} from "./EditSource";
 import dayjs from "dayjs";
 import YouSureDialog from "../modals/YouSureDialog";
-import {Delete} from "@material-ui/icons";
-import {removeSource, updateSource} from "../../store/sourceMap";
+import {Delete, Link} from "@material-ui/icons";
+import sourceMap, {removeSource, updateSource} from "../../store/sourceMap";
+import ShareDialog from "../modals/ShareDialog";
+import ImportDialog from "../modals/ImportDialog";
 
 
 interface SourceRepresentProps {
     source: SourcePriority;
-    openDeleteDialog: (id: number) => void
+    openDeleteDialog: (id: number) => void;
+    openShareDialog: (id: number) => void;
 }
 
 function SourceRepresent(props: SourceRepresentProps) {
     const editorList = useAppSelector(state => state.editorList.list);
+    const maps = useAppSelector(state => state.sourceMap);
+    const source = maps.sources[props.source.sourceId];
+
     const dispatch = useAppDispatch();
 
+    if (source == null)
+        return <div/>;
+
+
+
     return (
-        <ButtonWithFadeAction toKey={props.source.sourceId} actions={
+        <ButtonWithFadeAction toKey={props.source.sourceId}
+                              onClick={() => {
+                                  const screen = {
+                                      name: "EDIT_SOURCE",
+                                      params: {
+                                          subscreen: "TITLE",
+                                          sourceId: props.source.sourceId
+                                      }
+                                  }
+                                  dispatch(setScreen(screen));
+
+                                  let addToMenu = true;
+                                  for (let i = 0; i < editorList.length; ++i) {
+                                      const params = editorList[i].params as EditSourceParams | undefined;
+                                      if (params == undefined) {
+                                          continue;
+                                      }
+
+                                      if (params.sourceId == screen.params.sourceId) {
+                                          addToMenu = false;
+                                          break;
+                                      }
+                                  }
+                                  if (addToMenu) {
+                                      dispatch(addEditorTab(screen));
+                                  }
+                              }}
+                              actions={
             <Stack direction="row" spacing={2}>
-                <IconButton onClick={() => {
-                    const screen = {
-                        name: "EDIT_SOURCE",
-                        params: {
-                            subscreen: "TITLE",
-                            sourceId: props.source.sourceId
-                        }
-                    }
-                    dispatch(setScreen(screen));
-
-                    let addToMenu = true;
-                    for (let i = 0; i < editorList.length; ++i) {
-                        const params = editorList[i].params as EditSourceParams | undefined;
-                        if (params == undefined) {
-                            continue;
-                        }
-
-                        if (params.sourceId == screen.params.sourceId) {
-                            addToMenu = false;
-                            break;
-                        }
-                    }
-                    if (addToMenu) {
-                        dispatch(addEditorTab(screen));
-                    }
-                }}>
-                    <EditIcon />
+                <IconButton onClick={() => props.openShareDialog(props.source.sourceId)}>
+                    <Link />
                 </IconButton>
-                <IconButton onClick={()=>{props.openDeleteDialog(props.source.sourceId)}}>
-                    <Delete/>
-                </IconButton>
+                {
+                    source.rights == "OWNER" ?
+                        <IconButton onClick={()=>{props.openDeleteDialog(props.source.sourceId)}}>
+                            <Delete/>
+                        </IconButton>
+                        : undefined
+                }
+
             </Stack>
         }>
-            {props.source.name}
+            {source.name}
         </ButtonWithFadeAction>
     );
 }
@@ -102,6 +120,8 @@ export function EditSourcesList(props: ScreenInterface) {
     const [update, setUpdate] = useState(true);
     const [loading, setLoading] = useState(true);
     const [toDelete, setDelete] = useState(-1);
+    const [toShare, setShare] = useState(-1);
+    const [importDialog, setImportDialog] = useState(false);
 
     const dispatch = useAppDispatch();
 
@@ -113,8 +133,8 @@ export function EditSourcesList(props: ScreenInterface) {
         );
     }
 
-    const deleteSource = () => {
-        axios.get("api/delete/source", {
+    const deleteSource = async () => {
+        await axios.get("api/delete/source", {
             auth: user,
             params: {
                 id: toDelete
@@ -146,6 +166,12 @@ export function EditSourcesList(props: ScreenInterface) {
         }
     }, [update]);
 
+    const renderItem = (item: SortableItem<SourcePriority>) => {
+        return <SourceRepresent source={item.object}
+                                openDeleteDialog={setDelete}
+                                openShareDialog={setShare}/>
+    };
+
 
     const activeArray = new SortableArray<SourcePriority>("active", "priority", priorities);
     activeArray.onArrayUpdate = array => {
@@ -163,10 +189,9 @@ export function EditSourcesList(props: ScreenInterface) {
         });
     }
 
+
     activeArray.onFieldUpdate = (old, id) => activeArray.array.length - id;
-    activeArray.onRender = (item) => {
-        return <SourceRepresent source={item.object} openDeleteDialog={setDelete}/>
-    }
+    activeArray.onRender = renderItem;
 
     let counter = 0;
     const sourcesList = new Array<SourcePriority>();
@@ -194,9 +219,7 @@ export function EditSourcesList(props: ScreenInterface) {
     const freeArray = new SortableArray<SourcePriority>("free", "priority", sourcesList);
 
     freeArray.onFieldUpdate = (old, id) => old;
-    freeArray.onRender = (item) => {
-        return <SourceRepresent source={item.object} openDeleteDialog={setDelete}/>
-    }
+    freeArray.onRender = renderItem;
 
 
     const createSource = () => {
@@ -233,6 +256,7 @@ export function EditSourcesList(props: ScreenInterface) {
         });
     }
 
+    const shareSource = sources[toShare];
 
 
     return (
@@ -247,9 +271,15 @@ export function EditSourcesList(props: ScreenInterface) {
                     <Grid item xs={6}>
                         <ListItem
                             secondaryAction={
-                                <Button variant="outlined" onClick={createSource}>
-                                    Создать
-                                </Button>
+                                <Stack direction="row">
+                                    <Button variant="outlined" onClick={()=>setImportDialog(true)}>
+                                        Импорт
+                                    </Button>
+                                    <Button variant="outlined" onClick={createSource}>
+                                        Создать
+                                    </Button>
+                                </Stack>
+
                             }>
                             <Typography variant="h6">
                                 Доступные источники
@@ -281,7 +311,12 @@ export function EditSourcesList(props: ScreenInterface) {
                     </Grid>
                 </Grid>
             </Paper>
+            {shareSource
+                ? <ShareDialog open={toShare >= 0} close={() => setShare(-1)} source={shareSource}/>
+                :undefined
+            }
             <YouSureDialog open={toDelete >= 0} close={() => setDelete(-1)} accept={deleteSource}/>
+            <ImportDialog open={importDialog} close={()=>setImportDialog(false)}/>
         </TripleGrid>
     );
 

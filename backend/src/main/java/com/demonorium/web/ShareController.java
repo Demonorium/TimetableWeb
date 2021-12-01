@@ -121,7 +121,7 @@ public class ShareController {
         return ResponseEntity.unprocessableEntity().build();
     }
 
-    @GetMapping("/ref/{ref}")
+    @GetMapping("/api/ref/{ref}")
     ResponseEntity<Long> getAccess(HttpServletRequest request,
                                  @PathVariable("ref") String code) {
         Optional<ShareReference> reference = databaseService.getReferenceRepository().findById(code);

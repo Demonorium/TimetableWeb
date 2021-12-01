@@ -82,6 +82,12 @@ export enum Rights {
     DELETE="DELETE", UPDATE="UPDATE", READ="READ", READ_UPDATE="READ_UPDATE", OWNER="OWNER"
 }
 
+export const RIGHT_LEVELS: {[key: string] : string} = {
+    READ: "ЧТЕНИЕ",
+    READ_UPDATE: "РЕДАКТИРОВАНИЕ",
+    OWNER: "ВЛАДЕЛЕЦ"
+}
+
 export interface ChangesInfo {
     day: number;
     date: number;
@@ -96,6 +102,8 @@ export interface SourceInfo extends Entity, Named {
     endDate?: number;
     startWeek: number;
 
+    code?: string;
+    refRights?: Rights;
     local?: boolean;
 }
 

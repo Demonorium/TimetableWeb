@@ -92,6 +92,15 @@ public class SourceDTO {
     private Rights rights;
 
 
+    /**
+     * Код доступа
+     */
+    private String code;
+
+    /**
+     * Предоставляемые ссылкой права
+     */
+    private Rights refRights;
 
     public SourceDTO(Source source, User user) {
         this.id = source.getId();
@@ -101,6 +110,8 @@ public class SourceDTO {
         this.startDate = source.getStartDate().getTime();
         this.endDate = source.getEndDate() == null ? null : source.getEndDate().getTime();
         this.startWeek = source.getStartWeek();
+        this.code = source.getReference() != null ? source.getReference().getCode() : null;
+        this.refRights = source.getReference() != null ? source.getReference().getRights() : null;
 
         if (source.getDefaultSchedule() != null) {
             defaultSchedule = new ArrayList<>(source.getDefaultSchedule().getSchedule());

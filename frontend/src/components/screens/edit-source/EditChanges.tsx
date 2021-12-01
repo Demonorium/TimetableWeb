@@ -5,14 +5,14 @@ import {
     addChanges,
     addDay,
     addNote,
-    addTemplate,
+    addTemplate, changeDay,
     changeNote,
-    changeTemplate,
+    changeTemplate, removeChanges,
     removeNote,
     removeTemplate,
     updateSource
 } from "../../../store/sourceMap";
-import {ChangesInfo, Lesson, LessonTemplate, Note, Teacher} from "../../../database";
+import {ChangesInfo, Day, Lesson, LessonTemplate, Note, Teacher} from "../../../database";
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {Editor} from "../../modals/ModalEditor";
@@ -37,56 +37,74 @@ import TeacherListEditor from "./TeacherListEditor";
 import {DatePicker} from "@mui/lab";
 import dayjs from "dayjs";
 import DayScheduleEditor from "./DayScheduleEditor";
+import {Simulate} from "react-dom/test-utils";
 
+interface ChangesInfoExtended extends ChangesInfo {
+    dayValue: Day;
+}
 
-export default function EditNotes(props: EditorProps<ChangesInfo>) {
+export default function EditChanges(props: EditorProps<ChangesInfoExtended>) {
     const user = useAppSelector(state => state.user);
     const maps = useAppSelector(state => state.sourceMap);
     const dispatch = useAppDispatch();
 
-    const defaultState: ChangesInfo = {
+    const defaultState: ChangesInfoExtended = {
         day: -1,
-        date: -9999999
+        date: -9999999,
+        dayValue: {
+            id: -1,
+            source: -1,
+            lessons: new Array<Lesson>()
+        }
     }
 
-    const [state, setState] = useState<Note>(defaultState);
+
+    const [state, setState] = useState<ChangesInfoExtended>(defaultState);
     const [open, setOpen] = useState<boolean>(false);
 
-    const handleChange = (prop: keyof Note) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (prop: keyof ChangesInfoExtended) => (event: React.ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value;
         setState({ ...state,
             [prop]: parseInt(value)
         });
     };
 
-    const editor: Editor<ChangesInfo> = {
+    const editor: Editor<ChangesInfoExtended> = {
         onPartCreate: async (item) => {
-            await axios.get("api/create/note", {
+            await axios.get("api/create/changes", {
                 auth: user,
                 params: {
-                    ...item,
-                    sourceId: item.source,
+                    date: item.date,
+                    sourceId: props.source.id,
                 }
             }).then((response) => {
-                item.id = response.data;
-                dispatch(addNote({item: item, source: item.source}))
+                const day = {
+                    id: response.data.day,
+                    source: props.source.id,
+                    lessons: new Array<Lesson>()
+                };
+                item.day = response.data.day;
+                item.dayValue = {
+                    id: item.day,
+                    source: props.source.id,
+                    lessons: new Array<Lesson>()
+                }
+                dispatch(addChanges({day: response.data.day, date: item.date}));
             });
             return item;
         },
         onPartUpdate: async (item) => {
-            await axios.get("api/update/note", {
+            await axios.get("api/update/day", {
                 auth: user,
-                params: item
+                params: item.dayValue
             }).then((response) => {
-                dispatch(changeNote({item: item, source: item.source}))
+                dispatch(changeDay({item: item.dayValue, source: props.source.id}))
             });
             return item;
         },
 
         createPartFromUI: () => {
             if (state.date == -9999999)
-                return undefined;
-            if (state.text.length == 0)
                 return undefined;
 
             return state;
@@ -115,7 +133,7 @@ export default function EditNotes(props: EditorProps<ChangesInfo>) {
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <DatePicker
-                        label="Целевая дата для заметки"
+                        label="Дата изменений"
                         views={['year', 'month', 'day']}
                         value={state.date == -9999999 ? null : dayjs(state.date)}
                         onChange={(newValue: dayjs.Dayjs) => {
@@ -124,6 +142,7 @@ export default function EditNotes(props: EditorProps<ChangesInfo>) {
                                 date: newValue != null ? newValue.valueOf() : -9999999
                             });
                         }}
+                        readOnly={state.day != -1}
                         renderInput={(params) => <TextField {...params} fullWidth/>}
                     />
                 </Grid>
@@ -145,7 +164,7 @@ export default function EditNotes(props: EditorProps<ChangesInfo>) {
                                 lessons: new Array<Lesson>()
                             },
                             date: state.date
-                        }))
+                        }));
 
                         return data.day;
                     }} index={open ? 1 : 0}/>
@@ -154,20 +173,23 @@ export default function EditNotes(props: EditorProps<ChangesInfo>) {
         )
     }
 
-    const notes = props.source.notes.sort((e1, e2) => e1.date - e2.date);
+    const changes = props.source.changes.map((change) => ({
+        ...change,
+        dayValue: maps.days[change.day]
+    }));
 
-    return <ItemListEditor<Note>
+    return <ItemListEditor<ChangesInfoExtended>
         rights={props.source.rights}
         titleFormat={props.titleFormat}
         exclude={props.exclude}
         requestClose={props.requestClose}
         listTitle={props.overrideTitle? props.overrideTitle : "Список заданий/заметок"}
-        list={notes}
+        list={changes}
         isSelect={props.isSelect}
         constructor={(item, index) =>
             <ListItemText
-                primary={item.text.substring(0, Math.min(30, item.text.length)) + (item.text.length > 30 ? "...": "")}
-                secondary={dayjs(item.date).format("YYYY.MM.DD")} />
+                primary={dayjs(item.date).format("YYYY.MM.DD")}
+            />
         }
         remove={(item) => {
             axios.get("api/delete/changes", {
@@ -177,7 +199,7 @@ export default function EditNotes(props: EditorProps<ChangesInfo>) {
                     date: item.date
                 }
             }).then(() => {
-                dispatch(removeNote({item: item, source: props.source.id}))
+                dispatch(removeChanges({item: item.date, source: props.source.id}))
             });
         }}
         editorTitle="Заметка/Задание"

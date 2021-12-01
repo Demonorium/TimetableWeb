@@ -91,7 +91,7 @@ export default function ScheduleEditor({rights, onAccept, onCancel, schedule, op
 
         createPartFromUI: () => {
             const newElement: ScheduleElement = {
-                id: -1,
+                id: edited.id,
                 hour: edited.hour,
                 minute: edited.minute,
                 time: (edited.hour << 8) | edited.minute
@@ -120,14 +120,21 @@ export default function ScheduleEditor({rights, onAccept, onCancel, schedule, op
         },
 
         onPartCreate: async (item: ScheduleElement) =>  {
-            setState(addElement<ScheduleElement>(state, item).sort((e1, e2) => e1.time - e2.time));
+            item.id = idCounter + 1;
+            setIdCounter(item.id);
+
+            const newState = addElement<ScheduleElement>(state, item);
+            newState.sort((e1, e2) => e1.time - e2.time);
+            setState(newState);
+
             return item;
         },
 
         onPartUpdate: async (item: ScheduleElement) => {
-            item.id = idCounter + 1;
-            setIdCounter(item.id );
-            setState(replaceElement<ScheduleElement>(state, item, compareEntity).sort((e1, e2) => e1.time - e2.time));
+            const newState = replaceElement<ScheduleElement>(state, item, compareEntity);
+            newState.sort((e1, e2) => e1.time - e2.time);
+            setState(newState);
+
             return item;
         },
 
@@ -179,7 +186,7 @@ export default function ScheduleEditor({rights, onAccept, onCancel, schedule, op
                                     )
 
                                 }}
-                                remove={(e) => {setState(removeElement<ScheduleElement>(state, e, compareEntity))}}
+                                remove={(e) => {setState(removeElement<ScheduleElement>(state, e, (e1, e2) => e1.time == e2.time))}}
                                 editorTitle={"Звонок"}
                                 editor={editor}/>
                 <Divider/>

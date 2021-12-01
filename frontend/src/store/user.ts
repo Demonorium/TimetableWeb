@@ -22,7 +22,8 @@ export const userSlice = createSlice({
             state.logout = false;
         },
         logoutUser: (state, action: PayloadAction) => {
-            state.logout = false;
+            state.logout = true
+            state.password="";
         },
     },
 });

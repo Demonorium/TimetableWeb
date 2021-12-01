@@ -99,6 +99,12 @@ export const sourcesMapSlice = createSlice({
     name: 'sourceMap',
     initialState,
     reducers: {
+        resetMaps: (state, action: PayloadAction) => {
+            for (let key in state) {
+                // @ts-ignore
+                state[key] = {}
+            }
+        },
         updateSource: (state, action: PayloadAction<Source>) => {
             update(state, action.payload);
         },
@@ -197,7 +203,7 @@ export const sourcesMapSlice = createSlice({
     },
 });
 
-export const { updateSource, removeSource, setSources,
+export const { updateSource, removeSource, setSources, resetMaps,
     addPlace, addTeacher, addWeek, addTemplate, addNote, addChanges,
     removePlace, removeTeacher, removeWeek, removeTemplate, removeNote,
     changePlace, changeTeacher, changeWeek, changeTemplate, changeNote,

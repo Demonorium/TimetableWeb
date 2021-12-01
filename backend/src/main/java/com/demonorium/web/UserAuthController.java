@@ -8,22 +8,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 
 @RestController
 public class UserAuthController {
     @Autowired
-    private DatabaseService database;
+    private DatabaseService databaseService;
 
     @Autowired
     private UserAuthentication authentication;
 
+    @Autowired
+    private WebUtils webUtils;
+
     @GetMapping("/user/login")
     ResponseEntity<String> login(@RequestParam("username") String username,
                                  @RequestParam("password") String password) {
-        Optional<User> user = database.getUserRepository().findByUsername(username);
+        Optional<User> user = databaseService.getUserRepository().findByUsername(username);
         if (user.isPresent()) {
             if (authentication.checkPassword(user.get().getPassword(), password)) {
                 return ResponseEntity.ok().body("success");
@@ -41,71 +44,40 @@ public class UserAuthController {
         User user = authentication.newUser(username, password);
 
         if (user != null) {
-            //todo: remove
-
-            //Создаём источник
-            Source source = new Source("default", new Date(), 0, user);
-            database.getSourceRepository().save(source);
-
-            //Создаём расписание звонков поумолчанию
-            CallSchedule schedule = new CallSchedule(source);
-            schedule = database.getCallScheduleRepository().save(schedule);
-
-            source.setDefaultSchedule(schedule);
-            database.getSourceRepository().save(source);
-
-            //Наполняем расписание 4 звонками для 2 уроков
-            //10:00 - 10:40
-            //20:10 - 20:50
-
-            {
-                CallPair call = new CallPair(schedule, (byte) 10, (byte) 0);
-                database.getCallPairRepository().save(call);
-            }
-//            {
-//                CallPair call = new CallPair(schedule, (byte) 10, (byte) 40);
-//                database.getCallPairRepository().save(call);
-//            }
-//            {
-//                CallPair call = new CallPair(schedule, (byte) 20, (byte) 10);
-//                database.getCallPairRepository().save(call);
-//            }
-//            {
-//                CallPair call = new CallPair(schedule, (byte) 20, (byte) 50);
-//                database.getCallPairRepository().save(call);
-//            }
-
-            //Создаём шаблон занятия
-            LessonTemplate template = new LessonTemplate("Тестовый урок", "Заметка об уроке", 10, source);
-            database.getLessonTemplateRepository().save(template);
-
-            //Создаём место занятия
-            Place place = new Place("324", "6К", "Лучший кабинет", source);
-            database.getPlaceRepository().save(place);
-
-            //Создаём описание дня
-            Day day = new Day(source, schedule);
-            database.getDayRepository().save(day);
-
-            {
-                Lesson lesson = new Lesson(template, day, place, 0);
-                database.getLessonRepository().save(lesson);
-            }
-            {
-                Lesson lesson = new Lesson(template, day, place, 1);
-                database.getLessonRepository().save(lesson);
-            }
-
-            //Создаём изменений в расписании на сегодня
-            TimetableChanges changes = new TimetableChanges(source, new Date(), day);
-            database.getTimetableChangesRepository().save(changes);
-
-            //Добавляем текущее расписание в отображаемые, как 0
-            database.getSourcesPriorityRepository().save(new SourcesPriority(user, source, 0));
-
             return ResponseEntity.ok("success");
         }
 
         return ResponseEntity.badRequest().body("duplicate username");
+    }
+
+    @GetMapping("/user/change_password")
+    ResponseEntity<String> changePassword(HttpServletRequest request,
+                                          @RequestParam("password") String password,
+                                          @RequestParam("newPassword") String newPassword) {
+        User user = webUtils.getUser(request);
+
+        if (user != null) {
+            if (authentication.changePassword(user.getUsername(), password, newPassword)) {
+                return ResponseEntity.ok("success");
+            };
+
+            return ResponseEntity.badRequest().body("Error during changing");
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/user/delete")
+    ResponseEntity<String> delete(HttpServletRequest request,
+                                  @RequestParam("password") String password) {
+        User user = webUtils.getUser(request);
+        if (user != null) {
+            if (authentication.removeUser(user.getUsername(), password)) {
+                ResponseEntity.ok("success");
+            }
+            return ResponseEntity.badRequest().body("Error during deleting");
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }

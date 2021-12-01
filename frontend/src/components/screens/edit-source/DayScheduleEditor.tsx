@@ -212,7 +212,7 @@ interface TempDayRep {
     updateCount: number;
 }
 
-function buildDayRep(source: Source, day?: Day): TempDayRep {
+export function buildDayRep(source: Source, day?: Day): TempDayRep {
     const lessons = new Array<Array<Lesson>>();
     let maxLessonId = 0;
 
@@ -275,7 +275,7 @@ function buildDayRep(source: Source, day?: Day): TempDayRep {
 
 
 
-function buildDay(source: Source, dayId: number, rep: TempDayRep): Day {
+export function buildDay(source: Source, dayId: number, rep: TempDayRep): Day {
     const lessons = new Array<Lesson>();
 
     let number = 0;
@@ -309,11 +309,12 @@ interface DayScheduleEditorProps {
 
     index: number;
     onCancel?: () => void;
-    onReset?: () => void;
+    onReset?: (state: TempDayRep , setState: (day: TempDayRep ) => void) => void;
+    onAccept?: (day: Day) => void;
 }
 
 
-export default function DayScheduleEditor({day, source, createDay, index, onCancel, onReset}: DayScheduleEditorProps) {
+export default function DayScheduleEditor({day, source, createDay, index, onCancel, onReset, onAccept}: DayScheduleEditorProps) {
     const maps = useAppSelector(state => state.sourceMap);
     const map = useAppSelector(state => state.sourceMap);
     const user = useAppSelector(state => state.user);
@@ -386,12 +387,14 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
             });
         }
 
-        dispatch(changeDay({source: source.id, item: {
-                ...editDay,
-                id: editDay.id
-            }}));
 
-        return "ok";
+        const resultDay: Day = {
+            ...editDay,
+            id: editDay.id
+        };
+        dispatch(changeDay({source: source.id, item: resultDay}));
+
+        return resultDay;
     };
 
     const getList = (list: number) => {
@@ -561,8 +564,11 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                 {
                     onReset ?
                         <Button onClick={() => {
-                            setState(defaultState);
-                            onReset();
+                            if (onReset)
+                                onReset(state, setState);
+                            else
+                                setState(defaultState);
+
                         }}>
                             Сбросить изменения
                         </Button> : undefined
@@ -574,8 +580,10 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                                    setLoading(true);
                                    if (!day) {
                                        createDay().then( (id) => {
-                                           saveDay(buildDay(source, id, state)).then( (s) => {
+                                           saveDay(buildDay(source, id, state)).then( (day) => {
                                                setLoading(false);
+                                               if (onAccept)
+                                                   onAccept(day);
                                            }).catch( (s) => {
                                                setLoading(false);
                                            });
@@ -585,8 +593,10 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                                            setLoading(false);
                                        });
                                    } else {
-                                       saveDay(buildDay(source, day.id, state)).then( (s) => {
+                                       saveDay(buildDay(source, day.id, state)).then( (day) => {
                                            setLoading(false);
+                                           if (onAccept)
+                                               onAccept(day);
                                        }).catch( () => {
                                            setLoading(false);
                                        });

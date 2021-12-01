@@ -10,7 +10,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL10Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 server:
   tomcat:
     relaxed-path-chars: "|,[,]"

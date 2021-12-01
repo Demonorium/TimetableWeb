@@ -55,7 +55,11 @@ interface EditListEditorProps<T> {
     /**
      * Права доступа
      */
-    rights: Rights
+    rights: Rights;
+    /**
+     * Убрать кнопки
+     */
+    noBts?: boolean;
 }
 
 
@@ -93,6 +97,7 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
                 requestClose={requestClose}
                 open={open}
                 item={selected >= 0 ? props.list[selected] : undefined}
+                noBts={props.noBts}
             />
 
             <Divider/>
