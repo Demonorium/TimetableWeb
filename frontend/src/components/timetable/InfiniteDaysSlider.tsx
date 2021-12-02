@@ -2,7 +2,7 @@ import React from 'react';
 import {List} from "@mui/material";
 import {DAY_NAMES, nameOffset} from "../../utils/time";
 import {connect} from "react-redux";
-import Day, {InternalDayRepresentation, LessonDur, LessonPair} from "./Day";
+import Day, {DayProps, InternalDayRepresentation, LessonDur, LessonPair} from "./Day";
 import {RootState} from "../../store/store";
 import RangeObject from "../../utils/range";
 import {Changes, Day as dbDay, Lesson, ScheduleElement, SourcePriority, User, Week, WeekDay} from "../../database";
@@ -32,7 +32,7 @@ class DayState {
         this.index = index;
         this.ref = (index == 0) ? ref : undefined;
 
-        this.date = date.format("YYYY.MM.DD");
+        this.date = date.format("DD.MM.YYYY");
         this.dayOfWeek = DAY_NAMES[date.day()];
         this.dateOffset = nameOffset(Math.ceil(date.diff(dayjs(), 'day', true)));
     }
@@ -113,6 +113,12 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
             const priority = priorities[prId];
             const change = changes ? findElement<Changes>(changes, (ch) => ch.priority == priority.priority) : undefined;
             const source = maps.sources[priority.sourceId];
+
+            if (source.endDate) {
+                if (date.valueOf() > source.endDate)
+                    continue;
+            }
+
             const defSchedule = (source && source.defaultSchedule && (source.defaultSchedule.length > 0))
                 ? source.defaultSchedule
                 : undefined;
@@ -284,6 +290,10 @@ interface InfiniteDaysSliderProps {
      * Все источники и их содержимое
      */
     maps: InternalRepresentationState;
+    /**
+     * Установить текущий день на просмотр
+     */
+    setDay: (props: DayProps) => void;
 }
 
 interface InfiniteDaysSliderState {
@@ -299,6 +309,7 @@ interface InfiniteDaysSliderState {
      * Запрос на обновление страницы
      */
     update: boolean;
+
 }
 
 /**
@@ -631,6 +642,7 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
                         {this.list.map((state) =>
                             <Day currentRef={state.ref} day={state.getState()}
                                  index={state.index}
+                                 setDay={this.props.setDay}
                                  date={state.date} dateOffset={state.dateOffset} dayOfWeek={state.dayOfWeek}/>
                             )
                         }

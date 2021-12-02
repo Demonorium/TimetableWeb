@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {CircularProgress, Divider, List, ListItem, ListItemText} from "@mui/material";
+import {CircularProgress, Divider, List, ListItem, ListItemButton, ListItemText} from "@mui/material";
 import Lesson from "./Lesson";
 import {Lesson as LessonRepresentation, ScheduleElement} from "../../database";
 
@@ -18,7 +18,7 @@ export interface InternalDayRepresentation {
     lessons: Array<LessonPair>;
 }
 
-interface DayProps {
+export interface DayProps {
     index: number;
 
     date: string;
@@ -28,6 +28,8 @@ interface DayProps {
     day?: InternalDayRepresentation;
 
     currentRef?: any;
+    full?: boolean;
+    setDay: (day: DayProps) => void;
 }
 
 function Space() {
@@ -61,18 +63,23 @@ function DayContainer(props: any) {
 //Заголовок, который описывает, что за день перед нами
 function DayHeader(props: any) {
     return (
-        <ListItem
-            secondaryAction={
-                <ListItemText primary={props.date} key={1}  />
-            }>
-            <ListItemText primary={props.dayOfWeek} secondary={props.dateOffset} key={2}/>
-        </ListItem>
+        <ListItemButton onClick={() => {
+            if (!props.pr.full)
+                props.pr.setDay(props.pr)
+        }}>
+            <ListItem
+                secondaryAction={
+                    <ListItemText primary={props.date} key={1}  />
+                }>
+                <ListItemText primary={props.dayOfWeek} secondary={props.dateOffset} key={2}/>
+            </ListItem>
+        </ListItemButton>
     );
 }
 
 function Day(props: DayProps) {
     const lessons = new Array<React.ReactElement>();
-    const dayHeader = <DayHeader date={props.date} dayOfWeek={props.dayOfWeek} dateOffset={props.dateOffset}/>
+    const dayHeader = <DayHeader pr={props} date={props.date} dayOfWeek={props.dayOfWeek} dateOffset={props.dateOffset}/>
 
     //Если описание дня не было передано, то мы считаем, что день всё ещё загружается
     if (props.day == undefined) {
@@ -93,6 +100,7 @@ function Day(props: DayProps) {
             prev = pair;
 
         lessons.push(<Lesson lesson={pair.lesson}
+                             full={props.full}
                              start={pair.dur.start}
                              end={pair.dur.end}
                              first={((prev.dur.start.time != pair.dur.start.time) && (pair.dur.end == undefined))

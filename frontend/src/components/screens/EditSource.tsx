@@ -27,6 +27,7 @@ export interface EditSourceParams {
 const MENU: Array<TargetScreen> = [
     {id: "TITLE",   data: "Основная информация"},
     {id: "TASKS",   data: "Задания"},
+    {id: "CHANGES", data: "Изменения"},
     {id: "WEEKS",   data: "Недели"},
     {id: "LESSONS", data: "Предметы"},
     {id: "PLACES",  data: "Места проведения занятий"},

@@ -96,8 +96,8 @@ public class ChangesController {
                 return ResponseEntity.notFound().build();
             }
 
-            databaseService.getDayRepository().delete(changes.get().getDay());
             databaseService.getTimetableChangesRepository().delete(changes.get());
+            databaseService.getDayRepository().delete(changes.get().getDay());
             return ResponseEntity.ok("success");
         }
         return ResponseEntity.unprocessableEntity().build();

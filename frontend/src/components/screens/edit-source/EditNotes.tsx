@@ -129,7 +129,6 @@ export default function EditNotes(props: EditorProps<Note>) {
     }
 
     const notes = addElement(props.source.notes);
-    console.log(notes);
     notes.sort((e1, e2) => e1.date - e2.date);
 
     return <ItemListEditor<Note>
@@ -143,7 +142,7 @@ export default function EditNotes(props: EditorProps<Note>) {
         constructor={(item, index) =>
             <ListItemText
                 primary={item.text.substring(0, Math.min(30, item.text.length)) + (item.text.length > 30 ? "...": "")}
-                secondary={dayjs(item.date).format("YYYY.MM.DD")} />
+                secondary={dayjs(item.date).format("DD.MM.YYYY")} />
         }
         remove={(item) => {
             axios.get("api/delete/note", {

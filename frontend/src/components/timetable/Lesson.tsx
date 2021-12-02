@@ -2,12 +2,14 @@ import * as React from 'react';
 import {Collapse, Divider, List, ListItem, ListItemText} from "@mui/material";
 import {Lesson, LessonTemplate, Place, ScheduleElement} from "../../database";
 import {useAppSelector} from "../../store/hooks";
+import sourceMap from "../../store/sourceMap";
 
 interface LessonProps {
-    lesson: Lesson,
-    start: ScheduleElement,
-    first: boolean,
-    end?: ScheduleElement
+    lesson: Lesson;
+    start: ScheduleElement;
+    first: boolean;
+    end?: ScheduleElement;
+    full?: boolean;
 }
 function minuteToStr(m: number) {
     if (m < 10) {
@@ -30,7 +32,7 @@ function getFrom(first: boolean, start: ScheduleElement, end?: ScheduleElement) 
     }
 }
 
-export default function Lesson({lesson, first, start, end}: LessonProps) {
+export default function Lesson({lesson, first, start, end, full}: LessonProps) {
     const map = useAppSelector(state => state.sourceMap);
     const template: LessonTemplate = map.templates[lesson.template];
     const place: Place = map.places[lesson.place];
@@ -51,13 +53,23 @@ export default function Lesson({lesson, first, start, end}: LessonProps) {
         setOpen(false);
     }
 
+    const renderTeacher = (id: number) => {
+        const teacher = map.teachers[id];
+
+        return (
+            <ListItem sx={{ pl: 8 }}>
+                <ListItemText primary={teacher.name + (teacher.position.length > 0 ? " (" + teacher.position + ")" : "")}
+                              secondary={teacher.note}/>
+            </ListItem>
+        );
+    }
 
     return (
         <React.Fragment>
             <Divider />
             <ListItem onMouseLeave={offClick} onMouseEnter={onClick}
                             secondaryAction={
-                                place
+                                (place && !full)
                                     ? <ListItemText  primary={place['auditory']} secondary={place['building']}  />
                                     : undefined
                             }>
@@ -65,7 +77,7 @@ export default function Lesson({lesson, first, start, end}: LessonProps) {
                 />
 
             </ListItem>
-            <Collapse in={open} timeout="auto" unmountOnExit>
+            <Collapse in={open || full} timeout="auto" unmountOnExit>
 
                 <List component="div" disablePadding dense={true} onMouseLeave={offClick} onMouseEnter={onClick}>
                     <Divider />
@@ -74,6 +86,22 @@ export default function Lesson({lesson, first, start, end}: LessonProps) {
                     </ListItem>
                 </List>
             </Collapse>
+            {
+                full ?
+                    <List component="div" disablePadding dense={true}>
+                        <ListItemText sx={{ pl: 6 }} primary={"Аудитория: " + place.auditory}/>
+                        <ListItemText sx={{ pl: 6 }} primary={"Здание: " + place.building}/>
+                        {place.note ? <ListItemText sx={{ pl: 6 }} primary={place.note}/> :undefined}
+                        <ListItemText sx={{ pl: 6 }} primary={"Преподаватели"}/>
+                        {
+                            lesson.teachers.length > 0
+                                ? lesson.teachers.map(renderTeacher)
+                                : template.defaultTeachers.map(renderTeacher)
+                        }
+
+                    </List>
+                    :undefined
+            }
         </React.Fragment>
     );
 }

@@ -16,12 +16,17 @@ import {useState} from "react";
 import YouSureDialog from "./YouSureDialog";
 import axios from "axios";
 import {logoutUser, setUser} from "../../store/user";
+import {GlobalState, setAppState} from "../../store/appStatus";
+import {resetMaps} from "../../store/sourceMap";
 
 interface ProfileDialogProps {
     open: boolean;
     onClose: () => void;
 }
 
+interface StoreAction {
+    act: () => Promise<void>;
+}
 
 export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
     const user = useAppSelector(state => state.user);
@@ -29,7 +34,7 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
 
     const [pass, setPass] = useState("");
     const [newPass, setNewPass] = useState("");
-    const [action, setAction] = useState<() => Promise<void>>(async () =>{})
+    const [action, setAction] = useState<StoreAction>({act: async () =>{}})
     const [ask, setAsk] = useState(false);
     const [swt, setSwt] = useState(false);
 
@@ -37,26 +42,28 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
 
 
     const close = () => {
-        setAction(async () => {});
+        setAction({act: async () =>{}});
         setAsk(false);
     }
 
     const chn = () => {
-        setAction(async () => {
+        const vl: () => Promise<void> = async () => {
             await axios.get("/user/change_password", {
                 auth: user,
                 params: {
                     password: pass,
-                    newPass: newPass
+                    newPassword: newPass
                 }
             }).then(() => {
                 dispatch(setUser({username: user.username, password: newPass}));
+                setAsk(false);
             })
-        });
+        };
+        setAction({act: vl});
         setAsk(true);
     }
     const del = () => {
-        setAction(async () => {
+        const vl: () => Promise<void> = async () => {
             await axios.get("/user/delete", {
                 auth: user,
                 params: {
@@ -64,15 +71,19 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
                 }
             }).then(() => {
                 dispatch(logoutUser());
+                dispatch(setAppState(GlobalState.LOADING));
+                dispatch(resetMaps());
+                setAsk(false);
             });
-        });
+        };
+        setAction({act: vl});
         setAsk(true);
     }
 
     return (
         <>
         <YouSureDialog open={ask} close={close} accept={async () => {
-            await action();
+            await action.act();
             close();
         }}/>
         <Dialog

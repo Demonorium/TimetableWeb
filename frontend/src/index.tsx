@@ -19,7 +19,7 @@ dayjs.locale('ru')
 
 ReactDOM.render(
     <Provider store={store}>
-        <LocalizationProvider dateAdapter={DateAdapter} locale="ru">
+        <LocalizationProvider dateAdapter={DateAdapter} locale={ruLocale}>
             <App />
         </LocalizationProvider>
     </Provider>, document.querySelector('#root'));

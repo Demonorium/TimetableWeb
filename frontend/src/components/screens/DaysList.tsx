@@ -6,6 +6,8 @@ import CalendarPicker from "@mui/lab/CalendarPicker";
 import {Paper} from "@mui/material";
 import InfiniteDaysSlider from "../timetable/InfiniteDaysSlider";
 import {ScreenInterface} from "../ScreenDisplay";
+import DayDisplayDialog from "../modals/DayDisplayDialog";
+import {DayProps} from "../timetable/Day";
 
 
 function dateBuild(date: Dayjs) {
@@ -21,8 +23,9 @@ function dateBuild(date: Dayjs) {
 export function DaysList({menu}: ScreenInterface) {
     const containerRef = useRef<any>();
 
-
+    const [open, setOpen] = useState(false);
     const [date, setDate] = useState(dateBuild(dayjs()));
+    const [state, setState] = useState<DayProps | null>(null);
 
     const handleCalendar = (date: Dayjs) => {
         setDate(dateBuild(date));
@@ -34,8 +37,14 @@ export function DaysList({menu}: ScreenInterface) {
             leftMenu={menu}
             containerRef={containerRef}>
             <Paper color="main">
+                {
+                    state ?
+                        <DayDisplayDialog open={true} close={() => setState(null)} day={state}/>
+                        : undefined
+                }
+
                 <InfiniteDaysSlider containerRef={containerRef} listSize={20} downloadsForRender={1}
-                                    origin={date}/>
+                                    origin={date} setDay={setState}/>
             </Paper>
         </TripleGrid>
     );

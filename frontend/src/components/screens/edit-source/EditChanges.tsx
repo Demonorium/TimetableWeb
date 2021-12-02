@@ -12,32 +12,33 @@ import {
     removeTemplate,
     updateSource
 } from "../../../store/sourceMap";
-import {ChangesInfo, Day, Lesson, LessonTemplate, Note, Teacher} from "../../../database";
+import {ChangesInfo, Day, Lesson, LessonTemplate, Note, Rights, Teacher, Week, WeekDay} from "../../../database";
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
-import {Editor} from "../../modals/ModalEditor";
+import ModalEditor, {Editor} from "../../modals/ModalEditor";
 import {
     Button,
     Divider,
     Grid,
     IconButton,
-    List,
+    List, ListItem,
     ListItemText,
-    Paper,
+    Paper, Stack,
     TextField,
     Tooltip,
     Typography
 } from "@mui/material";
 import {EditorProps} from "../EditSource";
-import {addElement, arrayEq, containsElement, removeElement} from "../../../utils/arrayUtils";
+import {addElement, arrayEq, containsElement, findElement, removeElement} from "../../../utils/arrayUtils";
 import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
 import {Close} from "@material-ui/icons";
 import Selector from "../../modals/Selector";
 import TeacherListEditor from "./TeacherListEditor";
-import {DatePicker} from "@mui/lab";
+import {DatePicker, LoadingButton} from "@mui/lab";
 import dayjs from "dayjs";
 import DayScheduleEditor from "./DayScheduleEditor";
 import {Simulate} from "react-dom/test-utils";
+import DayEdit from "../../modals/DayEdit";
 
 interface ChangesInfoExtended extends ChangesInfo {
     dayValue: Day;
@@ -131,44 +132,6 @@ export default function EditChanges(props: EditorProps<ChangesInfoExtended>) {
 
         UI: (
             <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <DatePicker
-                        label="Дата изменений"
-                        views={['year', 'month', 'day']}
-                        value={state.date == -9999999 ? null : dayjs(state.date)}
-                        onChange={(newValue: dayjs.Dayjs) => {
-                            setState({
-                                ...state,
-                                date: newValue != null ? newValue.valueOf() : -9999999
-                            });
-                        }}
-                        readOnly={state.day != -1}
-                        renderInput={(params) => <TextField {...params} fullWidth/>}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <DayScheduleEditor source={props.source} createDay={async () => {
-                        const data = (await axios.get("api/create/changes", {
-                            auth: user,
-                            params: {
-                                sourceId: props.source.id,
-                                date: state.date
-                            }
-                        })).data;
-
-
-                        dispatch(addChanges({
-                            day: {
-                                id: data.day,
-                                source: props.source.id,
-                                lessons: new Array<Lesson>()
-                            },
-                            date: state.date
-                        }));
-
-                        return data.day;
-                    }} index={open ? 1 : 0}/>
-                </Grid>
             </Grid>
         )
     }
@@ -177,32 +140,131 @@ export default function EditChanges(props: EditorProps<ChangesInfoExtended>) {
         ...change,
         dayValue: maps.days[change.day]
     }));
+    changes.sort((e1, e2) => e1.date - e2.date);
 
-    return <ItemListEditor<ChangesInfoExtended>
-        rights={props.source.rights}
-        titleFormat={props.titleFormat}
-        exclude={props.exclude}
-        requestClose={props.requestClose}
-        listTitle={props.overrideTitle? props.overrideTitle : "Список заданий/заметок"}
-        list={changes}
-        isSelect={props.isSelect}
-        constructor={(item, index) =>
-            <ListItemText
-                primary={dayjs(item.date).format("YYYY.MM.DD")}
-            />
+    const [index, setIndex] = useState(-1);
+    const createChanges = async () => {
+        const data = (await axios.get("api/create/changes", {
+            auth: user,
+            params: {
+                sourceId: props.source.id,
+                date: state.date
+            }
+        })).data;
+
+        const findDay = () => {
+            const dayOfWeek = dayjs(state.date).day();
+            const weekNumber = Math.abs(Math.floor(dayjs(state.date).diff(dayjs(props.source.startDate), "weeks", true))) % props.source.weeks.length;
+
+            const week = findElement<Week>(props.source.weeks, (week) => week.number == weekNumber);
+
+            if (!week)
+                return undefined;
+
+            const day = findElement<WeekDay>(week.days, (day) => day.number == dayOfWeek);
+
+            if (!day)
+                return undefined;
+
+            return maps.days[day.day];
         }
-        remove={(item) => {
-            axios.get("api/delete/changes", {
-                auth: user,
-                params: {
-                    sourceId: props.source.id,
-                    date: item.date
+
+        const day = findDay();
+
+        // @ts-ignore
+        dispatch(addChanges({
+            day: day ? {
+                ...day,
+                id: data.day
+            } : {
+                id: data.day,
+                source: props.source.id,
+                lessons: new Array<Lesson>()
+            },
+            date: state.date
+        }));
+
+        return data.day;
+    };
+
+    return (
+        <>
+            <DayEdit day={(index >= 0) ? maps.days[changes[index].day] : undefined } open={index >= 0} close={(day) => {
+                setIndex(-1);
+            }} source={props.source} createDay={createChanges} date={(index < 0) ? "" : dayjs(changes[index].date).format("DD.MM.YYYY")}/>
+
+            <ListItem secondaryAction={
+                ((props.source.rights == Rights.OWNER) || (props.source.rights == Rights.READ_UPDATE) || (props.source.rights == Rights.UPDATE))
+                    ?
+                    <Stack direction="row">
+                        <DatePicker
+                            label="Дата изменений"
+                            views={['year', 'month', 'day']}
+                            value={state.date == -9999999 ? null : dayjs(state.date)}
+                            onChange={(newValue: dayjs.Dayjs) => {
+                                setState({
+                                    ...state,
+                                    date: newValue != null ? newValue.valueOf() : -9999999
+                                });
+                            }}
+                            readOnly={state.day != -1}
+                            renderInput={(params) => <TextField {...params} fullWidth/>}
+                        />
+                        <LoadingButton variant="outlined" disabled={state.date == -9999999} onClick={() => {
+                            createChanges();
+                        }}>
+                            Создать
+                        </LoadingButton>
+                    </Stack>
+
+                    : undefined
+            } sx={{paddingBottom: "20px"}}>
+                <Typography variant={props.titleFormat? props.titleFormat : "h5"}>Изменения в расписании</Typography>
+            </ListItem>
+            <Divider/>
+            <List>
+                {
+                    changes.length == 0 ? <ListItem sx={{textAlign:"center", display: "block"}}>Нет объектов</ListItem> :
+                        changes.map((item, index) => {
+                            if (props.exclude && props.exclude(item))
+                                return undefined;
+                            return (
+                                <>
+                                    <ButtonWithFadeAction
+                                        actions={
+                                            (props.source.rights == Rights.OWNER)
+                                                ?
+                                                <Tooltip title="Удалить" arrow>
+                                                    <IconButton onClick={() => {
+                                                        axios.get("/api/delete/changes", {
+                                                            auth: user,
+                                                            params: {
+                                                                date: item.date,
+                                                                sourceId: props.source.id
+                                                            }
+                                                        }).then(() => {
+                                                            dispatch(removeChanges({
+                                                                source: props.source.id,
+                                                                item: item.date
+                                                            }));
+                                                        });
+                                                    }}>
+                                                        <Close />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                : <Typography>
+
+                                                </Typography>
+                                        }
+                                        onClick={() => {setIndex(index)}}>
+                                        <ListItemText primary={dayjs(item.date).format("DD.MM.YYYY")}/>
+                                    </ButtonWithFadeAction>
+                                    {index == (changes.length - 1)? undefined: <Divider/>}
+                                </>
+                            );
+                        })
                 }
-            }).then(() => {
-                dispatch(removeChanges({item: item.date, source: props.source.id}))
-            });
-        }}
-        editorTitle="Заметка/Задание"
-        editor={editor}
-    />;
+            </List>
+        </>
+    );
 }

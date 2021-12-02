@@ -573,37 +573,41 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                             Сбросить изменения
                         </Button> : undefined
                 }
+                {
+                    (source.rights == Rights.READ_UPDATE) || (source.rights == Rights.OWNER) ?
+                        <LoadingButton loading={loading}
+                                       disabled={twoElements}
+                                       onClick={() => {
+                                           setLoading(true);
+                                           if (!day) {
+                                               createDay().then( (id) => {
+                                                   saveDay(buildDay(source, id, state)).then( (day) => {
+                                                       setLoading(false);
+                                                       if (onAccept)
+                                                           onAccept(day);
+                                                   }).catch( (s) => {
+                                                       setLoading(false);
+                                                   });
 
-                <LoadingButton loading={loading}
-                               disabled={twoElements}
-                               onClick={() => {
-                                   setLoading(true);
-                                   if (!day) {
-                                       createDay().then( (id) => {
-                                           saveDay(buildDay(source, id, state)).then( (day) => {
-                                               setLoading(false);
-                                               if (onAccept)
-                                                   onAccept(day);
-                                           }).catch( (s) => {
-                                               setLoading(false);
-                                           });
+                                                   setLoading(false);
+                                               }).catch( () => {
+                                                   setLoading(false);
+                                               });
+                                           } else {
+                                               saveDay(buildDay(source, day.id, state)).then( (day) => {
+                                                   setLoading(false);
+                                                   if (onAccept)
+                                                       onAccept(day);
+                                               }).catch( () => {
+                                                   setLoading(false);
+                                               });
+                                           }
+                                       }}>
+                            Сохранить
+                        </LoadingButton>
+                        : undefined
+                }
 
-                                           setLoading(false);
-                                       }).catch( () => {
-                                           setLoading(false);
-                                       });
-                                   } else {
-                                       saveDay(buildDay(source, day.id, state)).then( (day) => {
-                                           setLoading(false);
-                                           if (onAccept)
-                                               onAccept(day);
-                                       }).catch( () => {
-                                           setLoading(false);
-                                       });
-                                   }
-                               }}>
-                    Сохранить
-                </LoadingButton>
 
             </DialogActions>
         </>

@@ -1,6 +1,6 @@
-import {compareEntity, Day, Entity, LessonTemplate, Note, Place, Source, Teacher, Week} from "../database";
+import {ChangesInfo, compareEntity, Day, Entity, LessonTemplate, Note, Place, Source, Teacher, Week} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {findElement, removeElement, removeElementComp, updateElement} from "../utils/arrayUtils";
+import {addElement, findElement, removeElement, removeElementComp, updateElement} from "../utils/arrayUtils";
 
 
 export interface InternalRepresentationState {
@@ -173,7 +173,7 @@ export const sourcesMapSlice = createSlice({
                 }
             });
 
-            source.changes.push({
+            source.changes = addElement<ChangesInfo>(source.changes, {
                 day: action.payload.day.id,
                 date: action.payload.date
             });
