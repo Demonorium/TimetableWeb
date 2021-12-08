@@ -1,7 +1,7 @@
 import * as React from "react";
 import {useAppSelector} from "../../store/hooks";
 import {EditorProps} from "../screens/EditSource";
-import {CircularProgress, Dialog, DialogContent, DialogTitle, Divider, IconButton} from "@mui/material";
+import {Dialog, DialogContent, DialogTitle, Divider, IconButton} from "@mui/material";
 import {Close} from "@material-ui/icons";
 import {Source} from "../../database";
 

@@ -1,18 +1,20 @@
 import * as React from "react";
+import {useState} from "react";
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import {
     Button,
-    CircularProgress,
     Dialog,
     DialogContent,
     DialogTitle,
-    Divider, FormControlLabel,
+    Divider,
+    FormControlLabel,
     Grid,
-    IconButton, Switch,
-    TextField, Typography
+    IconButton,
+    Switch,
+    TextField,
+    Typography
 } from "@mui/material";
 import {Close} from "@material-ui/icons";
-import {useState} from "react";
 import YouSureDialog from "./YouSureDialog";
 import axios from "axios";
 import {logoutUser, setUser} from "../../store/user";

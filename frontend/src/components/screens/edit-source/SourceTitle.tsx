@@ -1,7 +1,10 @@
 import * as React from 'react';
+import {useEffect, useState} from 'react';
 import {
     Button,
-    Container, DialogActions, Divider,
+    Container,
+    DialogActions,
+    Divider,
     Grid,
     InputLabel,
     MenuItem,
@@ -12,11 +15,9 @@ import {
 } from "@mui/material";
 import {DatePicker, LoadingButton} from "@mui/lab";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
-import {EditSourceParams} from "../EditSource";
 import {updateSource} from "../../../store/sourceMap";
 import dayjs from "dayjs";
 import {Rights, ScheduleElement, Source, Week} from "../../../database";
-import {useEffect, useState} from "react";
 import axios from "axios";
 import ScheduleEditor from "../../modals/ScheduleEditor";
 

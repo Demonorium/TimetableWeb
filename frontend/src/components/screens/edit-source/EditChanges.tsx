@@ -1,43 +1,28 @@
 import * as React from 'react';
 import {useState} from 'react';
-import ItemListEditor from "./ItemListEditor";
-import {
-    addChanges,
-    addDay,
-    addNote,
-    addTemplate, changeDay,
-    changeNote,
-    changeTemplate, removeChanges,
-    removeNote,
-    removeTemplate,
-    updateSource
-} from "../../../store/sourceMap";
-import {ChangesInfo, Day, Lesson, LessonTemplate, Note, Rights, Teacher, Week, WeekDay} from "../../../database";
+import {addChanges, changeDay, removeChanges} from "../../../store/sourceMap";
+import {ChangesInfo, Day, Lesson, Rights, Week, WeekDay} from "../../../database";
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
-import ModalEditor, {Editor} from "../../modals/ModalEditor";
+import {Editor} from "../../modals/ModalEditor";
 import {
-    Button,
     Divider,
     Grid,
     IconButton,
-    List, ListItem,
+    List,
+    ListItem,
     ListItemText,
-    Paper, Stack,
+    Stack,
     TextField,
     Tooltip,
     Typography
 } from "@mui/material";
 import {EditorProps} from "../EditSource";
-import {addElement, arrayEq, containsElement, findElement, removeElement} from "../../../utils/arrayUtils";
+import {findElement} from "../../../utils/arrayUtils";
 import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
 import {Close} from "@material-ui/icons";
-import Selector from "../../modals/Selector";
-import TeacherListEditor from "./TeacherListEditor";
 import {DatePicker, LoadingButton} from "@mui/lab";
 import dayjs from "dayjs";
-import DayScheduleEditor from "./DayScheduleEditor";
-import {Simulate} from "react-dom/test-utils";
 import DayEdit from "../../modals/DayEdit";
 
 interface ChangesInfoExtended extends ChangesInfo {

@@ -1,19 +1,21 @@
 import * as React from "react";
+import {useState} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
 import {TripleGrid} from "../ScreenStruct/TripleGrid";
 import {
-    Dialog, DialogActions, DialogContent,
-    DialogTitle, Divider,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Divider,
     Grid,
     IconButton,
     List,
-    ListItem,
     ListItemButton,
     ListItemText,
-    Paper, TextField,
+    Paper,
+    TextField,
     Typography
 } from "@mui/material";
-import {useState} from "react";
 import {useAppSelector} from "../../store/hooks";
 import {Note} from "../../database";
 import dayjs from "dayjs";

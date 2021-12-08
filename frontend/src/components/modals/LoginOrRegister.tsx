@@ -108,12 +108,16 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
                 setAwait(false);
                 dispatch(setUser({username: formState.name, password: formState.password}));
             }).catch((err) => {
-                if (err.response.status == 404) {
-                    setErrors({...errors, wrongPassword: true});
-                } else if (err.response.data == "duplicate username") {
-                    setErrors({...errors, userExists: true});
-                } else if (err.response.data == "password incorrect") {
-                    setErrors({...errors, wrongPassword: true});
+                if (err.response) {
+                    if (err.response.status == 404) {
+                        setErrors({...errors, wrongPassword: true});
+                    } else if (err.response.data == "duplicate username") {
+                        setErrors({...errors, userExists: true});
+                    } else if (err.response.data == "password incorrect") {
+                        setErrors({...errors, wrongPassword: true});
+                    } else {
+                        dispatch(ERROR());
+                    }
                 } else {
                     dispatch(ERROR());
                 }

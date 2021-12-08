@@ -1,7 +1,6 @@
 package com.demonorium.database.dto;
 
 import com.demonorium.database.entity.SourcesPriority;
-import lombok.Builder;
 import lombok.Data;
 
 @Data

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {EditorProps} from "../screens/EditSource";
-import {IconButton, InputAdornment, InputLabel, MenuItem, Select, TextField, Tooltip} from "@mui/material";
+import {InputLabel, MenuItem, Select} from "@mui/material";
 import ListIcon from '@mui/icons-material/List';
 import Selector from "../modals/Selector";
 import {Entity} from "../../database";

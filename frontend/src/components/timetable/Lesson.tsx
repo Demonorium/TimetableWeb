@@ -2,7 +2,6 @@ import * as React from 'react';
 import {Collapse, Divider, List, ListItem, ListItemText} from "@mui/material";
 import {Lesson, LessonTemplate, Place, ScheduleElement} from "../../database";
 import {useAppSelector} from "../../store/hooks";
-import sourceMap from "../../store/sourceMap";
 
 interface LessonProps {
     lesson: Lesson;

@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name="share_references")
+@Table(name="access_references")
 public class ShareReference implements PartOfSource {
     /**
      * ИД объекта в базе

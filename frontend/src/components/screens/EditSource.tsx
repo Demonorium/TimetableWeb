@@ -1,5 +1,4 @@
 import * as React from "react";
-import {useEffect} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
 import {TripleGrid} from "../ScreenStruct/TripleGrid";
 import {useAppSelector} from "../../store/hooks";
@@ -8,7 +7,6 @@ import {TargetScreen} from "../ScreenStruct/LeftMenu";
 import SourceTitle from "./edit-source/SourceTitle";
 import {CircularProgress, Paper} from "@mui/material";
 import PlaceListEditor from "./edit-source/PlaceListEditor";
-import axios from "axios";
 import TeacherListEditor from "./edit-source/TeacherListEditor";
 import LessonTemplateEditor from "./edit-source/LessonTemplateEditor";
 import WeekListEditor from "./edit-source/WeekListEditor";

@@ -3,7 +3,6 @@ package com.demonorium.web.crud;
 import com.demonorium.database.DatabaseService;
 import com.demonorium.database.Rights;
 import com.demonorium.database.dto.ChangesDTO;
-import com.demonorium.database.dto.LessonDTO;
 import com.demonorium.database.entity.*;
 import com.demonorium.web.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.function.Consumer;
 
 @RestController
 public class ChangesController {

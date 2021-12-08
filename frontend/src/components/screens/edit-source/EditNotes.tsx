@@ -1,29 +1,14 @@
 import * as React from 'react';
 import {useState} from 'react';
 import ItemListEditor from "./ItemListEditor";
-import {addNote, addTemplate, changeNote, changeTemplate, removeNote, removeTemplate} from "../../../store/sourceMap";
-import {LessonTemplate, Note, Teacher} from "../../../database";
+import {addNote, changeNote, removeNote} from "../../../store/sourceMap";
+import {Note} from "../../../database";
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {Editor} from "../../modals/ModalEditor";
-import {
-    Button,
-    Divider,
-    Grid,
-    IconButton,
-    List,
-    ListItemText,
-    Paper,
-    TextField,
-    Tooltip,
-    Typography
-} from "@mui/material";
+import {Grid, ListItemText, TextField} from "@mui/material";
 import {EditorProps} from "../EditSource";
-import {addElement, arrayEq, containsElement, removeElement} from "../../../utils/arrayUtils";
-import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
-import {Close} from "@material-ui/icons";
-import Selector from "../../modals/Selector";
-import TeacherListEditor from "./TeacherListEditor";
+import {addElement} from "../../../utils/arrayUtils";
 import {DatePicker} from "@mui/lab";
 import dayjs from "dayjs";
 

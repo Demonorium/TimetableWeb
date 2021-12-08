@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -13,12 +14,10 @@ import {
     TextField
 } from "@mui/material";
 import {Close} from "@material-ui/icons";
-import {compareEntity, LessonTemplate, Rights, ScheduleElement} from "../../database";
-import {useEffect, useState} from "react";
+import {compareEntity, Rights, ScheduleElement} from "../../database";
 import ItemListEditor from "../screens/edit-source/ItemListEditor";
 import {addElement, containsElement, removeElement, replaceElement} from "../../utils/arrayUtils";
 import {Editor} from "./ModalEditor";
-
 
 
 interface ScheduleEditorProps {

@@ -6,14 +6,17 @@ import {
     ID,
     Lesson,
     LessonTemplate,
-    Place, printScheduleElement, Rights,
+    Place,
+    printScheduleElement,
+    Rights,
     ScheduleElement,
     Source,
     Teacher
 } from "../../../database";
 import ModalEditor, {Editor} from "../../modals/ModalEditor";
 import {
-    Button, Container,
+    Button,
+    Container,
     DialogActions,
     Divider,
     Grid,
@@ -25,7 +28,6 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
-import SortableArray from "../../../utils/sortableUtils";
 import {ReactSortable} from "react-sortablejs";
 import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
 import {EditorProps} from "../EditSource";
@@ -33,20 +35,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import {Close, Delete} from "@material-ui/icons";
 import SelectField from "../../utils/SelectField";
 import LessonTemplateEditor from "./LessonTemplateEditor";
-import {
-    addElement,
-    arrayEq,
-    containsElement,
-    findElement,
-    removeElement,
-    replaceElement
-} from "../../../utils/arrayUtils";
+import {addElement, arrayEq, containsElement, removeElement, replaceElement} from "../../../utils/arrayUtils";
 import PlaceListEditor from "./PlaceListEditor";
 import Selector from "../../modals/Selector";
 import TeacherListEditor from "./TeacherListEditor";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {LoadingButton} from "@mui/lab";
-import {changeDay, updateSource} from "../../../store/sourceMap";
+import {changeDay} from "../../../store/sourceMap";
 import ScheduleEditor from "../../modals/ScheduleEditor";
 import axios from "axios";
 
@@ -434,12 +429,17 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                     }}>
                         <EditIcon />
                     </IconButton>
-                    <IconButton onClick={
-                        ()=> setList(lesson.number)(
-                            removeElement<Lesson>(getList(lesson.number), lesson,
-                                compareEntity)
-                        )
-                    }
+                    <IconButton onClick={()=>{
+                        for (let i = 0; i < state.lessons.length; ++i ) {
+                            if (containsElement<Lesson>(state.lessons[i], (e) => e.id == lesson.id)) {
+                                setList(i)(
+                                    removeElement<Lesson>(state.lessons[i], lesson,
+                                        compareEntity)
+                                );
+                                break;
+                            }
+                        }
+                    }}
                     >
                         <Delete/>
                     </IconButton>

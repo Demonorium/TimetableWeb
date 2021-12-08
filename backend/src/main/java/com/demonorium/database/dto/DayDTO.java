@@ -6,7 +6,6 @@ import com.demonorium.database.entity.Day;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 @Data

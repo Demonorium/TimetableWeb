@@ -5,7 +5,6 @@ import com.demonorium.database.Rights;
 import com.demonorium.database.entity.AccessToken;
 import com.demonorium.database.entity.ShareReference;
 import com.demonorium.database.entity.Source;
-import com.demonorium.database.repository.ShareReferenceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.ref.Reference;
 import java.util.Date;
 import java.util.Optional;
 

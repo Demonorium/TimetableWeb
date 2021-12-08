@@ -13,26 +13,14 @@ import {
     Typography
 } from "@mui/material";
 import SortableArray, {SortableItem} from "../../utils/sortableUtils";
-import {
-    ChangesInfo,
-    compareEntity,
-    Day,
-    LessonTemplate,
-    Note,
-    Place,
-    Rights,
-    SourcePriority,
-    Teacher,
-    Week
-} from "../../database";
+import {ChangesInfo, Day, LessonTemplate, Note, Place, Rights, SourcePriority, Teacher, Week} from "../../database";
 import {setPriorities} from "../../store/priorities";
 import axios from "axios";
 import {ReactSortable} from "react-sortablejs";
 import * as React from "react";
 import {useEffect, useState} from "react";
 import {ScreenInterface} from "../ScreenDisplay";
-import {arrayEq, containsElement, removeElement, removeElementComp, replaceElement} from "../../utils/arrayUtils";
-import EditIcon from '@mui/icons-material/Edit';
+import {arrayEq, removeElementComp} from "../../utils/arrayUtils";
 import {setScreen} from "../../store/appStatus";
 import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
 import {addEditorTab} from "../../store/editorList";
@@ -40,7 +28,7 @@ import {EditSourceParams} from "./EditSource";
 import dayjs from "dayjs";
 import YouSureDialog from "../modals/YouSureDialog";
 import {Delete, Link} from "@material-ui/icons";
-import sourceMap, {removeSource, updateSource} from "../../store/sourceMap";
+import {removeSource, updateSource} from "../../store/sourceMap";
 import ShareDialog from "../modals/ShareDialog";
 import ImportDialog from "../modals/ImportDialog";
 

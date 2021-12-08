@@ -7,7 +7,6 @@ import ButtonWithFadeAction from "../utils/ButtonWithFadeAction";
 import {Close} from "@material-ui/icons";
 import {removeEditorTab} from "../../store/editorList";
 import {EditSourceParams} from "../screens/EditSource";
-import {containsElement, findElement} from "../../utils/arrayUtils";
 
 export interface TargetScreen {
     id: string;

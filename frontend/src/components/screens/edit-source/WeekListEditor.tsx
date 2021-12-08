@@ -1,30 +1,13 @@
 import * as React from 'react';
 import {useState} from 'react';
-import {
-    Button,
-    Divider,
-    Grid,
-    IconButton,
-    List,
-    ListItem,
-    ListItemButton,
-    Paper,
-    Stack, Tab, Tabs,
-    Tooltip,
-    Typography
-} from "@mui/material";
-import {addDay, addWeek, changeDay, changeWeek, removeWeek} from "../../../store/sourceMap";
-import SortableArray, {SortableItem} from "../../../utils/sortableUtils";
-import {ReactSortable} from "react-sortablejs";
+import {Divider, Grid, ListItem, Paper, Stack, Tab, Tabs, Typography} from "@mui/material";
+import {addDay, addWeek, changeWeek, removeWeek} from "../../../store/sourceMap";
 import {Day, Lesson, Source, User, Week, WeekDay} from "../../../database";
-import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
-import {Add, Close} from "@material-ui/icons";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import axios from "axios";
-import {DAY_NAMES, DAY_NAMES_SHRT} from "../../../utils/time";
+import {DAY_NAMES_SHRT} from "../../../utils/time";
 import DayScheduleEditor from "./DayScheduleEditor";
-import {addElement, containsElement, findElement} from "../../../utils/arrayUtils";
-import user from "../../../store/user";
+import {addElement, findElement} from "../../../utils/arrayUtils";
 import {LoadingButton} from "@mui/lab";
 
 

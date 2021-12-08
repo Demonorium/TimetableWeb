@@ -1,20 +1,9 @@
 import * as React from 'react';
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    InputLabel, MenuItem,
-    Select, SelectChangeEvent,
-    TextField, Typography
-} from "@mui/material";
+import {useState} from 'react';
+import {Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField} from "@mui/material";
 import {Close} from "@material-ui/icons";
-import {RIGHT_LEVELS, Rights, Source} from "../../database";
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import {LoadingButton} from "@mui/lab";
-import {useEffect, useState} from "react";
 import axios from "axios";
 import {updateSource} from "../../store/sourceMap";
 

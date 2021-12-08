@@ -5,7 +5,7 @@ import {connect} from "react-redux";
 import Day, {DayProps, InternalDayRepresentation, LessonDur, LessonPair} from "./Day";
 import {RootState} from "../../store/store";
 import RangeObject from "../../utils/range";
-import {Changes, Day as dbDay, Lesson, ScheduleElement, SourcePriority, User, Week, WeekDay} from "../../database";
+import {Changes, Day as dbDay, ScheduleElement, SourcePriority, User, Week, WeekDay} from "../../database";
 import axios from "axios";
 import {ScheduleState} from "../../store/schedule";
 import {PrioritiesState} from "../../store/priorities";
@@ -111,17 +111,18 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
         const dayVariants = new Array<DayRep>();
         for (let prId = 0; prId < priorities.length; ++prId) {
             const priority = priorities[prId];
-            const change = changes ? findElement<Changes>(changes, (ch) => ch.priority == priority.priority) : undefined;
             const source = maps.sources[priority.sourceId];
 
             if (source.endDate) {
                 if (date.valueOf() > source.endDate)
                     continue;
             }
-
             const defSchedule = (source && source.defaultSchedule && (source.defaultSchedule.length > 0))
                 ? source.defaultSchedule
                 : undefined;
+
+
+            const change = changes ? findElement<Changes>(changes, (ch) => ch.priority == priority.priority) : undefined;
 
             if (change) {
                 const day_db = maps.days[change.day]
@@ -137,7 +138,7 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
                     });
                 }
             } else {
-                if ((source != undefined) && (source.weeks.length > 0)) {
+                if (source.weeks.length > 0) {
                     const weekNumber = Math.abs(Math.floor(date.diff(dayjs(source.startDate), "weeks", true))) % source.weeks.length;
                     const week = findElement<Week>(source.weeks, (week) => week.number == weekNumber);
 
@@ -182,7 +183,7 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
                 if (callChanged) {
                     currentCallStart = variant.schedule[call];
                     ++call;
-                } else if (call == variant.schedule.length)  {
+                } else if (call == variant.schedule.length) {
                     if (currentCallEnd) {
                         currentCallStart = currentCallEnd;
                     }
@@ -217,14 +218,17 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
                     lessonDurs.push(dur);
                 }
 
-                while ((insertIndex < lessons.length) && (lessons[insertIndex].dur.start.time <= dur.start.time)) {
+                while ((insertIndex < lessons.length)
+                    && (lessons[insertIndex].dur.start.time <= dur.start.time)) {
                     ++insertIndex;
                 }
 
                 lessons = addElement<LessonPair>(lessons, {
                     dur: dur,
                     lesson: clessons[lId]
-                }, insertIndex++);
+                }, insertIndex);
+
+                ++insertIndex;
             }
         }
 

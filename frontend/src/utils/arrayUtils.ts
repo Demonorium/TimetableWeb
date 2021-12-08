@@ -101,7 +101,7 @@ export function addElement<T>(array: Array<T>, element?: T, index?: number) {
     }
 
 
-    if (!index || (index >= array.length)) {
+    if ((index == undefined) || (index >= array.length)) {
         return _addElement(array, element);
     } else {
         const newArray = new Array<T>();
@@ -111,7 +111,7 @@ export function addElement<T>(array: Array<T>, element?: T, index?: number) {
                 newArray.push(element);
                 newArray.push(array[i]);
             } else {
-                newArray.push(array[i])
+                newArray.push(array[i]);
             }
         }
 

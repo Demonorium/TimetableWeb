@@ -4,7 +4,6 @@ import com.demonorium.database.DatabaseService;
 import com.demonorium.database.Rights;
 import com.demonorium.database.entity.Note;
 import com.demonorium.database.entity.Source;
-import com.demonorium.database.repository.NoteRepository;
 import com.demonorium.web.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

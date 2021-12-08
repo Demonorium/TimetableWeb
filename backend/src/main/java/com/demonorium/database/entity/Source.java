@@ -72,7 +72,7 @@ public class Source {
      * Владелец этого источника
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "owner_name", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
     /**
@@ -82,7 +82,6 @@ public class Source {
     public String getOwnerName() {
         return owner.getUsername();
     }
-
 
     public Source(String name, Date startDate, int startWeek, User owner) {
         this.name = name;
@@ -143,7 +142,7 @@ public class Source {
     private Set<Note> notes = new HashSet<>();
 
     /**
-     * Список токенов доступа к этому источнику
+     * Ссылка на доступ к источнику
      */
     @OneToOne(mappedBy = "source", cascade = CascadeType.REMOVE, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="reference_id", nullable = true)
