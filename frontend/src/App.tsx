@@ -14,6 +14,7 @@ import {Source, SourcePriority} from "./database";
 import ErrorDialog from "./components/modals/ErrorDialog";
 import {setSources} from "./store/sourceMap";
 import {Orientation, setOrientation} from "./store/orientation";
+import {setUser} from "./store/user";
 
 const theme = createTheme({components:{
     MuiCssBaseline: {
@@ -124,6 +125,16 @@ export default function App() {
             //Настройки
             dayjs.locale('ru');
 
+            //Проверяем, что юзер сохранён
+            if (user.logout) {
+                const username = localStorage.getItem("username");
+                const password = localStorage.getItem("password");
+                if (username && password) {
+                    dispatch(setUser({username: username, password: password}));
+                    return;
+                }
+            }
+
             if (!user.logout) {
                 if (state.app != GlobalState.LOADING) {
                     dispatch(setAppState(GlobalState.LOADING));
@@ -143,6 +154,18 @@ export default function App() {
             }
         }
     }, [updateCounter, user.logout, state.app == GlobalState.CRUSH]);
+
+    useEffect(() => { return () => {
+        if (!user.logout) {
+            if (localStorage.getItem("remember") == "true") {
+                localStorage.setItem("password", user.username)
+                localStorage.setItem("username", user.password)
+            } else {
+                localStorage.removeItem("password");
+                localStorage.removeItem("username");
+            }
+        }
+    }}, [user.logout, user.username, user.password])
 
     const orientationChecker = (event: UIEvent) => {
         const width = window.innerWidth
