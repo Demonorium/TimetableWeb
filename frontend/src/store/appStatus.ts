@@ -1,7 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {removeElement} from "../utils/arrayUtils";
 
-
 export enum GlobalState {
     LOADING,
     PROCESS,

@@ -1,7 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {User} from "../database";
 
-
 interface UserState extends User {
    logout: boolean;
 }

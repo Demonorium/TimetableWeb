@@ -2,6 +2,7 @@ package com.demonorium.database.dto;
 
 import com.demonorium.database.entity.TimetableChanges;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 public class ChangesDTO {
@@ -30,7 +31,7 @@ public class ChangesDTO {
      */
     private Long source;
 
-    public ChangesDTO(TimetableChanges changes, int priority) {
+    public ChangesDTO(@NonNull TimetableChanges changes, int priority) {
         this.id = changes.getId();
         this.day = changes.getDay().getId();
         this.date = changes.getDate().getTime();

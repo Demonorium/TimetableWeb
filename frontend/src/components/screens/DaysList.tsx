@@ -9,7 +9,6 @@ import {ScreenInterface} from "../ScreenDisplay";
 import DayDisplayDialog from "../modals/DayDisplayDialog";
 import {DayProps} from "../timetable/Day";
 
-
 function dateBuild(date: Dayjs) {
     return (
         date.millisecond(0)
@@ -38,9 +37,7 @@ export function DaysList({menu}: ScreenInterface) {
             containerRef={containerRef}>
             <Paper color="main">
                 {
-                    state ?
-                        <DayDisplayDialog open={true} close={() => setState(null)} day={state}/>
-                        : undefined
+                    state && <DayDisplayDialog open={true} close={() => setState(null)} day={state}/>
                 }
 
                 <InfiniteDaysSlider containerRef={containerRef} listSize={20} downloadsForRender={1}

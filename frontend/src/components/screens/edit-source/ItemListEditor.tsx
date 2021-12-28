@@ -7,8 +7,7 @@ import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
 import {OverridableStringUnion} from "@mui/types";
 import {Variant} from "@mui/material/styles/createTypography";
 import {TypographyPropsVariantOverrides} from "@mui/material/Typography/Typography";
-import {Rights} from "../../../database";
-
+import {hasUpdateRight, Rights} from "../../../database";
 
 interface EditListEditorProps<T> {
     /**
@@ -26,6 +25,7 @@ interface EditListEditorProps<T> {
      * Список
      */
     list: Array<T>;
+
     /**
      * Является ли текущее меню - меню выбора
      */
@@ -37,6 +37,7 @@ interface EditListEditorProps<T> {
     constructor: (item: T, index: number) => any;
 
     remove: (item: T) => void;
+
     exclude?: (item: T) => boolean;
 
     //Редактирование отдельного элемента списка
@@ -44,25 +45,27 @@ interface EditListEditorProps<T> {
      * Заголовок окна редактирования
      */
     editorTitle: string;
+
     /**
      * размер титульника
      */
     titleFormat?: OverridableStringUnion<Variant | 'inherit', TypographyPropsVariantOverrides>;
+
     /**
      * Редактор
      */
     editor: Editor<T>;
+
     /**
      * Права доступа
      */
     rights: Rights;
+
     /**
      * Убрать кнопки
      */
     noBts?: boolean;
 }
-
-
 
 export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
     const [selected, select] = useState(-1);
@@ -70,22 +73,22 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
 
     const requestClose = (item?: T) => {
         setOpen(false);
-        if (props.requestClose && props.isSelect && (item != undefined))
+        if (props.requestClose && props.isSelect && (item != undefined)) {
             props.requestClose(item);
+        }
 
         select(-1);
     }
 
     return (
         <>
-            <ListItem secondaryAction={
-                ((props.rights == Rights.OWNER) || (props.rights == Rights.READ_UPDATE) || (props.rights == Rights.UPDATE))
-                    ?
+            <ListItem sx={{paddingTop: "16px", paddingBottom:"16px"}} secondaryAction={
+                hasUpdateRight(props.rights) &&
                     <Button variant="outlined" onClick={() => {setOpen(true)}}>
                         Создать
                     </Button>
-                    : undefined
             }>
+
                 <Typography variant={props.titleFormat? props.titleFormat : "h5"}>{props.listTitle}</Typography>
             </ListItem>
 
@@ -101,6 +104,7 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
             />
 
             <Divider/>
+
             <List>
                 {
                     props.list.length == 0 ? <ListItem sx={{textAlign:"center", display: "block"}}>Нет объектов</ListItem> :
@@ -121,13 +125,14 @@ export default function ItemListEditor<T>(props: EditListEditorProps<T>) {
                                         </Tooltip>
                                             :
                                         <Typography>
-
                                         </Typography>
                                     }
                                     onClick={() => {select(index); setOpen(true)}}>
+
                                     {props.constructor(item, index)}
                                 </ButtonWithFadeAction>
-                                {index == (props.list.length - 1)? undefined: <Divider/>}
+
+                                {(index != (props.list.length - 1)) && <Divider/>}
                             </>
                         );
                     })

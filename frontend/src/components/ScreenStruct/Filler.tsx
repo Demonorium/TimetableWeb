@@ -5,6 +5,7 @@ import {getDimensions} from "../../utils/componentInfo";
 
 export function Filler(props: any) {
     const [update, setUpdate] = useState(false);
+
     useEffect(() => {
         setUpdate(update => !update);
     }, [props.headerRef.current]);
@@ -16,6 +17,7 @@ export function Filler(props: any) {
                 maxHeight: height
             }}
             maxWidth="xl" component="main">
+
             {props.children}
         </Container>
     );

@@ -58,10 +58,12 @@ public class TeacherController {
         }
 
         if (webUtils.hasAccess(request, teacher, Rights.UPDATE)) {
-            teacher.get().setName(name);
-            teacher.get().setPosition(position);
-            teacher.get().setNote(note);
-            databaseService.getTeacherRepository().save(teacher.get());
+            Teacher current = teacher.get();
+
+            current.setName(name);
+            current.setPosition(position);
+            current.setNote(note);
+            databaseService.getTeacherRepository().save(current);
 
             return ResponseEntity.ok("success");
         }

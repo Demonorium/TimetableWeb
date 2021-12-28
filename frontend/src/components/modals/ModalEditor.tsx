@@ -1,9 +1,7 @@
 import * as React from "react";
-import {ReactNode, useEffect, useState} from "react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
-import {Close} from "@material-ui/icons";
-import {LoadingButton} from "@mui/lab";
-import {Rights} from "../../database";
+import {ReactNode, useEffect} from "react";
+import {hasUpdateRight, Rights} from "../../database";
+import DialogTemplate from "./DialogTemplate";
 
 export interface Editor<T> {
     onPartCreate: (item: T) => Promise<T>;
@@ -21,6 +19,7 @@ export interface ModalEditorProps<T> {
      * Заголовок окна
      */
     title: string;
+
     /**
      * Данное окно является ещё и окном выбора, если isSelect == true
      */
@@ -36,7 +35,6 @@ export interface ModalEditorProps<T> {
      */
     editor: Editor<T>;
 
-
     /**
      * Сделана попытка закрыть диалог
      */
@@ -51,99 +49,88 @@ export interface ModalEditorProps<T> {
      * Права доступа
      */
     rights: Rights;
+
     /**
      * Нет кнопок
      */
     noBts?: boolean;
 }
 
+interface BackRef<T> {
+    ref: T | undefined;
+}
 
 export default function ModalEditor<T>({noBts, rights, title, isSelect, item, editor, requestClose, open}: ModalEditorProps<T>) {
-    const [loading, setLoading] = useState(false);
-
     useEffect(() => {
         if (open) {
             editor.changeItem(item);
         }
     }, [open])
 
-    let saveText = null;
-    if (isSelect) {
-        if ((rights == Rights.OWNER) || (rights == Rights.READ_UPDATE) || (rights == Rights.UPDATE)) {
-            saveText = "Сохранить и выбрать";
-        } else {
-            saveText = "Выбрать"
-        }
-    } else if ((rights == Rights.OWNER) || (rights == Rights.READ_UPDATE) || (rights == Rights.UPDATE)) {
-        saveText = "Сохранить";
+    let acceptText = undefined;
+    let cancelText = undefined;
+
+    let accept = undefined;
+    let reset = undefined;
+
+    const result: BackRef<T> = {
+        ref: undefined
     }
 
+    const close = () => {
+        requestClose(result.ref)
+    }
+
+    if (noBts != true) {
+        cancelText = "Отмена"
+        reset = async () => {
+            editor.changeItem(item);
+        }
+
+        if (isSelect) {
+            if (hasUpdateRight(rights)) {
+                acceptText = "Сохранить и выбрать";
+            } else {
+                acceptText = "Выбрать"
+            }
+        } else if (hasUpdateRight(rights)) {
+            acceptText = "Сохранить";
+        }
+
+        if (acceptText != undefined) {
+            accept = async () => {
+                if (hasUpdateRight(rights)) {
+                    const part = editor.createPartFromUI();
+                    if (part != undefined) {
+                        if (item == undefined) {
+                            result.ref = await editor.onPartCreate(part);
+                        } else if (editor.isPartChanged(item, part)) {
+                            result.ref = await editor.onPartUpdate(part);
+                        } else {
+                            result.ref = part;
+                        }
+                    } else {
+                        result.ref = part;
+                    }
+                } else {
+                    result.ref = item;
+                }
+            }
+        }
+    }
 
     return (
-        <Dialog
-            open={open}
-            aria-labelledby="editselect-dialog-title"
-            aria-describedby="editselect-dialog-description">
-            <DialogTitle sx={{ m: 0, p: 2 }}>
-                {title}
-                <IconButton
-                    aria-label="close"
-                    onClick={() => requestClose()}
-                    sx={{
-                        position: 'absolute',
-                        right: 8,
-                        top: 8
-                    }}
-                >
-                    <Close />
-                </IconButton>
-            </DialogTitle>
-                <DialogContent dividers>
-                    {editor.UI}
-                </DialogContent>
-            {!noBts ? <DialogActions>
-                <Button onClick={() => requestClose()}>
-                    Отмена
-                </Button>
-                {
-                    saveText != null ?
-                        <LoadingButton disabled={editor.createPartFromUI() == undefined} loading={loading} autoFocus onClick={() => {
-                            if ((rights == Rights.OWNER) || (rights == Rights.READ_UPDATE) || (rights == Rights.UPDATE)) {
-                                const part = editor.createPartFromUI();
-                                if (part != undefined) {
-                                    if (item == undefined) {
-                                        setLoading(true);
-                                        editor.onPartCreate(part).then((part) => {
-                                            requestClose(part);
-                                            setLoading(false);
-                                        }).catch(() => {
-                                            setLoading(false);
-                                        });
-                                    } else if (editor.isPartChanged(item, part)) {
-                                        setLoading(true);
-                                        editor.onPartUpdate(part).then((part) => {
-                                            requestClose(part);
-                                            setLoading(false);
-                                        }).catch(() => {
-                                            setLoading(false);
-                                        });
-                                    } else
-                                        requestClose(part);
-                                } else
-                                    requestClose(part);
-                            } else {
-                                requestClose(item);
-                            }
-                        }}>
-                            {saveText}
-                        </LoadingButton>
-                        : undefined
-                }
+        <DialogTemplate childrenAlign="left"
+                        title={title}
+                        open={open}
+                        close={close}
+                        acceptText={acceptText}
+                        reset={reset}
+                        cancelText={cancelText}
+                        isAcceptPossible={editor.createPartFromUI() != undefined}
+                        accept={accept}>
 
-            </DialogActions>
-                :undefined
-            }
-
-        </Dialog>
-    )
+            {editor.UI}
+        </DialogTemplate>
+    );
 }

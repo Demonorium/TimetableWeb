@@ -65,33 +65,42 @@ export default function Lesson({lesson, first, start, end, full}: LessonProps) {
 
     return (
         <React.Fragment>
+
             <Divider />
+
             <ListItem onMouseLeave={offClick} onMouseEnter={onClick}
                             secondaryAction={
                                 (place && !full)
                                     ? <ListItemText  primary={place['auditory']} secondary={place['building']}  />
                                     : undefined
                             }>
-                <ListItemText primary={template['name']} secondary={getFrom(first, start, end)}
-                />
 
+                <ListItemText primary={template['name']} secondary={getFrom(first, start, end)}/>
             </ListItem>
+
             <Collapse in={open || full} timeout="auto" unmountOnExit>
 
                 <List component="div" disablePadding dense={true} onMouseLeave={offClick} onMouseEnter={onClick}>
+
                     <Divider />
+
                     <ListItem sx={{ pl: 4 }}>
                         <ListItemText primary={template['note']}/>
                     </ListItem>
                 </List>
             </Collapse>
+
             {
-                full ?
+                full &&
                     <List component="div" disablePadding dense={true}>
                         <ListItemText sx={{ pl: 6 }} primary={"Аудитория: " + place.auditory}/>
+
                         <ListItemText sx={{ pl: 6 }} primary={"Здание: " + place.building}/>
+
                         {place.note ? <ListItemText sx={{ pl: 6 }} primary={place.note}/> :undefined}
+
                         <ListItemText sx={{ pl: 6 }} primary={"Преподаватели"}/>
+
                         {
                             lesson.teachers.length > 0
                                 ? lesson.teachers.map(renderTeacher)
@@ -99,7 +108,6 @@ export default function Lesson({lesson, first, start, end, full}: LessonProps) {
                         }
 
                     </List>
-                    :undefined
             }
         </React.Fragment>
     );

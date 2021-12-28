@@ -18,6 +18,7 @@ function SideGrid({xs, fill, content}: SideGridProps) {
     if ((content == undefined) && fill) {
         return null;
     }
+
     return (
         <Grid item xs={xs} sx={{paddingTop: "0px!important"}}>
             <Paper color="main" sx={{marginTop: "16px"}}>
@@ -33,9 +34,9 @@ export function TripleGrid({leftMenu, rightMenu, children, containerRef, fill = 
         + (rightMenu == undefined ? 3 : 0))
         : 0)) as GridSize;
 
-
     return (
         <Grid container spacing={2} sx={{height: '100%', marginTop: '0'}}>
+
             <SideGrid xs={3} fill={fill} content={leftMenu}/>
 
             <Grid item xs={center} sx={{height: "100%", paddingTop: '0!important'}}>
@@ -44,6 +45,7 @@ export function TripleGrid({leftMenu, rightMenu, children, containerRef, fill = 
                     overflow: 'auto',
                     padding: '0', margin: '0'
                 }}>
+
                     {children}
                 </Box>
             </Grid>

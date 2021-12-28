@@ -47,8 +47,6 @@ public class Week implements PartOfSource, Comparable<Week> {
         return source.getId();
     }
 
-
-
     /**
      * Список всех дней недели
      */

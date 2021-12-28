@@ -24,6 +24,7 @@ export default function ButtonWithFadeAction(props: ButtonWithFadeActionProps) {
             onMouseEnter={() => {if (!fade) setFade(true)}}
             onMouseOver ={() => {if (!fade) setFade(true)}}
             onMouseLeave={() => {if (fade) setFade(false)}}>
+
                 <ListItem sx={NO_PADDING} onClick={props.onClick}>
                     {props.children}
                 </ListItem>

@@ -9,7 +9,6 @@ import {Editor} from "../../modals/ModalEditor";
 import {Grid, ListItemText, TextField, Typography} from "@mui/material";
 import {EditorProps} from "../EditSource";
 
-
 export default function PlaceListEditor(props: EditorProps<Place>) {
     const user = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
@@ -20,7 +19,9 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
         building: "",
         auditory: ""
     }
+
     const [state, setState] = useState<Place>(defaultState);
+
     const handleChange = (prop: keyof Place) => (event: React.ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value;
         if (value.length > 8) {
@@ -29,6 +30,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
             else if (value.length > 50)
                 return;
         }
+
         setState({ ...state,
             [prop]: value
         });
@@ -48,6 +50,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
             });
             return item;
         },
+
         onPartUpdate: async (item) => {
             await axios.get("api/update/place", {
                 auth: user,
@@ -64,6 +67,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
 
             return state;
         },
+
         isPartChanged: (prev, next) => {
             const set = ['id', 'note', 'auditory', 'building'];
             for (let i in set) {
@@ -75,6 +79,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
             }
             return false;
         },
+
         changeItem(item: Place | undefined): void {
             if (item == undefined) {
                 setState(defaultState);
@@ -83,18 +88,21 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
             }
         },
 
-
         UI: (
          <Grid container spacing={2}>
+
              <Grid item xs={4}>
                  <Typography variant="h5">Место</Typography>
              </Grid>
+
              <Grid item xs={4}>
                  <TextField fullWidth label="Аудитория" value={state.auditory} onChange={handleChange("auditory")}/>
              </Grid>
+
              <Grid item xs={4}>
                  <TextField fullWidth label="Здание / Корпус" value={state.building} onChange={handleChange("building")}/>
              </Grid>
+
              <Grid item xs={12}>
                  <TextField fullWidth label="Заметка" value={state.note} onChange={handleChange("note")}/>
              </Grid>
@@ -113,6 +121,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
         constructor={(item, index) =>
             <ListItemText primary={item.auditory + " / " + item.building} secondary={item.note} />
         }
+
         remove={(item) => {
             axios.get("api/delete/place", {
                 auth: user,
@@ -121,6 +130,7 @@ export default function PlaceListEditor(props: EditorProps<Place>) {
                 dispatch(removePlace({item: item, source: props.source.id}))
             });
         }}
+
         editorTitle="Место проведения занятия"
         editor={editor}
          />;

@@ -9,7 +9,6 @@ import {Editor} from "../../modals/ModalEditor";
 import {Grid, ListItemText, TextField} from "@mui/material";
 import {EditorProps} from "../EditSource";
 
-
 export default function TeacherListEditor(props: EditorProps<Teacher>) {
     const user = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
@@ -46,6 +45,7 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
             });
             return item;
         },
+
         onPartUpdate: async (item) => {
             await axios.get("api/update/teacher", {
                 auth: user,
@@ -62,6 +62,7 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
 
             return state;
         },
+
         isPartChanged: (prev, next) => {
             const set = ['id', 'note', 'name', 'position'];
             for (let i in set) {
@@ -73,6 +74,7 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
             }
             return false;
         },
+
         changeItem(item): void {
             if (item == undefined) {
                 setState(defaultState);
@@ -81,15 +83,17 @@ export default function TeacherListEditor(props: EditorProps<Teacher>) {
             }
         },
 
-
         UI: (
             <Grid container spacing={2}>
+
                 <Grid item xs={8}>
                     <TextField fullWidth label="ФИО" value={state.name} onChange={handleChange("name")}/>
                 </Grid>
+
                 <Grid item xs={4}>
                     <TextField fullWidth label="Должность" value={state.position} onChange={handleChange("position")}/>
                 </Grid>
+
                 <Grid item xs={12}>
                     <TextField fullWidth label="Заметка" value={state.note} onChange={handleChange("note")}/>
                 </Grid>

@@ -1,25 +1,13 @@
 import * as React from "react";
 import {useState} from "react";
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
-import {
-    Button,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    Divider,
-    FormControlLabel,
-    Grid,
-    IconButton,
-    Switch,
-    TextField,
-    Typography
-} from "@mui/material";
-import {Close} from "@material-ui/icons";
+import {Button, Divider, FormControlLabel, Grid, Switch, TextField, Typography} from "@mui/material";
 import YouSureDialog from "./YouSureDialog";
 import axios from "axios";
 import {logoutUser, setUser} from "../../store/user";
 import {GlobalState, setAppState} from "../../store/appStatus";
 import {resetMaps} from "../../store/sourceMap";
+import DialogTemplate from "./DialogTemplate";
 
 interface ProfileDialogProps {
     open: boolean;
@@ -64,6 +52,7 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
         setAction({act: vl});
         setAsk(true);
     }
+
     const del = () => {
         const vl: () => Promise<void> = async () => {
             await axios.get("/user/delete", {
@@ -84,30 +73,18 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
 
     return (
         <>
-        <YouSureDialog open={ask} close={close} accept={async () => {
-            await action.act();
-            close();
-        }}/>
-        <Dialog
-            open={open}
-            aria-labelledby="profile-dialog-title"
-            aria-describedby="profile-dialog-description">
-            <DialogTitle sx={{ m: 0, p: 2, width: "600px"}}>
-                Настройки профиля
-                <IconButton
-                    aria-label="close"
-                    onClick={onClose}
-                    sx={{
-                        position: 'absolute',
-                        right: 8,
-                        top: 8
-                    }}
-                >
-                    <Close />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent dividers sx={{width: "100%"}}>
+
+            <YouSureDialog open={ask} close={close} accept={async () => {
+                await action.act();
+                close();
+            }}/>
+
+            <DialogTemplate title="Настройки профиля"
+                            open={open}
+                            close={onClose}>
+
                 <Grid container spacing={2}>
+
                     <Grid item xs={12}>
                         <TextField fullWidth
                                    type="password"
@@ -115,16 +92,18 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
                                    label="Пароль"
                                    onChange={(e) => setPass(e.target.value)}
                                    error={passError}
-                                   />
+                        />
                     </Grid>
+
                     <Divider/>
+
                     <Grid item xs={12}>
                         <Typography variant="h5" color="error">
                             Смена пароля
                         </Typography>
                     </Grid>
-                    <Grid item xs={8}>
 
+                    <Grid item xs={8}>
                         <TextField fullWidth
                                    type="password"
                                    value={newPass}
@@ -134,6 +113,7 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
                                    error={pass == user.password}
                         />
                     </Grid>
+
                     <Grid item xs={4}>
                         <Button onClick={chn}>
                             Сменить
@@ -145,18 +125,27 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
                             Удаление профиля
                         </Typography>
                     </Grid>
+
                     <Grid item xs={8}>
-                        <FormControlLabel control={<Switch checked={swt} onChange={(e)=>setSwt(e.target.checked)} defaultChecked />} label="Я знаю, что удаление уничтожит все созданные расписания." />
+
+                        <FormControlLabel
+                            label="Я знаю, что удаление уничтожит все созданные расписания."
+                            control={
+                            <Switch checked={swt}
+                                    onChange={(e)=>setSwt(e.target.checked)}
+                                    defaultChecked />
+                            }/>
+
                     </Grid>
+
                     <Grid item xs={4}>
                         <Button onClick={del} disabled={!swt || passError}>
                             Удалить
                         </Button>
                     </Grid>
-                </Grid>
 
-            </DialogContent>
-        </Dialog>
+                </Grid>
+            </DialogTemplate>
         </>
     );
 }

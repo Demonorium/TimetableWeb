@@ -50,6 +50,9 @@ public class Note implements PartOfSource, Comparable<Note> {
     @Temporal(TemporalType.DATE)
     private Date date;
 
+    /**
+     * Текст заметки
+     */
     @Column(name="text", length = 4096)
     private String text;
 

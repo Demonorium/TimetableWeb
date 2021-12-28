@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class SourceController {
@@ -29,15 +30,14 @@ public class SourceController {
     @GetMapping("/api/find/current_sources")
     ResponseEntity<List<SourcesPriorityDTO>> findSources(HttpServletRequest request) {
         User user = webUtils.getUser(request);
-        Set<SourcesPriority> rawPriorities = user.getPriorities();
 
-        ArrayList<SourcesPriorityDTO> priorities = new ArrayList<>(rawPriorities.size());
-        rawPriorities.forEach(priority -> priorities.add(new SourcesPriorityDTO(priority)));
-        priorities.sort(Collections.reverseOrder());
+        List<SourcesPriorityDTO> priorities = user.getPriorities().stream()
+                .map(SourcesPriorityDTO::new)
+                .sorted(Collections.reverseOrder())
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(priorities);
     }
-
 
     /**
      * Обновление информации об источнике
@@ -61,30 +61,32 @@ public class SourceController {
             return ResponseEntity.notFound().build();
         }
 
-
         if (webUtils.hasAccess(request, source.get(), Rights.UPDATE)) {
-            source.get().setName(name);
-            source.get().setStartWeek(startWeek);
-            source.get().setStartDate(new Date(startDate));
-            source.get().setEndDate(endDate == null ? null : new Date(endDate));
+            Source current = source.get();
 
-            databaseService.getSourceRepository().save(source.get());
+            current.setName(name);
+            current.setStartWeek(startWeek);
+            current.setStartDate(new Date(startDate));
+            current.setEndDate(endDate == null ? null : new Date(endDate));
 
-            CallSchedule sc = source.get().getDefaultSchedule();
+            databaseService.getSourceRepository().save(current);
+
+            CallSchedule sc = current.getDefaultSchedule();
 
             if ((sc == null) && (schedule != null) && !schedule.isEmpty()) {
                 sc = new CallSchedule();
-                sc.setSource(source.get());
+                sc.setSource(current);
                 sc = databaseService.getCallScheduleRepository().save(sc);
 
-                source.get().setDefaultSchedule(sc);
-                databaseService.getSourceRepository().save(source.get());
+                current.setDefaultSchedule(sc);
+                databaseService.getSourceRepository().save(current);
                 sc = databaseService.getCallScheduleRepository().findById(sc.getId()).get();
             }
 
             if (sc != null) {
-                for (CallPair pair: sc.getSchedule())
+                for (CallPair pair: sc.getSchedule()) {
                     databaseService.getCallPairRepository().delete(pair);
+                }
 
                 if (schedule != null) {
                     for (Integer time : schedule) {
@@ -98,6 +100,7 @@ public class SourceController {
 
             return ResponseEntity.ok("success");
         }
+
         return ResponseEntity.unprocessableEntity().build();
     }
 

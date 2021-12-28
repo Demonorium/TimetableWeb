@@ -60,6 +60,10 @@ public class TimetableChanges implements PartOfSource {
         setDate(date);
     }
 
+    /**
+     * Устанавливает дату, автоматически удаляет информацию о времени
+     * @param date - дата изменений
+     */
     public void setDate(Date date) {
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(date);

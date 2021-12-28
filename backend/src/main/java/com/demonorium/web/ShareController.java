@@ -24,6 +24,17 @@ public class ShareController {
     @Autowired
     private WebUtils webUtils;
 
+    private Rights parseRights(String rights) {
+        switch (rights) {
+            case "READ_UPDATE":
+                return Rights.READ_UPDATE;
+            case "OWNER":
+                return Rights.OWNER;
+            default:
+                return Rights.READ;
+        }
+    }
+
     @GetMapping("/api/change_rights")
     ResponseEntity<String> changeRights(HttpServletRequest request,
                                  @RequestParam("id")Long sourceId,
@@ -36,22 +47,11 @@ public class ShareController {
 
         if (source.get().getOwner() == webUtils.getUser(request)) {
             ShareReference reference = source.get().getReference();
-
             if (reference == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            switch (rights) {
-                case "READ_UPDATE":
-                    reference.setRights(Rights.READ_UPDATE);
-                    break;
-                case "OWNER":
-                    reference.setRights(Rights.OWNER);
-                    break;
-                default:
-                    reference.setRights(Rights.READ);
-                    break;
-            }
+            reference.setRights(parseRights(rights));
 
             databaseService.getReferenceRepository().save(reference);
 
@@ -95,20 +95,9 @@ public class ShareController {
 
         if (source.get().getOwner() == webUtils.getUser(request)) {
             ShareReference reference = new ShareReference();
+
             reference.setSource(source.get());
-
-            switch (rights) {
-                case "READ_UPDATE":
-                    reference.setRights(Rights.READ_UPDATE);
-                    break;
-                case "OWNER":
-                    reference.setRights(Rights.OWNER);
-                    break;
-                default:
-                    reference.setRights(Rights.READ);
-                    break;
-            }
-
+            reference.setRights(parseRights(rights));
             reference.setCode(Long.toHexString(sourceId) + "_" + Long.toHexString(new Date().getTime() * source.hashCode()));
 
             source.get().setReference(databaseService.getReferenceRepository().save(reference));

@@ -10,6 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface WeekRepository extends CrudRepository<Week, Long> {
+    /**
+     * Сдвигает номера всех недель, больших чем указанная
+     * @param sourceId источник для которого выполняется действие
+     * @param fromIndex - с какого индекса выполнять действие (включительно)
+     */
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query(value =

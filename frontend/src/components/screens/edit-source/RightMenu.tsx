@@ -24,11 +24,17 @@ export default function RightMenu({ menu }: EditTargetMenuProps) {
     const screen = useAppSelector(state => state.app.screen);
     const dispatch = useAppDispatch();
 
-
     return (
         <List>
             {menu.map((key: TargetScreen, index: number) =>
-                <ListItemButton onClick={() => dispatch(setScreen({name: screen.name, params: UpdateParams(params, key.id)}))} key={index} selected={key.id == params.subscreen}>{key.data}</ListItemButton>
+                <ListItemButton onClick={() =>
+                    dispatch(setScreen({name: screen.name, params: UpdateParams(params, key.id)}))
+                }
+                                key={index}
+                                selected={key.id == params.subscreen}>
+
+                    {key.data}
+                </ListItemButton>
             )}
         </List>
     );

@@ -25,13 +25,13 @@
         </repository>
     </repositories>
 
+    <packaging>jar</packaging>
     <build>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <!--                    <version>3.2.1</version>-->
                     <configuration>
                         <source>1.8</source>
                         <target>1.8</target>
@@ -43,6 +43,10 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <fork>true</fork>
+                        <mainClass>com.demonorium.Application</mainClass>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>
@@ -62,9 +66,9 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>3.3.0</version>
                     <configuration>
-
                         <archive>
                             <manifest>
+                                <addClasspath>true</addClasspath>
                                 <mainClass>
                                     com.demonorium.Application
                                 </mainClass>
@@ -73,11 +77,10 @@
                         <descriptorRefs>
                             <descriptorRef>jar-with-dependencies</descriptorRef>
                         </descriptorRefs>
-
                     </configuration>
                     <executions>
                         <execution>
-                            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                            <id>make-assembly</id>
                             <phase>package</phase>
                             <goals>
                                 <goal>single</goal>
@@ -85,57 +88,8 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin>
-                    <groupId>com.github.eirslett</groupId>
-                    <artifactId>frontend-maven-plugin</artifactId>
-                    <version>1.0</version>
-                    <configuration>
-                        <workingDirectory>src/main/resources/static</workingDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>install node and npm</id>
-                            <goals>
-                                <goal>install-node-and-npm</goal>
-                            </goals>
-                            <configuration>
-                                <nodeVersion>v6.9.4</nodeVersion>
-                                <npmVersion>4.1.1</npmVersion>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>npm install</id>
-                            <goals>
-                                <goal>npm</goal>
-                            </goals>
-                            <configuration>
-                                <arguments>install</arguments>
-                                <npmRegistryURL>http://some_url</npmRegistryURL>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>npm run build</id>
-                            <goals>
-                                <goal>npm</goal>
-                            </goals>
-                            <configuration>
-                                <arguments>run build</arguments>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
-
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>static/node_modules/**/*.*</exclude>
-                </excludes>
-            </resource>
-        </resources>
-
     </build>
 
     <dependencies>

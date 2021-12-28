@@ -3,7 +3,6 @@ import {CircularProgress, Divider, List, ListItem, ListItemButton, ListItemText}
 import Lesson from "./Lesson";
 import {Lesson as LessonRepresentation, ScheduleElement} from "../../database";
 
-
 export interface LessonPair {
     dur: LessonDur;
     lesson: LessonRepresentation;
@@ -41,16 +40,21 @@ function Space() {
     );
 }
 
-
 function DayContainer(props: any) {
     return (
         <ListItem sx={{ display: 'flex', paddingTop: "0" }} ref={props.currentRef} key={props.list_key}>
+
             <List sx={{width: "100%", paddingTop: "0", paddingBottom: "0"}}>
+
                 <Divider />
+
                 {props.dayHeader}
-                {props.list.length == 0 ? <Divider /> : undefined}
+                {(props.list.length == 0) && <Divider />}
+
                 <ListItem sx = {{padding: "8px 32px"}}>
+
                     <List sx = {{width: "100%", paddingTop: "0", paddingBottom: "0"}}>
+
                         {props.list}
                     </List>
                 </ListItem>
@@ -67,10 +71,12 @@ function DayHeader(props: any) {
             if (!props.pr.full)
                 props.pr.setDay(props.pr)
         }}>
+
             <ListItem
                 secondaryAction={
                     <ListItemText primary={props.date} key={1}  />
                 }>
+
                 <ListItemText primary={props.dayOfWeek} secondary={props.dateOffset} key={2}/>
             </ListItem>
         </ListItemButton>
@@ -91,13 +97,13 @@ function Day(props: DayProps) {
         return <DayContainer dayHeader = {dayHeader} list={[<ListItemText primary={'Нет занятий'}/>]} currentRef={props.currentRef} list_key={props.index}/>;
     }
 
-
     let prev: LessonPair | undefined = undefined;
     for (let i = 0; i < props.day.lessons.length; ++i) {
         const pair = props.day.lessons[i];
 
-        if (prev == undefined)
+        if (prev == undefined) {
             prev = pair;
+        }
 
         lessons.push(<Lesson lesson={pair.lesson}
                              full={props.full}
@@ -107,7 +113,6 @@ function Day(props: DayProps) {
                              || (prev.lesson.id == pair.lesson.id)}
         />);
         prev = pair;
-
     }
 
     return <DayContainer dayHeader = {dayHeader} list={lessons} currentRef={props.currentRef} key={props.index}/>;

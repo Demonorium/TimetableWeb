@@ -13,6 +13,13 @@ import java.util.Optional;
 
 @Repository
 public interface TimetableChangesRepository extends CrudRepository<TimetableChanges, Long> {
+    /**
+     * Находит все изменения из указанного промежутка
+     * @param sourceId - ид источника для которого ищем
+     * @param from - начало промежутка
+     * @param to - конец промежутка
+     * @return
+     */
     @Query(value="SELECT * FROM timetable_changes changes where (changes.date >= :startDt ) and (changes.date <= :endDt ) and (changes.source_id = :sourceId ) order by changes.date",
             nativeQuery = true)
     List<TimetableChanges> getChanges(

@@ -1,3 +1,5 @@
+import {timeToStr} from "./utils/time";
+
 /**
  * Тип описывает ИД
  */
@@ -88,6 +90,10 @@ export const RIGHT_LEVELS: {[key: string] : string} = {
     OWNER: "ВЛАДЕЛЕЦ"
 }
 
+export function hasUpdateRight(rights: Rights) {
+    return (rights == Rights.OWNER) || (rights == Rights.READ_UPDATE) || (rights == Rights.UPDATE);
+}
+
 export interface ChangesInfo {
     day: number;
     date: number;
@@ -146,12 +152,6 @@ export function compareEntity(e1: Entity, e2: Entity): boolean {
     return e1.id == e2.id
 }
 
-function timeToStr(m: number) {
-    if (m < 10) {
-        return '0' + m
-    }
-    return m.toString();
-}
 export function printScheduleElement(e: ScheduleElement) {
     return timeToStr(e.hour) + ":" + timeToStr(e.minute)
 }

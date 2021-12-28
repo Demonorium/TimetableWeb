@@ -14,7 +14,6 @@ import dayjs, {Dayjs} from "dayjs";
 import {addElement, arrayEq, containsElement, findElement} from "../../utils/arrayUtils";
 import {InternalRepresentationState} from "../../store/sourceMap";
 
-
 /**
  * Данные хранит описание дня, может загружать его с сервера
  */
@@ -41,7 +40,6 @@ class DayState {
        return this.downloadedState;
     }
 }
-
 
 interface DayRep {
     day: dbDay;
@@ -92,7 +90,6 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
         return;
     }
 
-
     const changesMap: {[keys: number]: Array<Changes>} = (await axios.get("/api/find/changes",{
         auth: user,
         params: {
@@ -113,14 +110,13 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
             const priority = priorities[prId];
             const source = maps.sources[priority.sourceId];
 
-            if (source.endDate) {
-                if (date.valueOf() > source.endDate)
-                    continue;
+            if (source.endDate && (date.valueOf() > source.endDate)) {
+                continue;
             }
+
             const defSchedule = (source && source.defaultSchedule && (source.defaultSchedule.length > 0))
                 ? source.defaultSchedule
                 : undefined;
-
 
             const change = changes ? findElement<Changes>(changes, (ch) => ch.priority == priority.priority) : undefined;
 
@@ -137,26 +133,24 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
                         schedule: schedule
                     });
                 }
-            } else {
-                if (source.weeks.length > 0) {
-                    const weekNumber = Math.abs(Math.floor(date.diff(dayjs(source.startDate), "weeks", true))) % source.weeks.length;
-                    const week = findElement<Week>(source.weeks, (week) => week.number == weekNumber);
+            } else if (source.weeks.length > 0) {
+                const weekNumber = Math.abs(Math.floor(date.diff(dayjs(source.startDate), "weeks", true))) % source.weeks.length;
+                const week = findElement<Week>(source.weeks, (week) => week.number == weekNumber);
 
-                    // @ts-ignore
-                    const day = findElement<WeekDay>(week.days, (day) => day.number == dayOfWeek);
+                // @ts-ignore
+                const day = findElement<WeekDay>(week.days, (day) => day.number == dayOfWeek);
 
-                    if (day) {
-                        const day_db = maps.days[day.day]
-                        const schedule = (day_db.schedule && (day_db.schedule.length > 0))
-                            ? day_db.schedule
-                            : defSchedule;
+                if (day) {
+                    const day_db = maps.days[day.day]
+                    const schedule = (day_db.schedule && (day_db.schedule.length > 0))
+                        ? day_db.schedule
+                        : defSchedule;
 
-                        if (schedule) {
-                            dayVariants.push({
-                                day: day_db,
-                                schedule: schedule
-                            });
-                        }
+                    if (schedule) {
+                        dayVariants.push({
+                            day: day_db,
+                            schedule: schedule
+                        });
                     }
                 }
             }
@@ -164,7 +158,6 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
 
         const lessonDurs = new Array<LessonDur>();
         let lessons = new Array<LessonPair>();
-
 
         for (let j = 0; j < dayVariants.length; ++j) {
             const variant = dayVariants[j];
@@ -197,8 +190,9 @@ async function downloadScope(maps: InternalRepresentationState, user: User,
                     currentCallEnd = undefined;
                 }
 
-                if (lessonIndex > clessons[lId].number)
+                if (lessonIndex > clessons[lId].number) {
                     lessonIndex = clessons[lId].number;
+                }
 
                 if (lessonIndex != clessons[lId].number) {
                     --lId;
@@ -253,8 +247,9 @@ function removeFromScroll(scroll: Scrolls, scrollElement: any,
     let offset: number = 0;
 
     for (let i = first; i < last; ++i) {
-        if (list[i] != undefined)
+        if (list[i] != undefined) {
             offset += list[i].getBoundingClientRect().height
+        }
     }
 
     scrollElement.scrollTo(scroll.x, scroll.y + offset*dir);
@@ -313,7 +308,6 @@ interface InfiniteDaysSliderState {
      * Запрос на обновление страницы
      */
     update: boolean;
-
 }
 
 /**
@@ -324,10 +318,12 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
      * Список всех дней для отображения
      */
     list: Array<DayState>;
+
     /**
      * Предыдущее окно просмотра
      */
     prevRange: RangeObject;
+
     /**
      * Предыдущий контейнер
      */
@@ -337,14 +333,17 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
      * Верхний якорь для прорисовки списка
      */
     firstRef: any;
+
     /**
      * Нижний якорь для прорисовки списка
      */
     lastRef: any;
+
     /**
      * Ссылка на список, в который будет отрендерено содержимое
      */
     listRef: any;
+
     /**
      * Ссылка на сегодняшний день
      */
@@ -359,6 +358,7 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
      * увеличить счётчик успешных загрузок
      */
     incSuccessDownloadCounter: any;
+
     /**
      * увеличить счётчик начатых загрузок
      */
@@ -384,7 +384,6 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
             successDownloadCount: 0
         };
 
-
         this.list = new Array<DayState>();
 
         //Предыдущие состояния
@@ -405,8 +404,9 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
     }
 
     isStorageUpdated(nextProps: Readonly<InfiniteDaysSliderProps>, prevProps?: Readonly<InfiniteDaysSliderProps>) {
-        if (prevProps == undefined)
+        if (prevProps == undefined) {
             prevProps = this.props;
+        }
 
         return ( //Если сменилось хранилище - обновляем
             !arrayEq(nextProps.priorities.list, prevProps.priorities.list)
@@ -477,9 +477,6 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
         }
     }
 
-
-
-
     componentWillUnmount() {
         //Если сейчас есть контейнер - отписываемся
         if (this.props.containerRef.current != null) {
@@ -500,8 +497,6 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
             this.setState({update: false});
         }
     }
-
-
 
     componentDidUpdate(prevProps: Readonly<InfiniteDaysSliderProps>, prevState: Readonly<InfiniteDaysSliderState>, snapshot?: any) {
         //Если бы запрос обновления - выключем его
@@ -541,6 +536,7 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
             this.prevRange = new RangeObject(this.props.listSize, 0, 0, 0);
             this.setState({update: true});
         }
+
         if (this.props.origin != prevProps.origin) {
             this.list = new Array<DayState>();
             this.prevRange = new RangeObject(this.props.listSize, 0, 0, 0);
@@ -589,7 +585,6 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
                 for (let i = range.first; i < range.last; ++i) {
                     this.appendDay(list, i);
                 }
-
 
                 downloadScope(
                     this.props.maps, this.props.user,
@@ -642,15 +637,17 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
         return (
             <>
                 <div ref={this.firstRef} />
-                    <List ref={this.listRef}>
-                        {this.list.map((state) =>
-                            <Day currentRef={state.ref} day={state.getState()}
-                                 index={state.index}
-                                 setDay={this.props.setDay}
-                                 date={state.date} dateOffset={state.dateOffset} dayOfWeek={state.dayOfWeek}/>
-                            )
-                        }
-                    </List>
+
+                <List ref={this.listRef}>
+                    {this.list.map((state) =>
+                        <Day currentRef={state.ref} day={state.getState()}
+                             index={state.index}
+                             setDay={this.props.setDay}
+                             date={state.date} dateOffset={state.dateOffset} dayOfWeek={state.dayOfWeek}/>
+                        )
+                    }
+                </List>
+
                 <div ref={this.lastRef} />
             </>
         );

@@ -58,10 +58,13 @@ public class PlaceController {
         }
 
         if (webUtils.hasAccess(request, place, Rights.UPDATE)) {
-            place.get().setAuditory(auditory);
-            place.get().setBuilding(building);
-            place.get().setNote(note);
-            databaseService.getPlaceRepository().save(place.get());
+            Place current = place.get();
+
+            current.setAuditory(auditory);
+            current.setBuilding(building);
+            current.setNote(note);
+
+            databaseService.getPlaceRepository().save(current);
 
             return ResponseEntity.ok("success");
         }

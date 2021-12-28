@@ -3,8 +3,12 @@ package com.demonorium.database.dto;
 import com.demonorium.database.Rights;
 import com.demonorium.database.entity.*;
 import lombok.Data;
+import lombok.NonNull;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class SourceDTO {
@@ -24,7 +28,7 @@ public class SourceDTO {
     /**
      * Стандартное расписание
      */
-    private ArrayList<CallPair> defaultSchedule;
+    private List<CallPair> defaultSchedule;
 
     /**
      * Дата начала занятий
@@ -44,7 +48,7 @@ public class SourceDTO {
     /**
      * Недели (отсорированы по номеру)
      */
-    private ArrayList<Week> weeks;
+    private List<Week> weeks;
     /**
      * Места проведения занятий
      */
@@ -66,31 +70,28 @@ public class SourceDTO {
     /**
      * Задания
      */
-    private ArrayList<Note> notes;
+    private List<Note> notes;
 
     @Data
     private static class ChangesInfo {
         private Long date;
         private Long day;
 
-        public ChangesInfo(Long time, Long id) {
-            this.date = time;
-            this.day = id;
+        public ChangesInfo(@NonNull TimetableChanges changes) {
+            this.date = changes.getDate().getTime();
+            this.day = changes.getDay().getId();
         }
     }
 
     /**
      * Изменения
      */
-    private ArrayList<ChangesInfo> changes;
-
-
+    private List<ChangesInfo> changes;
 
     /**
      * Права доступа
      */
     private Rights rights;
-
 
     /**
      * Код доступа
@@ -102,43 +103,58 @@ public class SourceDTO {
      */
     private Rights refRights;
 
-    public SourceDTO(Source source, User user) {
+    public SourceDTO(@NonNull Source source, @NonNull User user) {
         this.id = source.getId();
         this.name = source.getName();
         this.owner = source.getOwnerName();
 
         this.startDate = source.getStartDate().getTime();
         this.endDate = source.getEndDate() == null ? null : source.getEndDate().getTime();
-        this.startWeek = source.getStartWeek();
-        this.code = source.getReference() != null ? source.getReference().getCode() : null;
-        this.refRights = source.getReference() != null ? source.getReference().getRights() : null;
 
-        if (source.getDefaultSchedule() != null) {
-            defaultSchedule = new ArrayList<>(source.getDefaultSchedule().getSchedule());
-            Collections.sort(defaultSchedule);
+        this.startWeek = source.getStartWeek();
+
+        if (source.getReference() != null) {
+            this.code = source.getReference().getCode();
+            this.refRights  = source.getReference().getRights();
+        } else {
+            this.code = null;
+            this.refRights = null;
         }
 
-        this.weeks = new ArrayList<>(source.getWeeks());
-        Collections.sort(this.weeks);
+        if (source.getDefaultSchedule() != null) {
+            defaultSchedule = source.getDefaultSchedule().getSchedule().stream()
+                    .sorted()
+                    .collect(Collectors.toList());
+        }
+
+        this.weeks = source.getWeeks().stream()
+                .sorted()
+                .collect(Collectors.toList());
 
         this.places = source.getPlaces();
         this.teachers = source.getTeachers();
-        this.templates = new HashSet<>();
-        source.getTemplates().forEach(template -> this.templates.add(new LessonTemplateDTO(template)));
-        this.days = new HashSet<>();
-        source.getDays().forEach(day -> days.add(new DayDTO(day)));
+
+        this.templates = source.getTemplates().stream()
+                .map(LessonTemplateDTO::new)
+                .collect(Collectors.toSet());
+
+        this.days = source.getDays().stream()
+                .map(DayDTO::new)
+                .collect(Collectors.toSet());
+
         if (user.equals(source.getOwner())) {
             rights = Rights.OWNER;
         } else if (source.getReference() != null) {
             rights = source.getReference().getRights();
         }
 
-        this.notes = new ArrayList<>(source.getNotes());
-        Collections.sort(this.notes);
+        this.notes = source.getNotes().stream()
+                .sorted()
+                .collect(Collectors.toList());
 
-        this.changes = new ArrayList<>();
-        source.getChanges().forEach(changes ->
-                this.changes.add(new ChangesInfo(changes.getDate().getTime(), changes.getDay().getId())));
-        changes.sort(Comparator.comparing(ChangesInfo::getDate));
+        this.changes = source.getChanges().stream()
+                .map(ChangesInfo::new)
+                .sorted(Comparator.comparing(ChangesInfo::getDate))
+                .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,7 @@ package com.demonorium.database.dto;
 
 import com.demonorium.database.entity.SourcesPriority;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 public class SourcesPriorityDTO implements Comparable<SourcesPriorityDTO> {
@@ -22,8 +23,7 @@ public class SourcesPriorityDTO implements Comparable<SourcesPriorityDTO> {
      */
     private int priority;
 
-
-    public SourcesPriorityDTO(SourcesPriority priority) {
+    public SourcesPriorityDTO(@NonNull SourcesPriority priority) {
         this.id = priority.getId();
         this.name = priority.getSource().getName();
         this.sourceId = priority.getSourceId();
@@ -34,6 +34,5 @@ public class SourcesPriorityDTO implements Comparable<SourcesPriorityDTO> {
     public int compareTo(SourcesPriorityDTO o) {
         return this.priority - o.priority;
     }
-
 
 }

@@ -40,7 +40,9 @@ public class PriorityManagementController {
             Set<Long> priSet = new TreeSet<>();
             Collections.reverse(newPriorities);
             for (Long sourceId : newPriorities) {
-                if (priSet.contains(sourceId)) continue;
+                if (priSet.contains(sourceId)) {
+                    continue;
+                }
                 priSet.add(sourceId);
 
                 Optional<Source> source = databaseService.getSourceRepository().findById(sourceId);
@@ -52,6 +54,7 @@ public class PriorityManagementController {
             }
         }
         Collections.reverse(priorities);
+
         return ResponseEntity.ok(priorities);
     }
 }

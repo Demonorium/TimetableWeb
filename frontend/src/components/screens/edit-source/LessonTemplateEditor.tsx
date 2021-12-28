@@ -25,7 +25,6 @@ import {Close} from "@material-ui/icons";
 import Selector from "../../modals/Selector";
 import TeacherListEditor from "./TeacherListEditor";
 
-
 export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>) {
     const user = useAppSelector(state => state.user);
     const maps = useAppSelector(state => state.sourceMap);
@@ -44,8 +43,9 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
 
     const handleChange = (prop: keyof LessonTemplate) => (event: React.ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value;
-        if (value.length > 50)
+        if (value.length > 50) {
             return;
+        }
 
         setState({ ...state,
             [prop]: value
@@ -66,6 +66,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
             });
             return item;
         },
+
         onPartUpdate: async (item) => {
             await axios.get("api/update/lessonTemplate", {
                 auth: user,
@@ -82,6 +83,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
 
             return state;
         },
+
         isPartChanged: (prev, next) => {
             const set = ['id', 'note', 'name', 'hours'];
             for (let i in set) {
@@ -93,6 +95,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
             }
             return !arrayEq(prev.defaultTeachers, next.defaultTeachers);
         },
+
         changeItem(item): void {
             if (item == undefined) {
                 setState(defaultState);
@@ -101,28 +104,34 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
             }
         },
 
-
         UI: (
             <Grid container spacing={2}>
+
                 <Grid item xs={12}>
                     <TextField fullWidth label="Название" value={state.name} onChange={handleChange("name")}/>
                 </Grid>
+
                 <Grid item xs={12}>
                     <TextField fullWidth label="Заметка" value={state.note} onChange={handleChange("note")}/>
                 </Grid>
+
                 <Grid item xs={6}>
                     <Typography variant="h5">Количество часов</Typography>
                 </Grid>
+
                 <Grid item xs={4}>
                     <TextField fullWidth value={state.hours} onChange = {handleChange("hours")}
                                type="number"/>
                 </Grid>
 
                 <Grid item xs={12}>
+
                     <Grid container>
+
                         <Grid item xs={8}>
                             <Typography variant="h5">Преподаватели</Typography>
                         </Grid>
+
                         <Grid item xs={4} sx={{textAlign:"right"}}>
                             <Button variant="outlined" onClick={() => {setOpen(true)}}>
                                 Добавить
@@ -133,6 +142,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
                     <Divider/>
 
                     <Paper elevation={2}>
+
                         <List sx={{maxHeight: "300px", minHeight: "300px", overflow: "hidden scroll"}}>
                             {state.defaultTeachers.map((itemId: number, index) => {
                                 const teacher = maps.teachers[itemId];
@@ -147,6 +157,7 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
                                             </IconButton>
                                         </Tooltip>
                                     }>
+
                                         <ListItemText primary={teacher.name + (teacher.position.length > 0 ? " (" + teacher.position + ")" : "")}
                                                       secondary={teacher.note}/>
                                     </ButtonWithFadeAction>
@@ -154,12 +165,15 @@ export default function LessonTemplateEditor(props: EditorProps<LessonTemplate>)
                             })}
                         </List>
                     </Paper>
+
                     <Divider/>
                 </Grid>
+
                 <Selector<Teacher> open={open} returnFunction={(teacher) => {
                     setState({...state, defaultTeachers: addElement(state.defaultTeachers, teacher != undefined ? teacher.id : undefined)});
                     setOpen(false);
                 }} exclude={(element) => containsElement(state.defaultTeachers, (i)=>i == element.id)}>
+
                     {(props: EditorProps<Teacher>) => <TeacherListEditor {...props}/>}
                 </Selector>
             </Grid>

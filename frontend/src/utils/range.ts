@@ -23,7 +23,6 @@ export default class RangeObject {
         this.size = size;
     }
 
-
     move(amount: number) {
         const range = new RangeObject(this.size, 0, this.first, this.last);
 

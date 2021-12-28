@@ -83,9 +83,6 @@ function NormalScreen(props: any) {
     );
 }
 
-
-
-
 //Класс приложения
 //Выбирает в каком режиме сейчас отображается приложение(загрузка, логин, регистрация, норм обработка, ошибка)
 export default function App() {
@@ -197,7 +194,7 @@ export default function App() {
         case GlobalState.CRUSH:
             return <CrushScreen/>
         case GlobalState.LOGOUT:
-            return <LoginOrRegister open={true} isRegister={false} />
+            return <LoginOrRegister open isRegister/>
     }
 
     return (

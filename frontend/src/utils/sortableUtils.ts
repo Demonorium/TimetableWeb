@@ -1,6 +1,5 @@
 import {ItemInterface} from "react-sortablejs";
 
-
 export class SortableItem<T> implements ItemInterface{
     id: string;
 
@@ -63,8 +62,6 @@ export default class SortableArray<T> {
             this.onItemUpdate(item.object, newIndex);
         }
     }
-
-
 
     getSetter() {
         return (array: Array<SortableItem<T>>) => {
@@ -129,8 +126,9 @@ export default class SortableArray<T> {
     }
 
     render(): any {
-        if (this.onRender != undefined)
+        if (this.onRender != undefined) {
             return this.array.map(this.onRender);
+        }
 
         return undefined;
     }

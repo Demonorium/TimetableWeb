@@ -73,14 +73,22 @@ export default function SourceTitle({sourceOrigin}: SourceTitleProps) {
 
     return (
         <Grid container spacing={2} sx={{marginTop: "0"}}>
+
             <Grid item xs={12}>
-                <Typography variant="h6">Редактирование источника</Typography>
+                <Typography variant="h5"
+                            sx={{paddingTop: "0px", paddingBottom: "16px", paddingLeft:"16px"}}>
+                    Редактирование источника
+                </Typography>
+
+                <Divider/>
             </Grid>
 
             <Grid item xs={12}>
                 <TextField fullWidth label="Название источника" value={source.name} onChange={handleInput}/>
             </Grid>
+
             <Grid item xs={6}>
+
                 <DatePicker
                     label="Дата начала занятий"
                     views={['year', 'month', 'day']}
@@ -96,7 +104,9 @@ export default function SourceTitle({sourceOrigin}: SourceTitleProps) {
                     renderInput={(params) => <TextField {...params} fullWidth/>}
                 />
             </Grid>
+
             <Grid item xs={6}>
+
                 <DatePicker
                     label="Дата окончания занятий"
                     views={['year', 'month', 'day']}
@@ -119,8 +129,11 @@ export default function SourceTitle({sourceOrigin}: SourceTitleProps) {
             </Grid>
 
             <Grid item xs={12}>
+
                 <Container maxWidth="xs" sx={{textAlign:"center"}}>
+
                     <InputLabel id="select-week-label">Номер первой недели</InputLabel>
+
                     <Select
                         id="select-week"
                         labelId="select-week-label"
@@ -132,18 +145,21 @@ export default function SourceTitle({sourceOrigin}: SourceTitleProps) {
                             }));
                         }}
                         fullWidth
-                        disabled={source.weeks.length < 2}
-                    >
+                        disabled={source.weeks.length < 2}>
+
                         {source.weeks.length < 2 ? <MenuItem value={source.startWeek}>1</MenuItem>: source.weeks.map((value: Week, index: number) =>  <MenuItem value={value.number}>{index+1}</MenuItem>)}
                     </Select>
                 </Container>
             </Grid>
+
             <Grid item xs={12}>
+
                 <Container maxWidth="xs" sx={{textAlign:"center"}}>
                     <Button variant="outlined" onClick={() => setScheduleEditor(true)}>
                         Редактировать расписание звонков
                     </Button>
                 </Container>
+
                 <ScheduleEditor rights={source.rights != Rights.READ ? Rights.OWNER : Rights.READ} onAccept={(schedule) => {
                     setSource({
                         ...source,
@@ -157,8 +173,11 @@ export default function SourceTitle({sourceOrigin}: SourceTitleProps) {
                                 open={scheduleEditor}/>
 
             </Grid>
+
             <Grid item xs={12}>
+
                 <Divider/>
+
                 <DialogActions>
                     <LoadingButton loading={loading} onClick={saveSource}>
                         Сохранить

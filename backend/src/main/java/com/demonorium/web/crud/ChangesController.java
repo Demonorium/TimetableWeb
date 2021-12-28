@@ -23,14 +23,14 @@ public class ChangesController {
     private WebUtils webUtils;
 
     @GetMapping("/api/find/changes")
-    ResponseEntity<Map<Long, ArrayList<ChangesDTO>>> findChanges(HttpServletRequest request,
+    ResponseEntity<Map<Long, List<ChangesDTO>>> findChanges(HttpServletRequest request,
                                                                  @RequestParam(name = "startDate") Long startDate,
                                                                  @RequestParam(name = "endDate") Long endDate) {
         User user = webUtils.getUser(request);
-        ArrayList<SourcesPriority> priorities = new ArrayList<>(user.getPriorities());
+        List<SourcesPriority> priorities = new ArrayList<>(user.getPriorities());
         priorities.sort(Collections.reverseOrder());
 
-        Map<Long, ArrayList<ChangesDTO>> map = new TreeMap<>();
+        Map<Long, List<ChangesDTO>> map = new TreeMap<>();
 
         for (SourcesPriority priority : priorities) {
             if (webUtils.hasAccess(request, priority.getSource(), Rights.READ)) {
@@ -63,7 +63,6 @@ public class ChangesController {
                 return ResponseEntity.unprocessableEntity().build();
             }
 
-
             Day day = new Day(source.get());
             day = databaseService.getDayRepository().save(day);
 
@@ -72,7 +71,6 @@ public class ChangesController {
 
             return ResponseEntity.ok(new ChangesDTO(changes, -1));
         }
-
 
         return ResponseEntity.unprocessableEntity().build();
     }

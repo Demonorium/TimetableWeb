@@ -59,8 +59,13 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public boolean hasAccess(User user, Source source, Rights rights) {
-        if ((user == null) || (source == null) || (rights == null)) return false;
-        if (source.getOwner().equals(user)) return true;
+        if ((user == null) || (source == null) || (rights == null)) {
+            return false;
+        }
+
+        if (source.getOwner().equals(user)) {
+            return true;
+        }
 
         Optional<AccessToken> access = tokenRepository.findByUserAndReference_Source(user, source);
 

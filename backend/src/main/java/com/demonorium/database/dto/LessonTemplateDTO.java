@@ -1,10 +1,12 @@
 package com.demonorium.database.dto;
 
 import com.demonorium.database.entity.LessonTemplate;
+import com.demonorium.database.entity.Teacher;
 import lombok.Data;
+import lombok.NonNull;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class LessonTemplateDTO {
@@ -23,18 +25,19 @@ public class LessonTemplateDTO {
     /**
      * Список преподавателей
      */
-    private Set<Long> defaultTeachers;
+    private List<Long> defaultTeachers;
 
     /**
      * Количество часов отведённых на предмет
      */
     private int hours;
 
-    public LessonTemplateDTO(LessonTemplate template) {
+    public LessonTemplateDTO(@NonNull LessonTemplate template) {
         this.id = template.getId();
         this.name = template.getName();
         this.note = template.getNote();
-        this.defaultTeachers = new HashSet<>();
-        template.getDefaultTeachers().forEach(teacher -> defaultTeachers.add(teacher.getId()));
+        this.defaultTeachers = template.getDefaultTeachers().stream()
+                .map(Teacher::getId)
+                .collect(Collectors.toList());
     }
 }

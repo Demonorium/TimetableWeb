@@ -9,7 +9,8 @@ import {
     IconButton,
     InputAdornment,
     Modal,
-    TextField, Typography
+    TextField,
+    Typography
 } from "@mui/material";
 import {Visibility, VisibilityOff} from "@material-ui/icons";
 import axios from "axios";
@@ -44,7 +45,6 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
     const [isRegister, setRegister] = useState(props.isRegister);
     const [isAwait, setAwait] = useState(false);
     const [remember, setRemember] = useState(false);
-
 
     const [formState, setFormState] = useState<State>({
         name: '',
@@ -159,7 +159,6 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
             {formState.showPassword ? <VisibilityOff /> : <Visibility />}
         </IconButton>
     </InputAdornment>;
-
 
     return (
         <Modal

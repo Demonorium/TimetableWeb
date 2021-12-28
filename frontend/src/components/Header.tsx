@@ -22,7 +22,6 @@ export default function Header({headerRef, serviceName}: HeaderProps) {
 
     const [profEdit, setProfEdit] = useState(false);
 
-
     const handleCloseNavMenu = () => {
         setAnchorElUser(null);
     };
@@ -40,6 +39,7 @@ export default function Header({headerRef, serviceName}: HeaderProps) {
                 vertical: 'top',
                 horizontal: 'right',
             }}
+
             aria-expanded={open ? 'true' : undefined}
             transformOrigin={{
                 vertical: 'top',
@@ -54,7 +54,9 @@ export default function Header({headerRef, serviceName}: HeaderProps) {
             }}>
                 <Typography textAlign="center">Настройки профиля</Typography>
             </MenuItem>
+
             <Divider/>
+
             <MenuItem onClick={() => {
                 dispatch(logoutUser());
                 dispatch(setAppState(GlobalState.LOADING));
@@ -62,6 +64,7 @@ export default function Header({headerRef, serviceName}: HeaderProps) {
 
                 handleCloseNavMenu();
             }}>
+
                 <Typography textAlign="center" color="error">Выйти</Typography>
             </MenuItem>
         </Menu>

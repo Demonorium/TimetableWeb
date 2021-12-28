@@ -59,7 +59,7 @@ public class UserAuthController {
         if (user != null) {
             if (authentication.changePassword(user.getUsername(), password, newPassword)) {
                 return ResponseEntity.ok("success");
-            };
+            }
 
             return ResponseEntity.badRequest().body("Error during changing");
         }
@@ -75,6 +75,7 @@ public class UserAuthController {
             if (authentication.removeUser(user.getUsername(), password)) {
                 ResponseEntity.ok("success");
             }
+
             return ResponseEntity.badRequest().body("Error during deleting");
         }
 

@@ -2,7 +2,6 @@ import {ChangesInfo, compareEntity, Day, Entity, LessonTemplate, Note, Place, So
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {addElement, findElement, removeElement, removeElementComp, updateElement} from "../utils/arrayUtils";
 
-
 export interface InternalRepresentationState {
     sources: {[key: number]: Source};
 
@@ -13,7 +12,6 @@ export interface InternalRepresentationState {
     days: {[key: number]: Day};
     notes: {[key: number]: Note};
 }
-
 
 const initialState: InternalRepresentationState = {
     sources: {},
@@ -105,14 +103,17 @@ export const sourcesMapSlice = createSlice({
                 state[key] = {}
             }
         },
+
         updateSource: (state, action: PayloadAction<Source>) => {
             update(state, action.payload);
         },
+
         setSources: (state, action: PayloadAction<Array<Source>>) => {
             for (let i = 0; i < action.payload.length; ++i) {
                 update(state, action.payload[i]);
             }
         },
+
         removeSource: (state, action: PayloadAction<number>) => {
             const source = state.sources[action.payload]
             if (source) {
@@ -198,7 +199,6 @@ export const sourcesMapSlice = createSlice({
                     )
                 }
             }
-
         }
     },
 });

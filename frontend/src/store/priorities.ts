@@ -1,7 +1,6 @@
 import {SourcePriority} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
-
 export interface PrioritiesState {
     list?: Array<SourcePriority>;
 }

@@ -1,9 +1,12 @@
 package com.demonorium.database.dto;
 
 import com.demonorium.database.entity.Lesson;
+import com.demonorium.database.entity.Teacher;
 import lombok.Data;
+import lombok.NonNull;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class LessonDTO implements Comparable<LessonDTO> {
@@ -30,15 +33,16 @@ public class LessonDTO implements Comparable<LessonDTO> {
     /**
      * Список всех учителей проводящих занятие, перекрывает список из template
      */
-    private ArrayList<Long> teachers;
+    private List<Long> teachers;
 
-    public LessonDTO(Lesson lesson) {
+    public LessonDTO(@NonNull Lesson lesson) {
         this.id = lesson.getId();
         this.template = lesson.getTemplate().getId();
         this.place = lesson.getPlace().getId();
         this.number = lesson.getNumber();
-        this.teachers = new ArrayList<>();
-        lesson.getTeachers().forEach(teacher -> teachers.add(teacher.getId()));
+        this.teachers = lesson.getTeachers().stream()
+                .map(Teacher::getId)
+                .collect(Collectors.toList());
     }
 
     @Override

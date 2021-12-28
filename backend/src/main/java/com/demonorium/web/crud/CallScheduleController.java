@@ -65,6 +65,7 @@ public class CallScheduleController {
 
         return ResponseEntity.unprocessableEntity().build();
     }
+
     @GetMapping("/api/delete/call")
     ResponseEntity<String> deleteCall(HttpServletRequest request, @RequestParam(name="id") Long id) {
         Optional<CallPair> callPair = databaseService.getCallPairRepository().findById(id);

@@ -10,7 +10,6 @@ import DayScheduleEditor from "./DayScheduleEditor";
 import {addElement, findElement} from "../../../utils/arrayUtils";
 import {LoadingButton} from "@mui/lab";
 
-
 interface WeekListProps {
     source: Source;
     week: number;
@@ -96,7 +95,6 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
 
     const [btLoading, setBTLoading] = useState(false);
 
-
     const selectedWeek: Week = map.weeks[week];
 
     let item: Day | undefined = undefined;
@@ -161,17 +159,18 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
 
     }
 
-
-
     return (
         <Grid container spacing={2} sx={{marginTop:"0"}}>
-            {/*Первая строка*/}
+
             <Grid item xs={12}>
+
                 <ListItem secondaryAction={
                     <Stack direction="row" spacing={1}>
+
                         <LoadingButton loading={btLoading} variant="outlined" onClick={createWeek}>
                             Создать
                         </LoadingButton>
+
                         <LoadingButton loading={btLoading}
                                        color="error" variant="outlined"
                                        disabled={selectedWeek == undefined} onClick={delWeek}>
@@ -179,21 +178,30 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
                         </LoadingButton>
                     </Stack>
 
-                } sx={{padding: "0"}}>
+                } sx={{paddingTop: "16px", paddingLeft: "0", paddingBottom: "16px", paddingRight: "0"}}>
                     <Typography variant="h5">Неделя</Typography>
                 </ListItem>
+
                 <WeekList source={source} week={week} setWeek={setWeek}/>
             </Grid>
+
             <Grid item xs={12}>
-                <Typography variant="h5">День недели</Typography>
+
+                <Typography variant="h5"
+                            sx={{paddingTop: "16px", paddingLeft: "0", paddingBottom: "16px", paddingRight: "0"}}>
+                    День недели
+                </Typography>
+
                 <Divider/>
+
                 <DayList day={day} setDay={setDay} week={selectedWeek}/>
+
                 <Divider/>
             </Grid>
 
             <Grid item xs={12}>
                 {
-                    selectedWeek && (day >= 0) ?
+                    (selectedWeek && (day >= 0)) &&
                         <DayScheduleEditor
                             source={source}
                             day={item}
@@ -212,6 +220,7 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
                                         source: source.id,
                                         lessons: new Array<Lesson>()
                                     }}));
+
                                 dispatch(changeWeek({source: source.id, item: {
                                             ...selectedWeek,
                                             days: addElement(selectedWeek.days, data)
@@ -222,7 +231,6 @@ export default function WeekListEditor({source} : WeekListEditorProps) {
                                 return data.day;
                             }}
                             onReset={resetDay}/>
-                        : undefined
                 }
             </Grid>
 

@@ -100,7 +100,6 @@ export function addElement<T>(array: Array<T>, element?: T, index?: number) {
         return newArray;
     }
 
-
     if ((index == undefined) || (index >= array.length)) {
         return _addElement(array, element);
     } else {

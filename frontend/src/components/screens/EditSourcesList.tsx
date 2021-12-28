@@ -32,7 +32,6 @@ import {removeSource, updateSource} from "../../store/sourceMap";
 import ShareDialog from "../modals/ShareDialog";
 import ImportDialog from "../modals/ImportDialog";
 
-
 interface SourceRepresentProps {
     source: SourcePriority;
     openDeleteDialog: (id: number) => void;
@@ -46,10 +45,9 @@ function SourceRepresent(props: SourceRepresentProps) {
 
     const dispatch = useAppDispatch();
 
-    if (source == null)
+    if (source == null) {
         return <div/>;
-
-
+    }
 
     return (
         <ButtonWithFadeAction toKey={props.source.sourceId}
@@ -81,15 +79,16 @@ function SourceRepresent(props: SourceRepresentProps) {
                               }}
                               actions={
             <Stack direction="row" spacing={2}>
-                <IconButton onClick={() => props.openShareDialog(props.source.sourceId)}>
-                    <Link />
-                </IconButton>
                 {
-                    source.rights == "OWNER" ?
+                    (source.rights == "OWNER") && <>
+                        <IconButton onClick={() => props.openShareDialog(props.source.sourceId)}>
+                            <Link />
+                        </IconButton>
+
                         <IconButton onClick={()=>{props.openDeleteDialog(props.source.sourceId)}}>
                             <Delete/>
                         </IconButton>
-                        : undefined
+                    </>
                 }
 
             </Stack>
@@ -102,7 +101,6 @@ function SourceRepresent(props: SourceRepresentProps) {
 export function EditSourcesList(props: ScreenInterface) {
     const priorities = useAppSelector(state => state.priorities.list);
     const sources = useAppSelector(state => state.sourceMap.sources);
-
 
     const user = useAppSelector(state => state.user);
     const [update, setUpdate] = useState(true);
@@ -160,7 +158,6 @@ export function EditSourcesList(props: ScreenInterface) {
                                 openShareDialog={setShare}/>
     };
 
-
     const activeArray = new SortableArray<SourcePriority>("active", "priority", priorities);
     activeArray.onArrayUpdate = array => {
         setLoading(true);
@@ -176,7 +173,6 @@ export function EditSourcesList(props: ScreenInterface) {
             setLoading(false);
         });
     }
-
 
     activeArray.onFieldUpdate = (old, id) => activeArray.array.length - id;
     activeArray.onRender = renderItem;
@@ -208,7 +204,6 @@ export function EditSourcesList(props: ScreenInterface) {
 
     freeArray.onFieldUpdate = (old, id) => old;
     freeArray.onRender = renderItem;
-
 
     const createSource = () => {
         const date = dayjs();
@@ -246,29 +241,36 @@ export function EditSourcesList(props: ScreenInterface) {
 
     const shareSource = sources[toShare];
 
-
     return (
         <TripleGrid leftMenu={props.menu} fill={true}>
+
             <Paper color="main" sx={{paddingLeft: "16px", paddingRight: "16px", paddingBottom: "0px", marginTop: "32px"}}>
+
                 <Grid container spacing={2}>
+
                     <Grid item xs={6}>
                         <Typography variant="h6">
                             Текущие источники
                         </Typography>
                     </Grid>
+
                     <Grid item xs={6}>
+
                         <ListItem
                             secondaryAction={
-                                <Stack direction="row">
+                                <Stack direction="row" spacing={1}>
+
                                     <Button variant="outlined" onClick={()=>setImportDialog(true)}>
                                         Импорт
                                     </Button>
+
                                     <Button variant="outlined" onClick={createSource}>
                                         Создать
                                     </Button>
                                 </Stack>
 
                             }>
+
                             <Typography variant="h6">
                                 Доступные источники
                             </Typography>
@@ -276,22 +278,35 @@ export function EditSourcesList(props: ScreenInterface) {
                     </Grid>
 
                     <Grid item xs={6} sx={{paddingTop: "0!important"}}>
+
                         <Divider />
+
                         {
                             loading ? <CircularProgress /> :
                                 <List sx={{height: "100%"}}>
-                                    <ReactSortable style={{height: "100%"}} group="sources-list" list={activeArray.array} setList={activeArray.getSetter()}>
+                                    <ReactSortable style={{height: "100%"}}
+                                                   group="sources-list"
+                                                   list={activeArray.array}
+                                                   setList={activeArray.getSetter()}>
+
                                         {activeArray.render()}
                                     </ReactSortable>
                                 </List>
                         }
                     </Grid>
+
                     <Grid item xs={6} sx={{paddingTop: "0!important"}}>
+
                         <Divider />
+
                         {
                             loading ? <CircularProgress /> :
                                 <List sx={{height: "100%"}}>
-                                    <ReactSortable style={{height: "100%"}} group="sources-list" list={freeArray.array} setList={freeArray.getSetter()}>
+                                    <ReactSortable style={{height: "100%"}}
+                                                   group="sources-list"
+                                                   list={freeArray.array}
+                                                   setList={freeArray.getSetter()}>
+
                                         {freeArray.render()}
                                     </ReactSortable>
                                 </List>
@@ -299,13 +314,12 @@ export function EditSourcesList(props: ScreenInterface) {
                     </Grid>
                 </Grid>
             </Paper>
-            {shareSource
-                ? <ShareDialog open={toShare >= 0} close={() => setShare(-1)} source={shareSource}/>
-                :undefined
-            }
+
+            {shareSource && <ShareDialog open={toShare >= 0} close={() => setShare(-1)} source={shareSource}/>}
+
             <YouSureDialog open={toDelete >= 0} close={() => setDelete(-1)} accept={deleteSource}/>
+
             <ImportDialog open={importDialog} close={()=>setImportDialog(false)}/>
         </TripleGrid>
     );
-
 }

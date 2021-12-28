@@ -70,10 +70,11 @@ public class LessonTemplateController {
         }
 
         if (webUtils.hasAccess(request, template, Rights.UPDATE)) {
-            template.get().setName(name);
-            template.get().setHours(hours);
-            template.get().setNote(note);
+            LessonTemplate current = template.get();
 
+            current.setName(name);
+            current.setHours(hours);
+            current.setNote(note);
 
             Set<Teacher> toRemove = new HashSet<>();
 
@@ -81,7 +82,7 @@ public class LessonTemplateController {
                 TreeSet<Long> set = new TreeSet<>(teachers);
 
 
-                for (Teacher teacher : template.get().getDefaultTeachers()) {
+                for (Teacher teacher : current.getDefaultTeachers()) {
                     if (!set.contains(teacher.getId())) {
                         toRemove.add(teacher);
                     } else {
@@ -90,21 +91,22 @@ public class LessonTemplateController {
                 }
 
                 for (Teacher teacher : toRemove)
-                    template.get().removeTeacher(teacher);
+                    current.removeTeacher(teacher);
 
                 for (Long teacherId : set) {
                     Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(teacherId);
                     if (teacher.isPresent() && webUtils.hasAccess(request, teacher, Rights.READ)) {
-                        template.get().addTeacher(teacher.get());
+                        current.addTeacher(teacher.get());
                     }
                 }
             } else {
-                toRemove.addAll(template.get().getDefaultTeachers());
-                for (Teacher teacher : toRemove)
-                    template.get().removeTeacher(teacher);
+                toRemove.addAll(current.getDefaultTeachers());
+                for (Teacher teacher : toRemove) {
+                    current.removeTeacher(teacher);
+                }
             }
 
-            databaseService.getLessonTemplateRepository().save(template.get());
+            databaseService.getLessonTemplateRepository().save(current);
 
             return ResponseEntity.ok("success");
         }

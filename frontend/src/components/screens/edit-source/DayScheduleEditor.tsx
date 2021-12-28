@@ -45,7 +45,6 @@ import {changeDay} from "../../../store/sourceMap";
 import ScheduleEditor from "../../modals/ScheduleEditor";
 import axios from "axios";
 
-
 interface LessonEditorProps {
     open: boolean;
     item?: Lesson;
@@ -100,6 +99,7 @@ function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
         async onPartCreate(item: Lesson) {
             return item;
         },
+
         async onPartUpdate(item: Lesson) {
             return item;
         },
@@ -107,6 +107,7 @@ function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
         UI: (
             <Grid container spacing={2}>
                 <Grid item xs={6}>
+
                     <SelectField<LessonTemplate>
                         label="Предмет"
                         valueToString={(template) => template ? template.name : undefined}
@@ -115,11 +116,12 @@ function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
                             if (value != undefined) {
                                 setState({...state, template: value.id});
                             }
-                        }}
-                    >
+                        }}>
+
                         {(item) => <LessonTemplateEditor {...item}/>}
                     </SelectField>
                 </Grid>
+
                 <Grid item xs={6}>
                     <SelectField<Place>
                         label="Место проведения"
@@ -129,16 +131,19 @@ function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
                             if (value != undefined) {
                                 setState({...state, place: value.id});
                             }
-                        }}
-                    >
+                        }}>
+
                         {(item) => <PlaceListEditor {...item}/>}
                     </SelectField>
                 </Grid>
+
                 <Grid item xs={12}>
                     <Grid container>
+
                         <Grid item xs={8}>
                             <Typography variant="h5">Преподаватели</Typography>
                         </Grid>
+
                         <Grid item xs={4} sx={{textAlign:"right"}}>
                             <Button variant="outlined" onClick={() => {setTeacherSelector(true)}}>
                                 Добавить
@@ -150,11 +155,13 @@ function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
 
                     <Paper elevation={2}>
                         <List sx={{maxHeight: "300px", minHeight: "300px", overflow: "hidden scroll"}}>
+
                             {state.teachers.map((itemId: number, index) => {
                                 const teacher = maps.teachers[itemId];
 
                                 return (<ButtonWithFadeAction actions={
                                         <Tooltip title="Удалить" arrow>
+
                                             <IconButton
                                                 onClick={() => setState(state => {
                                                     return {...state, teachers: removeElement(state.teachers, itemId, (o1, o2)=>o1==o2)}
@@ -163,6 +170,7 @@ function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
                                             </IconButton>
                                         </Tooltip>
                                     }>
+
                                         <ListItemText primary={teacher.name + (teacher.position.length > 0 ? " (" + teacher.position + ")" : "")}
                                                       secondary={teacher.note}/>
                                     </ButtonWithFadeAction>
@@ -170,12 +178,14 @@ function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
                             })}
                         </List>
                     </Paper>
+
                     <Divider/>
                 </Grid>
                 <Selector<Teacher> open={teacherSelector} returnFunction={(teacher) => {
                     setState({...state, teachers: addElement(state.teachers, teacher != undefined ? teacher.id : undefined)});
                     setTeacherSelector(false);
                 }} exclude={(element) => containsElement(state.teachers, (i)=>i == element.id)}>
+
                     {(props: EditorProps<Teacher>) => <TeacherListEditor {...props}/>}
                 </Selector>
             </Grid>
@@ -198,7 +208,6 @@ function LessonEditor({open, item, rights, requestClose}: LessonEditorProps) {
             />
 }
 
-
 interface TempDayRep {
     schedule: Array<ScheduleElement>;
     lessons: Array<Array<Lesson>>;
@@ -220,8 +229,9 @@ export function buildDayRep(source: Source, day?: Day): TempDayRep {
                 lessons.push(new Array<Lesson>());
             }
 
-            if (schedule.length % 2 == 0)
+            if (schedule.length % 2 == 0) {
                 lessons.push(new Array<Lesson>());
+            }
         } else {
             lessons.push(new Array<Lesson>());
         }
@@ -253,8 +263,9 @@ export function buildDayRep(source: Source, day?: Day): TempDayRep {
             lessons.push(new Array<Lesson>());
         }
 
-        if (schedule.length % 2 == 0)
+        if (schedule.length % 2 == 0) {
             lessons.push(new Array<Lesson>());
+        }
     } else {
         lessons.push(new Array<Lesson>());
     }
@@ -267,8 +278,6 @@ export function buildDayRep(source: Source, day?: Day): TempDayRep {
         updateCount: 0
     }
 }
-
-
 
 export function buildDay(source: Source, dayId: number, rep: TempDayRep): Day {
     const lessons = new Array<Lesson>();
@@ -301,17 +310,14 @@ interface DayScheduleEditorProps {
     source: Source;
     createDay: () => Promise<number>;
 
-
     index: number;
     onCancel?: () => void;
     onReset?: (state: TempDayRep , setState: (day: TempDayRep ) => void) => void;
     onAccept?: (day: Day) => void;
 }
 
-
 export default function DayScheduleEditor({day, source, createDay, index, onCancel, onReset, onAccept}: DayScheduleEditorProps) {
     const maps = useAppSelector(state => state.sourceMap);
-    const map = useAppSelector(state => state.sourceMap);
     const user = useAppSelector(state => state.user);
 
     const dispatch = useAppDispatch();
@@ -349,6 +355,7 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                 lesson.id = response.data;
             });
         }));
+
         list.push(
             axios.get("api/part-update/day/timetable", {
                 auth: user,
@@ -372,7 +379,6 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                 }
             }
 
-
             await axios.get("api/part-update/day/lessonsOrder", {
                 auth: user,
                 params: {
@@ -382,11 +388,11 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
             });
         }
 
-
         const resultDay: Day = {
             ...editDay,
             id: editDay.id
         };
+
         dispatch(changeDay({source: source.id, item: resultDay}));
 
         return resultDay;
@@ -423,12 +429,14 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
         return (
             <ButtonWithFadeAction actions={
                 <Stack direction="row">
+
                     <IconButton onClick={() => {
                         setEditLesson(true);
                         setLessonToEdit(lesson);
                     }}>
                         <EditIcon />
                     </IconButton>
+
                     <IconButton onClick={()=>{
                         for (let i = 0; i < state.lessons.length; ++i ) {
                             if (containsElement<Lesson>(state.lessons[i], (e) => e.id == lesson.id)) {
@@ -445,6 +453,7 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                     </IconButton>
                 </Stack>
             }>
+
                 <ListItemText primary={template.name} secondary={place.auditory + " / " + place.building}/>
             </ButtonWithFadeAction>
         );
@@ -474,15 +483,18 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                 }
                 setLessonToEdit(undefined);
             }}/>
+
             <Grid container>
                 <Grid item xs={8}>
                     <Typography variant="h5">Уроки</Typography>
                 </Grid>
+
                 <Grid item xs={4} sx={{textAlign:"right"}}>
                     <Button variant="outlined" onClick={() => {setLessonToEdit(undefined); setEditLesson(true); }}>
                         Добавить
                     </Button>
                 </Grid>
+
             </Grid>
 
             <Divider/>
@@ -495,44 +507,51 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                                 <Stack direction="row"
                                        divider={<Divider orientation="vertical" flexItem />}
                                        sx={{width:"100%"}}>
+
                                     <Typography sx={{minWidth:"6em", textAlign:"center"}}>{
                                         index*2 < state.schedule.length ?
                                             printScheduleElement(state.schedule[index*2])
                                             : "После"
                                     }</Typography>
+
                                     <Divider orientation="vertical"/>
-                                    <List
-                                        sx={{minHeight: "60px", height: "100%", width:"100%"}}>
+
+                                    <List sx={{minHeight: "60px", height: "100%", width:"100%"}}>
+
                                         <ReactSortable
                                             style={{height: "100%"}}
                                             id={"lesson-cell-"+index}
                                             group="lessons"
                                             list={getList(index)}
                                             setList={setList(index)}>
+
                                             {list.map(renderLesson)}
                                         </ReactSortable>
                                     </List>
+
                                     <Divider orientation="vertical"/>
+
                                     <Typography sx={{minWidth:"6em", textAlign:"center"}}>{
                                         (index*2+1) < state.schedule.length ?
                                             printScheduleElement(state.schedule[index*2+1])
                                             : "    "
                                     }</Typography>
+
                                 </Stack>
+
                                 <Divider />
                             </>
 
                         );
                     })
                 }
-
             </Paper>
+
             {
-                twoElements ?
+                twoElements &&
                     <Typography sx={{paddingTop: "10px"}} color="error">
                         Два урока проходят в одно время
                     </Typography>
-                    :undefined
             }
 
             <Container sx={{textAlign: "center", paddingTop: "10px", paddingBottom: "10px"}}>
@@ -540,7 +559,9 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                     Редактировать расписание звонков
                 </Button>
             </Container>
-            <ScheduleEditor rights={source.rights != Rights.READ ? Rights.OWNER : Rights.READ} onAccept={(schedule) => {
+
+            <ScheduleEditor rights={source.rights != Rights.READ ? Rights.OWNER : Rights.READ}
+                            onAccept={(schedule) => {
                 const day = buildDay(source, -1, {
                     ...state,
                     schedule: schedule,
@@ -553,16 +574,19 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                             onCancel={() => setScheduleEditor(false)}
                             schedule={state.schedule}
                             open={scheduleEditor}/>
+
             <Divider/>
+
             <DialogActions>
                 {
-                    onCancel ?
+                    onCancel &&
                         <Button onClick={onCancel}>
                             Отмена
-                        </Button> : undefined
+                        </Button>
                 }
+
                 {
-                    onReset ?
+                    onReset &&
                         <Button onClick={() => {
                             if (onReset)
                                 onReset(state, setState);
@@ -571,10 +595,11 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
 
                         }}>
                             Сбросить изменения
-                        </Button> : undefined
+                        </Button>
                 }
+
                 {
-                    (source.rights == Rights.READ_UPDATE) || (source.rights == Rights.OWNER) ?
+                    ((source.rights == Rights.READ_UPDATE) || (source.rights == Rights.OWNER)) &&
                         <LoadingButton loading={loading}
                                        disabled={twoElements}
                                        onClick={() => {
@@ -605,9 +630,7 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
                                        }}>
                             Сохранить
                         </LoadingButton>
-                        : undefined
                 }
-
 
             </DialogActions>
         </>

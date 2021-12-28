@@ -46,6 +46,7 @@ export default function LeftMenu({ menu}: EditTargetMenuProps) {
           {menu.map((key: TargetScreen, index: number) =>
               <ListItemButton onClick={() => dispatch(setScreen({name:key.id}))} key={index} selected={key.id == screen.name}>{key.data}</ListItemButton>
           )}
+
           {
               ((editorList.length == 0) || (sources == undefined)) ? undefined : (
                   <>
@@ -60,8 +61,10 @@ export default function LeftMenu({ menu}: EditTargetMenuProps) {
                         return (
                             <ButtonWithFadeAction actions={
                                 <Tooltip title="Закрыть">
+
                                     <IconButton onClick={() => {
                                         dispatch(removeEditorTab(item));
+
                                         dispatch(closeScreens({screen: item, comparator: (s1, s2) => {
                                             if (s1.name == s2.name) {
                                                 if (s1.params == s2.params)
@@ -79,6 +82,7 @@ export default function LeftMenu({ menu}: EditTargetMenuProps) {
                                     </IconButton>
                                 </Tooltip>
                             } onClick={() => dispatch(setScreen(item))} selected={screen.params == undefined? false : screen.params['sourceId'] == params.sourceId}>
+
                                 {value.name}
                             </ButtonWithFadeAction>
                         );

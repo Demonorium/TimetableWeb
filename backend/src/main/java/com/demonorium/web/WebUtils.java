@@ -24,18 +24,24 @@ public class WebUtils {
     public  <T extends PartOfSource> boolean hasAccess(HttpServletRequest request, Optional<T> partOfSource, Rights rights) {
         return databaseService.hasAccess(getUser(request), partOfSource.get(), rights);
     }
+
     public boolean hasAccess(HttpServletRequest request, PartOfSource partOfSource, Rights rights) {
         return databaseService.hasAccess(getUser(request), partOfSource, rights);
     }
+
     public boolean hasAccess(HttpServletRequest request, Source source, Rights rights) {
         return databaseService.hasAccess(getUser(request), source, rights);
     }
 
     public User getUser(HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
-        if (principal == null)
+
+        if (principal == null) {
             return null;
+        }
+
         Optional<User> user = userRepository.findByUsername(principal.getName());
+
         return user.orElse(null);
     }
 }

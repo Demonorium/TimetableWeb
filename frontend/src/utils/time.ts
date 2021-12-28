@@ -43,7 +43,6 @@ export const OFFSET_NAMES: {[key: string]: string} = {
     '2': "послезавтра",
 };
 
-
 export function nameOffset(index: number) {
     const str = index.toString();
 
@@ -69,3 +68,9 @@ export function nameOffset(index: number) {
     }
 }
 
+export function timeToStr(m: number) {
+    if (m < 10) {
+        return '0' + m
+    }
+    return m.toString();
+}

@@ -21,7 +21,6 @@ public class DayController {
     @Autowired
     private WebUtils webUtils;
 
-
     @GetMapping("/api/part-update/day/timetable")
     ResponseEntity<String> partUpdateDayTimetable(HttpServletRequest request,
                                                   @RequestParam(name="id") Long id,
@@ -45,8 +44,9 @@ public class DayController {
             }
 
             if (sc != null) {
-                for (CallPair pair: sc.getSchedule())
+                for (CallPair pair: sc.getSchedule()) {
                     databaseService.getCallPairRepository().delete(pair);
+                }
 
                 if (schedule != null) {
                     for (Integer time : schedule) {
@@ -60,7 +60,6 @@ public class DayController {
 
             return ResponseEntity.ok("success");
         }
-
 
         return ResponseEntity.unprocessableEntity().build();
     }
@@ -138,6 +137,7 @@ public class DayController {
                 }
                 lesson.get().setPlace(place.get());
             }
+
             {
                 Optional<LessonTemplate> template = databaseService.getLessonTemplateRepository().findById(templateId);
                 if (!template.isPresent()) {
@@ -162,8 +162,9 @@ public class DayController {
                     }
                 }
 
-                for (Teacher teacher : toRemove)
+                for (Teacher teacher : toRemove) {
                     lesson.get().removeTeacher(teacher);
+                }
 
                 for (Long teacherId : set) {
                     Optional<Teacher> teacher = databaseService.getTeacherRepository().findById(teacherId);
@@ -173,8 +174,9 @@ public class DayController {
                 }
             } else {
                 toRemove.addAll(lesson.get().getTeachers());
-                for (Teacher teacher : toRemove)
+                for (Teacher teacher : toRemove) {
                     lesson.get().removeTeacher(teacher);
+                }
             }
 
             databaseService.getLessonRepository().save(lesson.get());
@@ -233,7 +235,4 @@ public class DayController {
 
         return ResponseEntity.unprocessableEntity().build();
     }
-
-
-
 }

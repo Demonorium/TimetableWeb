@@ -14,9 +14,11 @@ export default function ErrorDialog({reload}: ErrorDialogProps) {
             <DialogTitle sx={{ m: 0, p: 2, color: "#AA0000"}}>
                 Произошла неизвестная ошибка!
             </DialogTitle>
+
             <DialogContent dividers>
                 Сервер не отвечает на запросы, попробуйте переподключиться позже.
             </DialogContent>
+
             <DialogActions sx={{textAlign:"center", "display": "block"}}>
                 <Button variant="contained" onClick={reload}>
                     Переподключиться

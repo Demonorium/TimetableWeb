@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WeekDayRepository extends CrudRepository<WeekDay, Long> {
     boolean existsByWeekAndNumber(Week week, int number);
-
 }

@@ -26,6 +26,8 @@ const MENU: Array<TargetScreen> = [
     {id:"SOURCES", data:"Список источников"}
 ];
 
+const EscapeButton = 27;
+
 export default function ScreenDisplay(props: BodyProps) {
     const screen = useAppSelector(state => state.app.screen);
     const dispatch = useAppDispatch();
@@ -33,7 +35,7 @@ export default function ScreenDisplay(props: BodyProps) {
     const menu = <LeftMenu menu={MENU}/>
 
     const esc = (event: any) => {
-        if(event.keyCode === 27) {
+        if(event.keyCode === EscapeButton) {
             dispatch(reverse());
         }
     };
@@ -47,10 +49,10 @@ export default function ScreenDisplay(props: BodyProps) {
 
     return (
         <Filler headerRef={props.headerRef}>
-            {screen.name == "DAYS"          ? <DaysList         menu={menu}/> :undefined}
-            {screen.name == "TASKS"         ? <Tasks            menu={menu}/> :undefined}
-            {screen.name == "SOURCES"       ? <EditSourcesList  menu={menu}/> :undefined}
-            {screen.name == "EDIT_SOURCE"   ? <EditSource       menu={menu}/> :undefined}
+            {screen.name == "DAYS"          && <DaysList         menu={menu}/>}
+            {screen.name == "TASKS"         && <Tasks            menu={menu}/>}
+            {screen.name == "SOURCES"       && <EditSourcesList  menu={menu}/>}
+            {screen.name == "EDIT_SOURCE"   && <EditSource       menu={menu}/>}
         </Filler>
     );
 }
