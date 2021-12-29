@@ -15,6 +15,7 @@ import {
 } from "../../../database";
 import ModalEditor, {Editor} from "../../modals/ModalEditor";
 import {
+    Box,
     Button,
     Container,
     DialogActions,
@@ -485,16 +486,19 @@ export default function DayScheduleEditor({day, source, createDay, index, onCanc
             }}/>
 
             <Grid container>
-                <Grid item xs={8}>
-                    <Typography variant="h5">Уроки</Typography>
-                </Grid>
+                <Grid item xs={12} sx={{
+                    paddingTop: "16px",
+                    paddingBottom: "16px",
+                    display: "flex"
+                }}>
+                    <Typography variant="h5" sx={{display: "flex", flexGrow: 1}}>Уроки</Typography>
 
-                <Grid item xs={4} sx={{textAlign:"right"}}>
-                    <Button variant="outlined" onClick={() => {setLessonToEdit(undefined); setEditLesson(true); }}>
-                        Добавить
-                    </Button>
+                    <Box sx={{display: "flex", flexGrow: 0, marginRight: "8px"}}>
+                        <Button variant="outlined" onClick={() => {setLessonToEdit(undefined); setEditLesson(true); }}>
+                            Добавить
+                        </Button>
+                    </Box>
                 </Grid>
-
             </Grid>
 
             <Divider/>

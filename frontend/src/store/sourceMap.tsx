@@ -174,10 +174,12 @@ export const sourcesMapSlice = createSlice({
                 }
             });
 
+            const insertIndex = source.changes.findIndex((v) => v.date > action.payload.date);
+
             source.changes = addElement<ChangesInfo>(source.changes, {
                 day: action.payload.day.id,
                 date: action.payload.date
-            });
+            }, insertIndex == -1? source.changes.length : insertIndex);
         },
         removeChanges: (state, action: PayloadAction<ArrayChanges<number>>) => {
             const source = state.sources[action.payload.source];

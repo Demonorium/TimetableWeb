@@ -8,26 +8,18 @@ import InfiniteDaysSlider from "../timetable/InfiniteDaysSlider";
 import {ScreenInterface} from "../ScreenDisplay";
 import DayDisplayDialog from "../modals/DayDisplayDialog";
 import {DayProps} from "../timetable/Day";
+import {clearTimeFromDate} from "../../utils/time";
 
-function dateBuild(date: Dayjs) {
-    return (
-        date.millisecond(0)
-            .second(0)
-            .minute(0)
-            .hour(0)
-    );
-
-}
 
 export function DaysList({menu}: ScreenInterface) {
     const containerRef = useRef<any>();
 
     const [open, setOpen] = useState(false);
-    const [date, setDate] = useState(dateBuild(dayjs()));
+    const [date, setDate] = useState(clearTimeFromDate(dayjs()));
     const [state, setState] = useState<DayProps | null>(null);
 
     const handleCalendar = (date: Dayjs) => {
-        setDate(dateBuild(date));
+        setDate(clearTimeFromDate(date));
     };
 
     return (

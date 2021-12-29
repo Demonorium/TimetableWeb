@@ -142,7 +142,7 @@ export default function DialogTemplate(props: DialogTemplateProps) {
                 {hasCancel &&
                 <LoadingButton loading={loading}
                                onClick={cancelAction}
-                               disabled={props.isAcceptPossible == false}>
+                               disabled={props.isCancelPossible == false}>
 
                     {props.cancelText ? props.cancelText : "Отмена"}
                 </LoadingButton>
@@ -160,7 +160,7 @@ export default function DialogTemplate(props: DialogTemplateProps) {
                 {hasAccept &&
                 <LoadingButton loading={loading}
                                onClick={acceptAction}
-                               disabled={props.isCancelPossible == false}>
+                               disabled={props.isAcceptPossible == false}>
 
                     {props.acceptText}
                 </LoadingButton>

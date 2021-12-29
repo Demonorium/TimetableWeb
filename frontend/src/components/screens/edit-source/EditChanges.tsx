@@ -18,12 +18,14 @@ import {
     Typography
 } from "@mui/material";
 import {EditorProps} from "../EditSource";
-import {findElement} from "../../../utils/arrayUtils";
+import {containsElement, findElement} from "../../../utils/arrayUtils";
 import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
 import {Close} from "@material-ui/icons";
 import {DatePicker, LoadingButton} from "@mui/lab";
 import dayjs from "dayjs";
 import DayEdit from "../../modals/DayEdit";
+import DialogTemplate from "../../modals/DialogTemplate";
+import {clearTimeFromDate} from "../../../utils/time";
 
 interface ChangesInfoExtended extends ChangesInfo {
     dayValue: Day;
@@ -175,6 +177,9 @@ export default function EditChanges(props: EditorProps<ChangesInfoExtended>) {
             },
             date: state.date
         }));
+        const index = props.source.changes.findIndex((v) => v.date > state.date);
+        setIndex(index == -1? props.source.changes.length - 1 : index);
+
 
         return data.day;
     };
@@ -185,32 +190,38 @@ export default function EditChanges(props: EditorProps<ChangesInfoExtended>) {
                 setIndex(-1);
             }} source={props.source} createDay={createChanges} date={(index < 0) ? "" : dayjs(changes[index].date).format("DD.MM.YYYY")}/>
 
+            <DialogTemplate open={open}
+                            close={() => setOpen(false)}
+                            accept={createChanges}
+                            acceptText="Создать изменения"
+                            cancelText="Назад"
+                            isAcceptPossible={(state.date != -9999999)
+                                && !containsElement(props.source.changes, (e)=>e.date == state.date)}
+                            title="Добавить изменения">
+
+                <DatePicker
+                    label="Дата изменений"
+                    views={['year', 'month', 'day']}
+                    value={state.date == -9999999 ? null : dayjs(state.date)}
+                    onChange={(newValue: dayjs.Dayjs) => {
+                        setState({
+                            ...state,
+                            date: newValue != null ? clearTimeFromDate(newValue).valueOf() : -9999999
+                        });
+                    }}
+                    readOnly={state.day != -1}
+                    renderInput={(params) => <TextField {...params} fullWidth/>}
+                />
+            </DialogTemplate>
+
             <ListItem sx={{paddingTop: "16px", paddingBottom:"16px"}}
                       secondaryAction={
                 hasUpdateRight(props.source.rights) &&
-                    <Stack direction="row" spacing={1}>
-
-                        <DatePicker
-                            label="Дата изменений"
-                            views={['year', 'month', 'day']}
-                            value={state.date == -9999999 ? null : dayjs(state.date)}
-                            onChange={(newValue: dayjs.Dayjs) => {
-                                setState({
-                                    ...state,
-                                    date: newValue != null ? newValue.valueOf() : -9999999
-                                });
-                            }}
-                            readOnly={state.day != -1}
-                            renderInput={(params) => <TextField {...params} fullWidth/>}
-                        />
-
-                        <LoadingButton variant="outlined" sx={{margin: "auto"}} disabled={state.date == -9999999} onClick={() => {
-                            createChanges();
-                        }}>
-                            Создать
-                        </LoadingButton>
-                    </Stack>
-
+                    <LoadingButton variant="outlined" sx={{margin: "auto"}} onClick={() => {
+                        setOpen(true);
+                    }}>
+                        Создать
+                    </LoadingButton>
             }>
 
                 <Typography variant={props.titleFormat? props.titleFormat : "h5"}>Изменения в расписании</Typography>
@@ -248,6 +259,7 @@ export default function EditChanges(props: EditorProps<ChangesInfoExtended>) {
                                                             }));
                                                         });
                                                     }}>
+
                                                         <Close />
                                                     </IconButton>
                                                 </Tooltip>

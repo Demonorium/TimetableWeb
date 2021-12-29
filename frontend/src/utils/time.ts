@@ -1,3 +1,5 @@
+import {Dayjs} from "dayjs";
+
 export const MONTH_NAMES = [
     'Январь',
     'Февраль',
@@ -73,4 +75,14 @@ export function timeToStr(m: number) {
         return '0' + m
     }
     return m.toString();
+}
+
+export function clearTimeFromDate(date: Dayjs): Dayjs {
+    return (
+        date.millisecond(0)
+            .second(0)
+            .minute(0)
+            .hour(0)
+    );
+
 }
