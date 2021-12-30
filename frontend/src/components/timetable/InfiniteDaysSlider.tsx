@@ -544,12 +544,11 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
             this.scrollToStart = true;
             this.setState({update: true});
         }
-
     }
 
     //Перемотать скрол к текущему элементу, так, чтобы верх текущего компонента стал серединой экрана
     scrollToCurrent() {
-        //запрошена перемотка в начало, существует контейнер и начало
+        //запрошена перемотка в начало, существует контейнер и начало, а также расписание загружено
         if (this.scrollToStart && (this.props.containerRef.current != null) && (this.currentRef.current != null)) {
             //Получаем информацию о контейнере и текущем элементе
             const containerInfo = getComponentInfo(this.props.containerRef);
@@ -559,7 +558,7 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
 
             //Перемотка, так, чтобы верх текущего компонента стал серединой экрана
             this.props.containerRef.current.scrollTo(
-                containerInfo.scrolls.x, offset - Math.floor(containerInfo.dims.height / 2)
+                containerInfo.scrolls.x, offset - Math.floor(containerInfo.dims.height) / 2 + 90
             );
             this.scrollToStart = false;
         }
@@ -643,6 +642,7 @@ class InfiniteDaysSlider extends React.Component<InfiniteDaysSliderProps, Infini
                         <Day currentRef={state.ref} day={state.getState()}
                              index={state.index}
                              setDay={this.props.setDay}
+                             selected={state.index == 0}
                              date={state.date} dateOffset={state.dateOffset} dayOfWeek={state.dayOfWeek}/>
                         )
                     }

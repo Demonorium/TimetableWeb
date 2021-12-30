@@ -19,6 +19,7 @@ export interface InternalDayRepresentation {
 
 export interface DayProps {
     index: number;
+    selected?: boolean;
 
     date: string;
     dayOfWeek: string;
@@ -70,7 +71,7 @@ function DayHeader(props: any) {
         <ListItemButton onClick={() => {
             if (!props.pr.full)
                 props.pr.setDay(props.pr)
-        }}>
+        }} sx={(props.selected) ? {backgroundColor:  "#dde3ef"}: undefined} >
 
             <ListItem
                 secondaryAction={
@@ -85,7 +86,7 @@ function DayHeader(props: any) {
 
 function Day(props: DayProps) {
     const lessons = new Array<React.ReactElement>();
-    const dayHeader = <DayHeader pr={props} date={props.date} dayOfWeek={props.dayOfWeek} dateOffset={props.dateOffset}/>
+    const dayHeader = <DayHeader selected={props.selected} pr={props} date={props.date} dayOfWeek={props.dayOfWeek} dateOffset={props.dateOffset}/>
 
     //Если описание дня не было передано, то мы считаем, что день всё ещё загружается
     if (props.day == undefined) {

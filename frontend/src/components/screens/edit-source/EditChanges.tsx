@@ -5,18 +5,7 @@ import {ChangesInfo, Day, hasUpdateRight, Lesson, Rights, Week, WeekDay} from ".
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../../store/hooks";
 import {Editor} from "../../modals/ModalEditor";
-import {
-    Divider,
-    Grid,
-    IconButton,
-    List,
-    ListItem,
-    ListItemText,
-    Stack,
-    TextField,
-    Tooltip,
-    Typography
-} from "@mui/material";
+import {Divider, Grid, IconButton, List, ListItem, ListItemText, TextField, Tooltip, Typography} from "@mui/material";
 import {EditorProps} from "../EditSource";
 import {containsElement, findElement} from "../../../utils/arrayUtils";
 import ButtonWithFadeAction from "../../utils/ButtonWithFadeAction";
