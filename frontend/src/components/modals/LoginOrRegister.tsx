@@ -110,12 +110,10 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
         if (!willOfButton) {
             setAwait(true);
 
-            axios.get((isRegister? "/user/register" : "/user/login"),
+            axios.post((isRegister? "/user/register" : "/user/login"),
             {
-                params: {
-                    username: formState.name,
-                    password: formState.password
-                }
+                username: formState.name,
+                password: formState.password
             }).then((response) => {
                 setAwait(false);
                 if (remember) {
@@ -124,13 +122,16 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
                 dispatch(setUser({username: formState.name, password: formState.password}));
 
             }).catch((err) => {
+
                 if (err.response) {
                     if (err.response.status == 404) {
                         setErrors({...errors, wrongPassword: true});
-                    } else if (err.response.data == "duplicate username") {
-                        setErrors({...errors, userExists: true});
-                    } else if (err.response.data == "password incorrect") {
-                        setErrors({...errors, wrongPassword: true});
+                    } else if (err.response.status == 400) {
+                        if (isRegister) {
+                            setErrors({...errors, userExists: true});
+                        } else {
+                            setErrors({...errors, wrongPassword: true});
+                        }
                     } else {
                         dispatch(ERROR());
                     }

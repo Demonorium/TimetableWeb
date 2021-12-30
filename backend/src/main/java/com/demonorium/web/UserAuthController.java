@@ -2,11 +2,10 @@ package com.demonorium.web;
 
 import com.demonorium.database.DatabaseService;
 import com.demonorium.database.entity.User;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -23,60 +22,74 @@ public class UserAuthController {
     @Autowired
     private WebUtils webUtils;
 
-    @GetMapping("/user/login")
-    ResponseEntity<String> login(@RequestParam("username") String username,
-                                 @RequestParam("password") String password) {
-        Optional<User> user = databaseService.getUserRepository().findByUsername(username);
+    @Data
+    private static class UserPostObject {
+        private String username;
+        private String password;
+    }
+
+    @Data
+    private static class PasswordChangePostObject {
+        private String newPassword;
+        private String password;
+    }
+
+    @Data
+    private static class DeletePostObject {
+        private String password;
+    }
+
+    @PostMapping("/user/login")
+    ResponseEntity<String> login(@RequestBody UserPostObject userPostObject) {
+        Optional<User> user = databaseService.getUserRepository().findByUsername(userPostObject.getUsername());
         if (user.isPresent()) {
-            if (authentication.checkPassword(user.get().getPassword(), password)) {
-                return ResponseEntity.ok().body("success");
+            if (authentication.checkPassword(user.get().getPassword(), userPostObject.getPassword())) {
+                return ResponseEntity.ok("success");
             } else {
-                return ResponseEntity.badRequest().body("password incorrect");
+                return ResponseEntity.badRequest().build();
             }
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @GetMapping("/user/register")
-    ResponseEntity<String> register(@RequestParam("username") String username,
-                                    @RequestParam("password") String password) {
-        User user = authentication.newUser(username, password);
+    @PostMapping("/user/register")
+    ResponseEntity<String> register(@RequestBody UserPostObject userPostObject) {
+        User user = authentication.newUser(userPostObject.getUsername(), userPostObject.getPassword());
 
         if (user != null) {
             return ResponseEntity.ok("success");
         }
 
-        return ResponseEntity.badRequest().body("duplicate username");
+        return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping("/user/change_password")
+    @PostMapping("/user/change_password")
     ResponseEntity<String> changePassword(HttpServletRequest request,
-                                          @RequestParam("password") String password,
-                                          @RequestParam("newPassword") String newPassword) {
+                                          @RequestBody PasswordChangePostObject passwordChangePostObject) {
         User user = webUtils.getUser(request);
 
         if (user != null) {
-            if (authentication.changePassword(user.getUsername(), password, newPassword)) {
+            if (authentication.changePassword(user.getUsername(), passwordChangePostObject.getPassword(),  passwordChangePostObject.getNewPassword())) {
                 return ResponseEntity.ok("success");
             }
 
-            return ResponseEntity.badRequest().body("Error during changing");
+            return ResponseEntity.badRequest().build();
         }
 
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/user/delete")
+    @PostMapping("/user/delete")
     ResponseEntity<String> delete(HttpServletRequest request,
-                                  @RequestParam("password") String password) {
+                                  @RequestBody DeletePostObject deletePostObject) {
         User user = webUtils.getUser(request);
         if (user != null) {
-            if (authentication.removeUser(user.getUsername(), password)) {
+            if (authentication.removeUser(user.getUsername(), deletePostObject.getPassword())) {
                 ResponseEntity.ok("success");
             }
 
-            return ResponseEntity.badRequest().body("Error during deleting");
+            return ResponseEntity.badRequest().build();
         }
 
         return ResponseEntity.notFound().build();

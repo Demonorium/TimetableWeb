@@ -38,12 +38,11 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
 
     const chn = () => {
         const vl: () => Promise<void> = async () => {
-            await axios.get("/user/change_password", {
-                auth: user,
-                params: {
-                    password: pass,
-                    newPassword: newPass
-                }
+            await axios.post("/user/change_password", {
+                password: pass,
+                newPassword: newPass
+            }, {
+                auth: user
             }).then(() => {
                 dispatch(setUser({username: user.username, password: newPass}));
                 setAsk(false);
@@ -55,11 +54,10 @@ export default function ProfileDialog({open, onClose}: ProfileDialogProps) {
 
     const del = () => {
         const vl: () => Promise<void> = async () => {
-            await axios.get("/user/delete", {
-                auth: user,
-                params: {
-                    password: pass
-                }
+            await axios.post("/user/delete", {
+                password: pass
+            },{
+                auth: user
             }).then(() => {
                 dispatch(logoutUser());
                 dispatch(setAppState(GlobalState.LOADING));

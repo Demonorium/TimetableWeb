@@ -194,7 +194,7 @@ export default function App() {
         case GlobalState.CRUSH:
             return <CrushScreen/>
         case GlobalState.LOGOUT:
-            return <LoginOrRegister open isRegister/>
+            return <LoginOrRegister open isRegister={false}/>
     }
 
     return (
