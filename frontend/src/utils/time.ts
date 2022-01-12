@@ -1,3 +1,5 @@
+import {Dayjs} from "dayjs";
+
 export const MONTH_NAMES = [
     'Январь',
     'Февраль',
@@ -23,6 +25,17 @@ export const DAY_NAMES = [
     'Суббота'
 ];
 
+
+export const DAY_NAMES_SHRT = [
+    'Вс',
+    'Пн',
+    'Вт',
+    'Ср',
+    'Чт',
+    'Пт',
+    'Сб'
+];
+
 export const OFFSET_NAMES: {[key: string]: string} = {
     '-7': "неделю назад",
     '-2': "позавчера",
@@ -31,7 +44,6 @@ export const OFFSET_NAMES: {[key: string]: string} = {
     '1': "завтра",
     '2': "послезавтра",
 };
-
 
 export function nameOffset(index: number) {
     const str = index.toString();
@@ -58,3 +70,19 @@ export function nameOffset(index: number) {
     }
 }
 
+export function timeToStr(m: number) {
+    if (m < 10) {
+        return '0' + m
+    }
+    return m.toString();
+}
+
+export function clearTimeFromDate(date: Dayjs): Dayjs {
+    return (
+        date.millisecond(0)
+            .second(0)
+            .minute(0)
+            .hour(0)
+    );
+
+}

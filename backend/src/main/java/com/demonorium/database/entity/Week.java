@@ -18,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "weeks")
-public class Week implements PartOfSource {
+public class Week implements PartOfSource, Comparable<Week> {
     /**
      * ИД объекта в базе
      */
@@ -56,5 +56,10 @@ public class Week implements PartOfSource {
     public Week(int number, Source source) {
         this.number = number;
         this.source = source;
+    }
+
+    @Override
+    public int compareTo(Week o) {
+        return this.number - o.getNumber();
     }
 }

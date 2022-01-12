@@ -1,7 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {ScheduleElement} from "../database";
 
-
 export interface ScheduleState {
     schedule?: Array<ScheduleElement>;
     priority: number;

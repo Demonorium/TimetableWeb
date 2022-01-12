@@ -56,6 +56,11 @@ public class LessonTemplate implements PartOfSource {
     private String note;
 
     /**
+     * Количество часов, отведённое на предмет
+     */
+    private int hours;
+
+    /**
      * Список преподавателей
      */
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
@@ -68,9 +73,28 @@ public class LessonTemplate implements PartOfSource {
     @OneToMany(mappedBy = "template", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Lesson> lessons = new HashSet<>();
 
-    public LessonTemplate(String name, String note, Source source) {
+    /**
+     * Добавить преподавателя к занятию
+     * @param teacher - преподаватель
+     */
+    public void addTeacher(Teacher teacher) {
+        defaultTeachers.add(teacher);
+        teacher.getTemplates().add(this);
+    }
+
+    /**
+     * Удалить преподавателя из занятия
+     * @param teacher - преподаватель
+     */
+    public void removeTeacher(Teacher teacher) {
+        defaultTeachers.remove(teacher);
+        teacher.getTemplates().remove(this);
+    }
+
+    public LessonTemplate(String name, String note, int hours, Source source) {
         this.name = name;
         this.note = note;
         this.source = source;
+        this.hours = hours;
     }
 }

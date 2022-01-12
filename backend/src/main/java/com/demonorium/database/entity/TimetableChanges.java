@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 @Data
 @EqualsAndHashCode(exclude = {"source", "day"})
@@ -40,9 +42,9 @@ public class TimetableChanges implements PartOfSource {
     /**
      *  Дата, на которую произошли изменения
      */
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    @JoinColumn(name="date_pair_id", nullable = false)
-    private YearDayPair date;
+    @Column(name="\"date\"", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date date;
 
     /**
      *  Новое рассписание
@@ -51,9 +53,25 @@ public class TimetableChanges implements PartOfSource {
     @JoinColumn(name="day_id", nullable = false)
     private Day day;
 
-    public TimetableChanges(Source source, YearDayPair date, Day day) {
+    public TimetableChanges(Source source, Date date, Day day) {
         this.source = source;
-        this.date = date;
         this.day = day;
+
+        setDate(date);
+    }
+
+    /**
+     * Устанавливает дату, автоматически удаляет информацию о времени
+     * @param date - дата изменений
+     */
+    public void setDate(Date date) {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+
+        GregorianCalendar target = new GregorianCalendar();
+        target.set(GregorianCalendar.YEAR, calendar.get(GregorianCalendar.YEAR));
+        target.set(GregorianCalendar.DAY_OF_YEAR, calendar.get(GregorianCalendar.DAY_OF_YEAR));
+
+        this.date = target.getTime();
     }
 }

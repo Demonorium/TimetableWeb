@@ -1,5 +1,6 @@
 package com.demonorium.database.entity;
 
+import com.demonorium.database.PartOfSource;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "days")
-public class Day {
+public class Day implements PartOfSource {
     /**
      * ИД объекта в базе
      */

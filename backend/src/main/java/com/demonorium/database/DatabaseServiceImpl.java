@@ -46,8 +46,11 @@ public class DatabaseServiceImpl implements DatabaseService {
     private TimetableChangesRepository timetableChangesRepository;
     @Autowired
     private WeekDayRepository weekDayRepository;
+
     @Autowired
-    private YearDayPairRepository yearDayPairRepository;
+    private NoteRepository noteRepository;
+    @Autowired
+    private AttachmentRepository attachmentRepository;
 
     @Override
     public boolean hasAccess(User user, PartOfSource partOfSource, Rights rights) {
@@ -56,8 +59,13 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public boolean hasAccess(User user, Source source, Rights rights) {
-        if ((user == null) || (source == null) || (rights == null)) return false;
-        if (source.getOwner().equals(user)) return true;
+        if ((user == null) || (source == null) || (rights == null)) {
+            return false;
+        }
+
+        if (source.getOwner().equals(user)) {
+            return true;
+        }
 
         Optional<AccessToken> access = tokenRepository.findByUserAndReference_Source(user, source);
 

@@ -1,9 +1,22 @@
-import {useAppDispatch, useAppSelector} from "../store/hooks";
+import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import React, {useState} from "react";
-import {Box, Button, Container, IconButton, InputAdornment, Modal, TextField} from "@mui/material";
+import {
+    Box,
+    Button,
+    Checkbox,
+    Container,
+    FormControlLabel,
+    IconButton,
+    InputAdornment,
+    Modal,
+    TextField,
+    Typography
+} from "@mui/material";
 import {Visibility, VisibilityOff} from "@material-ui/icons";
 import axios from "axios";
-import {setUser} from "../store/user";
+import {setUser} from "../../store/user";
+import {LoadingButton} from "@mui/lab";
+import {ERROR} from "../../store/appStatus";
 
 interface State {
     name: string,
@@ -31,6 +44,7 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
 
     const [isRegister, setRegister] = useState(props.isRegister);
     const [isAwait, setAwait] = useState(false);
+    const [remember, setRemember] = useState(false);
 
     const [formState, setFormState] = useState<State>({
         name: '',
@@ -95,26 +109,34 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
 
         if (!willOfButton) {
             setAwait(true);
-            console.log({
-                    username: formState.name,
-                    password: formState.password
-                })
-            axios.get((isRegister? "/user/register" : "/user/login"),
+
+            axios.post((isRegister? "/user/register" : "/user/login"),
             {
-                params: {
-                    username: formState.name,
-                    password: formState.password
-                }
+                username: formState.name,
+                password: formState.password
             }).then((response) => {
                 setAwait(false);
+                if (remember) {
+                    localStorage.setItem("remember", "true");
+                }
                 dispatch(setUser({username: formState.name, password: formState.password}));
+
             }).catch((err) => {
-                if (err.response.status == 404) {
-                    setErrors({...errors, wrongPassword: true});
-                } else if (err.response.data == "duplicate username") {
-                    setErrors({...errors, userExists: true});
-                } else if (err.response.data == "password incorrect") {
-                    setErrors({...errors, wrongPassword: true});
+
+                if (err.response) {
+                    if (err.response.status == 404) {
+                        setErrors({...errors, wrongPassword: true});
+                    } else if (err.response.status == 400) {
+                        if (isRegister) {
+                            setErrors({...errors, userExists: true});
+                        } else {
+                            setErrors({...errors, wrongPassword: true});
+                        }
+                    } else {
+                        dispatch(ERROR());
+                    }
+                } else {
+                    dispatch(ERROR());
                 }
                 setOffButton(true);
                 setAwait(false);
@@ -139,15 +161,21 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
         </IconButton>
     </InputAdornment>;
 
-
     return (
         <Modal
         open={props.open}
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
         >
-            <Container sx={{bgcolor:'#FFFFFF',  textAlign: 'center', '& .MuiTextField-root': { m: 1}}}  maxWidth="xs">
-                {isRegister ? <h1>Регистрация</h1> : <h1>Вход</h1>}
+            <Container sx={{bgcolor:'#FFFFFF',  textAlign: 'center',
+                position: 'absolute' as 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                '& .MuiTextField-root': { m: 1}}}  maxWidth="xs">
+                {isRegister
+                    ? <Typography variant="h4" sx={{padding: "16px"}}>Регистрация</Typography>
+                    : <Typography variant="h4" sx={{padding: "16px"}}>Вход</Typography>}
                 <div>
                     <TextField
                         fullWidth
@@ -192,10 +220,17 @@ export default function LoginOrRegister(props: LoginOrRegisterProps) {
                     </div>
                 : undefined}
 
+                <Box sx={{textAlign: "left", p:"0", m:"8px"}}>
+                    <FormControlLabel control={<Checkbox checked={remember}
+                                                         onChange={(e) => setRemember(e.target.checked)}
+                                                         inputProps={{ 'aria-label': 'controlled' }} />}
+                                      label="Запомнить меня" />
+                </Box>
+
                 <div>
-                    <Button variant="contained" disabled={offButton || isAwait} onClick={handleSendButton}>
-                        {(isRegister ? "Зарегистрироваться": "Войти") + (isAwait ? "(Ожидание)" : "")}
-                    </Button>
+                    <LoadingButton loading={isAwait} disabled={offButton} variant="contained" onClick={handleSendButton}>
+                        {isRegister ? "Зарегистрироваться": "Войти"}
+                    </LoadingButton>
                 </div>
 
                 <Box sx={{textAlign: 'right', margin: "20px 5px"}}>

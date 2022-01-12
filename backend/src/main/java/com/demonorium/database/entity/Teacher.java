@@ -36,7 +36,6 @@ public class Teacher implements PartOfSource {
     @JoinColumn(name="source", nullable = false)
     private Source source;
 
-
     /**
      * @return ИД источника, хранящего этого преподавателя
      */
@@ -70,8 +69,9 @@ public class Teacher implements PartOfSource {
     @ManyToMany(mappedBy = "teachers", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private Set<Lesson> lessons = new HashSet<>();
 
-    public Teacher(Source source, String name, String note) {
+    public Teacher(String name, String position, String note, Source source) {
         this.source = source;
+        this.position = position;
         this.name = name;
         this.note = note;
     }

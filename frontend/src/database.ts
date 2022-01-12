@@ -1,89 +1,129 @@
-import axios from "axios";
+import {timeToStr} from "./utils/time";
 
-type ID = number;
+/**
+ * Тип описывает ИД
+ */
+export type ID = number;
 
+/**
+ * Сущность, хранит свой уникальный ид
+ */
 export interface Entity {
     id: ID;
 }
+
+/**
+ * Этот объект имеет имя
+ */
 export interface Named {
     name: string;
 }
-export interface Priority {
-    priority: number;
-}
+
+/**
+ * У этого объекта есть заметка
+ */
 export interface Noted {
-    note: string;
+    note?: string;
 }
 
-export interface NamedEntity extends Entity, Named{
-}
-
-interface Teacher extends NamedEntity, Noted {
+/**
+ * У этот объект является частью Источника
+ */
+export interface PartOfSource {
     source: ID;
 }
-interface Place extends Entity, Noted {
-    source: ID;
 
+
+export interface Teacher extends Entity, Named, PartOfSource, Noted {
+    position: string;
+}
+
+export interface Place extends Entity, PartOfSource, Noted {
     auditory: string;
     building: string;
 }
 
-export interface ScheduleElement extends Entity {
-    schedule: ID;
+export interface LessonTemplate extends Entity, Named, PartOfSource, Noted {
+    defaultTeachers: Array<number>;
+    hours: number;
+}
 
+export interface Lesson extends Entity {
+    template: ID;
+    day: ID;
+    place: ID;
+
+    number: number;
+
+    teachers: Array<ID>;
+}
+
+
+export interface ScheduleElement extends Entity {
     hour:   number;
     minute: number;
     time:   number;
 }
 
-export interface Schedule extends Entity {
-    source: ID;
-
-    schedule: Array<ScheduleElement>;
-}
-
-export interface LessonTemplate extends NamedEntity, Noted {
-    defaultTeachers: Array<Teacher>;
-}
-
-export interface Lesson extends Entity {
-    template: LessonTemplate;
-    day: Day;
-    place: Place;
-    number: number;
-}
-
-export interface Day extends Entity {
-    source: ID;
-    schedule?: Schedule;
+export interface Day extends Entity, PartOfSource {
+    schedule?: Array<ScheduleElement>;
     lessons: Array<Lesson>;
-    week?: Week;
-    targetDate?:string;
 }
 
-export interface Week extends Entity {
-    source: ID;
+export interface Week extends Entity, PartOfSource {
+    number: number;
+    days: Array<WeekDay>;
+}
 
+export interface WeekDay extends Entity {
+    day: ID;
     number: number;
 }
 
-export interface Source extends Entity {
-    defaultSchedule: Schedule;
-    owner: string;
-    teachers: Array<Teacher>;
-    days: Array<Day>;
-    schedules: Array<Schedule>;
-    templates: Array<LessonTemplate>;
-    places: Array<Place>;
-    weeks: Array<Week>;
-    reference?: Reference;
+export enum Rights {
+    DELETE="DELETE", UPDATE="UPDATE", READ="READ", READ_UPDATE="READ_UPDATE", OWNER="OWNER"
 }
 
-export interface Reference {
-    code: string;
-    source: ID;
-    rights: number;
+export const RIGHT_LEVELS: {[key: string] : string} = {
+    READ: "ЧТЕНИЕ",
+    READ_UPDATE: "РЕДАКТИРОВАНИЕ",
+    OWNER: "ВЛАДЕЛЕЦ"
 }
+
+export function hasUpdateRight(rights: Rights) {
+    return (rights == Rights.OWNER) || (rights == Rights.READ_UPDATE) || (rights == Rights.UPDATE);
+}
+
+export interface ChangesInfo {
+    day: number;
+    date: number;
+}
+
+export interface SourceInfo extends Entity, Named {
+    defaultSchedule?: Array<ScheduleElement>;
+    owner: string;
+    rights: Rights;
+
+    startDate: number;
+    endDate?: number;
+    startWeek: number;
+
+    code?: string;
+    refRights?: Rights;
+    local?: boolean;
+}
+
+
+export interface Source extends SourceInfo {
+    weeks: Array<Week>;
+    places: Array<Place>;
+    teachers: Array<Teacher>;
+    templates: Array<LessonTemplate>;
+    days: Array<Day>;
+    notes: Array<Note>;
+    changes: Array<ChangesInfo>;
+}
+
 
 export interface User {
     username: string;
@@ -91,22 +131,27 @@ export interface User {
 }
 
 
-export interface SourcePriority {
-    source: ID;
+export interface SourcePriority extends Entity {
+    sourceId: ID;
+    priority: number;
+    name: string;
+}
+
+export interface Note extends Entity, PartOfSource {
+    text: string;
+    date: number;
+}
+
+export interface Changes extends Entity, PartOfSource {
+    day: ID;
+    date: number;
     priority: number;
 }
 
-export interface Changes {
-    id: ID;
-    lessons: Array<Lesson>;
-    schedule: Array<ScheduleElement>;
-    year: number;
-    day: number;
+export function compareEntity(e1: Entity, e2: Entity): boolean {
+    return e1.id == e2.id
 }
 
-async function updateRequest<T extends Entity>(name: string, user: User, e: T) {
-    return axios.get("/api/edit/"+name, {auth: user});
-}
-async function getRequest<T extends Entity>(name: string, id: ID): Promise<T> {
-    return axios.get("/api/find/"+name);
+export function printScheduleElement(e: ScheduleElement) {
+    return timeToStr(e.hour) + ":" + timeToStr(e.minute)
 }

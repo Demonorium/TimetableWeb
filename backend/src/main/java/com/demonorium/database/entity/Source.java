@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,14 +30,35 @@ public class Source {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="source_id")
+    @Column(name="source_id", nullable = false)
     private Long id;
 
     /**
      * Название расписания
      */
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String name;
+
+
+    /**
+     * Дата начала занятий
+     */
+    @Column(name="start_date", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date startDate;
+
+    /**
+     * Первая неделя
+     */
+    @Column(name="start_week", nullable = false)
+    private int startWeek;
+
+    /**
+     * Дата окончания занятий
+     */
+    @Column(name="insiration_date", nullable = true)
+    @Temporal(TemporalType.DATE)
+    private Date endDate;
 
     /**
      * Стандартное расписание звокнов, указывается для дня, если не было указано другого или
@@ -50,7 +72,7 @@ public class Source {
      * Владелец этого источника
      */
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "owner_name", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
     /**
@@ -61,12 +83,19 @@ public class Source {
         return owner.getUsername();
     }
 
-    public Source(CallSchedule defaultSchedule, User owner) {
-        this.defaultSchedule = defaultSchedule;
+    public Source(String name, Date startDate, int startWeek, User owner) {
+        this.name = name;
+        this.startDate = startDate;
+        this.startWeek = startWeek;
         this.owner = owner;
     }
-    public Source(User owner) {
+
+    public Source(String name, Date startDate, int startWeek, User owner, CallSchedule callSchedule) {
+        this.name = name;
+        this.startDate = startDate;
+        this.startWeek = startWeek;
         this.owner = owner;
+        this.defaultSchedule = callSchedule;
     }
 
     /**
@@ -106,7 +135,13 @@ public class Source {
     private Set<Week> weeks = new HashSet<>();
 
     /**
-     * Список токенов доступа к этому источнику
+     * Список заметок
+     */
+    @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Set<Note> notes = new HashSet<>();
+
+    /**
+     * Ссылка на доступ к источнику
      */
     @OneToOne(mappedBy = "source", cascade = CascadeType.REMOVE, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name="reference_id", nullable = true)

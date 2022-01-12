@@ -48,11 +48,13 @@ public class Place implements PartOfSource {
      */
     @Column(length = 8)
     private String auditory;
+
     /**
      * Корпус/здание где проходит занятие
      */
     @Column(length = 8)
     private String building;
+
     /**
      * Короткая заметка о месте (не более 1 строки)
      */

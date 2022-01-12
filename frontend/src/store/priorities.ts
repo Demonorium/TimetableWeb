@@ -1,25 +1,24 @@
 import {SourcePriority} from "../database";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
-
-export interface SourcesState {
+export interface PrioritiesState {
     list?: Array<SourcePriority>;
 }
 
-const initialState: SourcesState = {
+const initialState: PrioritiesState = {
     list: new Array<SourcePriority>()
 }
 
-export const sourcesSlice = createSlice({
+export const prioritiesSlice = createSlice({
     name: 'sources',
     initialState,
     reducers: {
-        setSources: (state, action: PayloadAction<Array<SourcePriority>>) => {
+        setPriorities: (state, action: PayloadAction<Array<SourcePriority>>) => {
             state.list = action.payload
         }
     },
 });
 
-export const { setSources} = sourcesSlice.actions;
+export const { setPriorities} = prioritiesSlice.actions;
 
-export default sourcesSlice.reducer;
+export default prioritiesSlice.reducer;

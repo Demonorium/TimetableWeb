@@ -1,12 +1,20 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Header from './components/Header';
-import Body from './components/Body';
+import ScreenDisplay from './components/ScreenDisplay';
 import {createTheme, ThemeProvider} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
-import Loading from "./components/Loading";
-import {useAppSelector} from "./store/hooks";
-import LoginOrRegister from "./components/LoginOrRegister";
+import Loading from "./components/utils/Loading";
+import {useAppDispatch, useAppSelector} from "./store/hooks";
+import LoginOrRegister from "./components/modals/LoginOrRegister";
 import dayjs from "dayjs";
+import {ERROR, GlobalState, setAppState} from "./store/appStatus";
+import axios from "axios";
+import {setPriorities} from "./store/priorities";
+import {Source, SourcePriority} from "./database";
+import ErrorDialog from "./components/modals/ErrorDialog";
+import {setSources} from "./store/sourceMap";
+import {Orientation, setOrientation} from "./store/orientation";
+import {setUser} from "./store/user";
 
 const theme = createTheme({components:{
     MuiCssBaseline: {
@@ -34,12 +42,6 @@ const theme = createTheme({components:{
     }
 }});
 
-enum SiteState {
-    LOADING,
-    PROCESS,
-    CRUSH
-}
-
 /**
  * Отображается во время загрузки
  */
@@ -57,7 +59,15 @@ function LoadingScreen() {
  * Отображается в случае критической ошибки
  */
 function CrushScreen() {
-    return <LoadingScreen/>;
+    const dispatch = useAppDispatch();
+
+    return (
+        <ThemeProvider theme={theme}>
+            <ErrorDialog reload={() => {
+                dispatch(setAppState(GlobalState.LOADING));
+            }}/>
+        </ThemeProvider>
+    );
 }
 
 /**
@@ -77,36 +87,119 @@ function NormalScreen(props: any) {
 //Выбирает в каком режиме сейчас отображается приложение(загрузка, логин, регистрация, норм обработка, ошибка)
 export default function App() {
     const user = useAppSelector((state) => state.user);
+    const state = useAppSelector((state) => state.app);
+    const orientation = useAppSelector((state) => state.orientation.state);
+
+    const dispatch = useAppDispatch();
 
     //Ссылка на header, используется для определения положение компонент с абсолютным позиционированием
     const headerRef = useRef<any>();
+    const [updateCounter, setUpdateCounter] = useState(0);
 
-    const [state, setState] = useState(SiteState.LOADING);
-    const [update, setUpdate] = useState(false);
+    const load = async () => {
+        const promise_1 = axios.get("/api/find/current_sources", {
+            auth: user
+        }).then((response) => {
+            dispatch(setPriorities(response.data));
+        }).catch((response) => {
+            dispatch(setPriorities(new Array<SourcePriority>()));
+        });
 
-    useEffect(() => {
-        //Настройки
-        dayjs.locale('ru');
+        await promise_1;
 
-        //После завершения настроек начинаем обработку
-        setState(SiteState.PROCESS);
-    }, [update]);
-
-    switch (state) {
-        case SiteState.LOADING:
-            return <LoadingScreen/>
-        case SiteState.CRUSH:
-            return <CrushScreen/>
+        return axios.get("/api/find/all_sources", {
+            auth: user
+        }).then((response) => {
+            dispatch(setSources(response.data));
+        }).catch((response) => {
+            dispatch(setSources(new Array<Source>()));
+        });
     }
 
+    useEffect(() => {
+        //Если сейчас краш - ничего не делаем, мы же крашнулись
+        if (state.app != GlobalState.CRUSH) {
+            //Настройки
+            dayjs.locale('ru');
+
+            //Проверяем, что юзер сохранён
+            if (user.logout) {
+                const username = localStorage.getItem("username");
+                const password = localStorage.getItem("password");
+                if (username && password) {
+                    dispatch(setUser({username: username, password: password}));
+                    return;
+                }
+            }
+
+            if (!user.logout) {
+                if (state.app != GlobalState.LOADING) {
+                    dispatch(setAppState(GlobalState.LOADING));
+                }
+
+                //Запускаем загрузку
+                load().then(() => {
+                    //После завершения настроек и загрузки начинаем работу
+                    dispatch(setAppState(GlobalState.PROCESS));
+                }).catch(() => {
+                    //Если загрузка упала - уходим в ошибку
+                    dispatch(ERROR());
+                });
+            } else {
+                //Юзер вышел из аккаунта - просим войти
+                dispatch(setAppState(GlobalState.LOGOUT));
+            }
+        }
+    }, [updateCounter, user.logout, state.app == GlobalState.CRUSH]);
+
+    useEffect(() => { return () => {
+        if (!user.logout) {
+            if (localStorage.getItem("remember") == "true") {
+                localStorage.setItem("password", user.username)
+                localStorage.setItem("username", user.password)
+            } else {
+                localStorage.removeItem("password");
+                localStorage.removeItem("username");
+            }
+        }
+    }}, [user.logout, user.username, user.password])
+
+    const orientationChecker = (event: UIEvent) => {
+        const width = window.innerWidth
+        const height = window.innerHeight;
+        const ratio = width / height;
+        if (ratio > 1.2) {
+            if (orientation != Orientation.LAPTOP) {
+                dispatch(setOrientation(Orientation.LAPTOP));
+            }
+
+        } else {
+            if (orientation != Orientation.PHONE) {
+                dispatch(setOrientation(Orientation.PHONE));
+            }
+        }
+    }
+
+    useState(() => {
+        window.addEventListener("resize", orientationChecker);
+
+        return () => {
+            window.removeEventListener("resize", orientationChecker)
+        }
+    })
+
+    switch (state.app) {
+        case GlobalState.LOADING:
+            return <LoadingScreen/>
+        case GlobalState.CRUSH:
+            return <CrushScreen/>
+        case GlobalState.LOGOUT:
+            return <LoginOrRegister open isRegister={false}/>
+    }
 
     return (
         <NormalScreen headerRef={headerRef}>
-            { //Если нет пользователя выводим модалку для логина
-                (user.logout) ?
-                    <LoginOrRegister open={true} isRegister={false} /> :
-                    <Body headerRef={headerRef}/>
-            }
+            <ScreenDisplay headerRef={headerRef}/>
         </NormalScreen>
     );
 }

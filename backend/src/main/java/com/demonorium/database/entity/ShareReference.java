@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name="share_references")
+@Table(name="access_references")
 public class ShareReference implements PartOfSource {
     /**
      * ИД объекта в базе
@@ -29,6 +29,9 @@ public class ShareReference implements PartOfSource {
     @JoinColumn(name = "source_id", nullable = false)
     private Source source;
 
+    /**
+     * @return ИД источника, на который указывает данная ссылка
+     */
     @JsonGetter("source")
     public Long getSourceId() {
         return source.getId();

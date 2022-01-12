@@ -1,6 +1,7 @@
 package com.demonorium.database.entity;
 
 import com.demonorium.database.PartOfSource;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,9 +31,19 @@ public class WeekDay implements PartOfSource {
     /**
      * Неделя к которой относится день недели
      */
+    @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="week_id", nullable = false)
     private Week week;
+
+    /**
+     * @return ИД дня к которому относится
+     */
+    @JsonGetter("day")
+    public Long getDayId() {
+        return day.getId();
+    }
+
 
     /**
      * Рассписание на этот день
@@ -45,5 +56,11 @@ public class WeekDay implements PartOfSource {
     @Override
     public Source getSource() {
         return week.getSource();
+    }
+
+    public WeekDay(int number, Day day, Week week) {
+        this.number = number;
+        this.week = week;
+        this.day = day;
     }
 }

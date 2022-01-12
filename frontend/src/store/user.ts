@@ -1,7 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {User} from "../database";
 
-
 interface UserState extends User {
    logout: boolean;
 }
@@ -20,9 +19,19 @@ export const userSlice = createSlice({
             state.password = action.payload.password;
             state.username = action.payload.username;
             state.logout = false;
+
+            if (localStorage.getItem("remember") == "true") {
+                localStorage.setItem("username", state.username);
+                localStorage.setItem("password", state.password);
+            }
         },
         logoutUser: (state, action: PayloadAction) => {
-            state.logout = false;
+            state.logout = true
+            state.password="";
+
+            localStorage.removeItem("username");
+            localStorage.removeItem("password");
+            localStorage.removeItem("remember");
         },
     },
 });
